@@ -42,7 +42,7 @@ class InchControl : public inch::InchWorkbench
   double length_1;
   double length_2;
   double length_3;
-  
+  std::string robot_name_;
 
   /*****************************************************************************
   ** Define functions

@@ -7,6 +7,8 @@ InchControl::InchControl()
   /************************************************************
   ** Launch file parameters
   ************************************************************/  
+
+  robot_name_ = node_handle_.param<std::string>("robot_name", "inch"); 
   length_1 = node_handle_.param<double>("length_1", 0);
   length_2 = node_handle_.param<double>("length_2", 0);
   length_3 = node_handle_.param<double>("length_3", 0);
@@ -44,7 +46,7 @@ InchControl::InchControl()
 
 
   //Init Butterworth 2nd
-  inch_EE_1_misc_->init_butterworth_2nd_filter(10);
+  inch_EE_1_misc_->init_butterworth_2nd_filter(100);
   inch_EE_2_misc_->init_butterworth_2nd_filter(1.);
 
 
@@ -65,11 +67,11 @@ InchControl::~InchControl()
 
 void InchControl::initPublisher()
 {
-  theta_command_pub_ = node_handle_.advertise<sensor_msgs::JointState>("/inch/goal_dynamixel_position", 10); // directly to dynamixel
-  EE_meas_pub_ = node_handle_.advertise<geometry_msgs::Twist>("/inch/EE_meas", 10);
+  theta_command_pub_ = node_handle_.advertise<sensor_msgs::JointState>(robot_name_ + "goal_dynamixel_position", 10); // directly to dynamixel
+  EE_meas_pub_ = node_handle_.advertise<geometry_msgs::Twist>(robot_name_ + "/EE_meas", 10);
 
   // Tester publisher
-  test_pub_ = node_handle_.advertise<std_msgs::Float64MultiArray>("/inch/test_Pub", 10);
+  test_pub_ = node_handle_.advertise<std_msgs::Float64MultiArray>(robot_name_ + "test_Pub", 10);
 }
 
 void InchControl::initSubscriber()
@@ -102,7 +104,7 @@ void InchControl::PublishData()
   //Just test
   test_msg.data[0] = EE_cmd[0];  //FK IK Cross Check
   test_msg.data[1] = EE_meas[0];
-  test_msg.data[2] = EE_cmd[1];
+  test_msg.data[2] = inch_EE_1_misc_->butterworth_2nd_filter(EE_cmd[0], time_loop);
   test_msg.data[3] = EE_meas[1]; 
 
   test_pub_.publish(test_msg);

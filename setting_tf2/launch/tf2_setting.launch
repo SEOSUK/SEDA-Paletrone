@@ -1,0 +1,5 @@
+<launch>
+    <node pkg="setting_tf2" type="link_1_listener" name="link_1_listener_node"/>
+    <node pkg="setting_tf2" type="link_2_listener" name="link_2_listener_node"/>
+    <node pkg="setting_tf2" type="setting_Link_tf" name="setting_Link_tf_node"/>
+</launch>

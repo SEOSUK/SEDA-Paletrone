@@ -1,0 +1,6 @@
+# This message is used to send End-Effector command to DASOM
+
+float64 X
+float64 Y
+---
+

@@ -46,7 +46,7 @@ InchControl::InchControl()
 
 
   //Init Butterworth 2nd
-  inch_EE_1_misc_->init_butterworth_2nd_filter(100);
+  inch_EE_1_misc_->init_butterworth_2nd_filter(10);
   inch_EE_2_misc_->init_butterworth_2nd_filter(1.);
 
 
@@ -102,10 +102,9 @@ void InchControl::PublishData()
 
   //inch/test_Pub
   //Just test
-  test_msg.data[0] = EE_cmd[0];  //FK IK Cross Check
-  test_msg.data[1] = EE_meas[0];
-  test_msg.data[2] = inch_EE_1_misc_->butterworth_2nd_filter(EE_cmd[0], time_loop);
-  test_msg.data[3] = EE_meas[1]; 
+  test_msg.data[0] = EE_cmd[0];   //Sine wave
+  test_msg.data[1] = EE_cmd[1];
+  test_msg.data[2] = inch_EE_1_misc_->butterworth_2nd_filter(EE_cmd[1], time_loop);
 
   test_pub_.publish(test_msg);
 }
@@ -147,8 +146,8 @@ void InchControl::Trajectory_mode()
 
 void InchControl::Test_trajectory_generator_2dof()
 {
-  EE_cmd[0] = 0.01 * sin(2 * PI * 0.1 * time_real) + 0.15; // Amp * sin (2 pi f t) + bias
-  EE_cmd[1] = 0.01 * cos(2 * PI * 0.1 * time_real) + 0.2 + 0.1 * sin (time_loop * PI * PI);  // Amp * sin (2 pi f t) + bias + noise 
+  EE_cmd[0] = 1 * sin(2 * PI * 0.1 * time_real); // sine wave
+  EE_cmd[1] = EE_cmd[0] + 0.01 * sin (15771577 * time_loop * PI * PI);  // sine wave + noise
 }
 
 void InchControl::trajectory_gimbaling()

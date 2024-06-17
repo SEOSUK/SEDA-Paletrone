@@ -29,7 +29,7 @@ double InchMisc::butterworth_2nd_filter(double input_data_, double time_loop_)
   
   bw_2nd_state = bw_2nd_state + bw_2nd_state_dot * time_loop_;
 
-  double output_data = bw_2nd_state[0];
+  double output_data = bw_2nd_state[1];
   std::cout << output_data << std::endl << std::endl;
 
 
@@ -38,12 +38,11 @@ double InchMisc::butterworth_2nd_filter(double input_data_, double time_loop_)
 
 void InchMisc::init_butterworth_2nd_filter(double cut_off_freq_)
 {
-  bw_2nd_A <<               0,                         1,
-              -cut_off_freq_ * cut_off_freq_, -sqrt(2) * cut_off_freq_;
+  bw_2nd_A << -sqrt(2) * cut_off_freq_, - cut_off_freq_ * cut_off_freq_,
+                          1,                            0;
+  bw_2nd_B << cut_off_freq_ * cut_off_freq_, 0;
 
-  bw_2nd_B << 0, 1;
-
-  bw_2nd_C << 1, 0;
+  bw_2nd_C << 0, 1;
 
   bw_2nd_state << 0, 0;
 

@@ -46,7 +46,7 @@ InchControl::InchControl()
 
 
   //Init Butterworth 2nd
-  inch_EE_1_misc_->init_butterworth_2nd_filter(10);
+  inch_EE_1_misc_->init_butterworth_2nd_filter(30);
   inch_EE_2_misc_->init_butterworth_2nd_filter(1.);
 
 

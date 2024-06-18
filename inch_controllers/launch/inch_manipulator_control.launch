@@ -1,9 +1,26 @@
 <launch>
-  <rosparam command="load" file="$(find inch_controllers)/config/link.yaml"/>
   
-  <arg name="robot_name"      default="inch"/>
-  
-  <param name="robot_name"    value="$(arg robot_name)"/>
+<!-- inch dynamixel -->
+  <include file="$(find dynamixel_workbench_controllers)/launch/position_control.launch">
+  	 <arg name="device_name"			default="/dev/ttyINCH"/>
+ 	 <arg name="baud_rate"				default="1000000"/>
+  </include>
+
+
+  <!-- optitrack -->
+  <include file="$(find optitrack)/launch/optitrack.launch">
+	 <arg name="server"			default="123.456.7.8"/>
+ 	 <arg name="local"			default="123.456.7.8"/>
+ 	 <arg name="multicast_group"		default="123.456.7.8"/>
+  </include>
+
+
+
+<!-- inch manipulator -->
+  <arg name="robot_name"			default="/inch"/>
+  <arg name="length_1"				default="0.24215"/>
+  <arg name="length_2"				default="0.1759"/>
+  <arg name="length_3"				default="0."/>
 
   <node name="inch_manipulator_control" pkg="inch_controllers" type="inch_manipulator_control" required="true" output="screen"> 
   </node>

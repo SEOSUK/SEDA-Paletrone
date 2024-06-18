@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>optitrack</name>
+  <version>0.0.1</version>
+  <description>ROS drivers for OptiTrack Motive 2</description>
+
+  <maintainer email="plusk@mit.edu">Parker Lusk</maintainer>
+  <license>MIT</license>
+
+  <url type="repository">https://github.com/mit-acl/optitrack</url>
+
+  <author email="winterg@mit.edu">Winter Guerra</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  
+  <depend>roscpp</depend>
+  <depend>tf2</depend>
+  <depend>tf2_geometry_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>std_msgs</depend>
+  
+  <!-- The export tag contains other, unspecified, tags -->
+  <export>
+    <!-- Other tools can request additional information be placed here -->
+
+  </export>
+</package>

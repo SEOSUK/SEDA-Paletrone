@@ -30,8 +30,6 @@ double InchMisc::butterworth_2nd_filter(double input_data_, double time_loop_)
   bw_2nd_state = bw_2nd_state + bw_2nd_state_dot * time_loop_;
 
   double output_data = bw_2nd_state[1];
-  std::cout << output_data << std::endl << std::endl;
-
 
   return output_data;
 }

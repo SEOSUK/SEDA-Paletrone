@@ -23,11 +23,12 @@ OptiTrack::OptiTrack(const ros::NodeHandle nh)
 
   client_ = std::make_unique<agile::OptiTrackClient>(localIP_, serverIP_, multicastIP_, commandPort_, dataPort_);
 
-  ROS_INFO_STREAM("Local address: " << localIP_);
-  ROS_INFO_STREAM("Server address: " << serverIP_);
-  ROS_INFO_STREAM("Multicast group: " << multicastIP_);
-  ROS_INFO_STREAM("Command port: " << commandPort_);
-  ROS_INFO_STREAM("Data port: " << dataPort_);
+//  ROS_INFO_STREAM("Local address: " << localIP_);
+//  ROS_INFO_STREAM("Server address: " << serverIP_);
+//  ROS_INFO_STREAM("Multicast group: " << multicastIP_);
+//  ROS_INFO_STREAM("Command port: " << commandPort_);
+//  ROS_INFO_STREAM("Data port: " << dataPort_);
+
 
   if (!client_->initConnection()) {
     ROS_ERROR("Could not initiate communication with OptiTrack server!");

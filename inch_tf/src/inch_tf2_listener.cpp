@@ -19,6 +19,10 @@ int main(int argc, char** argv)
 
     ros::Publisher listner_publisher = nh.advertise<geometry_msgs::PoseStamped>("/inch/tf/tf_listener", 10);
 
+  ros::Rate init_sleep(0.5);
+  init_sleep.sleep();
+
+
     ros::Rate rate(120);
 
     while(nh.ok())

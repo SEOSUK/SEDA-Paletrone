@@ -3,6 +3,8 @@
 InchControl::InchControl()
 : node_handle_(""), priv_node_handle_("~")
 {
+  ros::Rate init_sleep(0.2);
+  init_sleep.sleep();
 
   /************************************************************
   ** Launch file parameters
@@ -35,7 +37,9 @@ InchControl::InchControl()
   initSubscriber();
   initServer();
 
-  ROS_INFO("Inch Manipulator Control node start");
+  ROS_WARN("===================================");
+  ROS_WARN("Inch Manipulator Control node start");
+  ROS_WARN("===================================");
 
 
   // Initializer
@@ -57,7 +61,6 @@ InchControl::InchControl()
 InchControl::~InchControl()
 {
   // 노드 꺼질 때 한 번 작동작동
-
   deleteToolbox();
 
   ROS_INFO("Bye!");

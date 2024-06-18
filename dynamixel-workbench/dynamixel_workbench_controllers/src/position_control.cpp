@@ -39,6 +39,7 @@ PositionControl::PositionControl()
 
   dxl_wb_->begin(device_name.c_str(), dxl_baud_rate);
 
+
   if (dxl_wb_->scan(dxl_id_, &dxl_cnt_, scan_range) != true)
   {
     ROS_ERROR("Not found Motors, Please check scan range or baud rate");

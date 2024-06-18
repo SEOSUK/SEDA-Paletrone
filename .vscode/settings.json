@@ -1,0 +1,13 @@
+{
+    "ros.distro": "noetic",
+    "files.associations": {
+        "iostream": "cpp",
+        "*.tcc": "cpp",
+        "deque": "cpp",
+        "list": "cpp",
+        "string": "cpp",
+        "vector": "cpp",
+        "unordered_map": "cpp",
+        "dense": "cpp"
+    }
+}

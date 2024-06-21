@@ -50,7 +50,7 @@ InchControl::InchControl()
 
 
   //Init Butterworth 2nd
-  inch_EE_1_misc_->init_butterworth_2nd_filter(30);
+  inch_EE_1_misc_->init_butterworth_2nd_filter(10);
   inch_EE_2_misc_->init_butterworth_2nd_filter(1.);
 
 
@@ -150,7 +150,7 @@ void InchControl::Trajectory_mode()
 void InchControl::Test_trajectory_generator_2dof()
 {
   EE_cmd[0] = 1 * sin(2 * PI * 0.1 * time_real); // sine wave
-  EE_cmd[1] = EE_cmd[0] + 0.01 * sin (15771577 * time_loop * PI * PI);  // sine wave + noise
+  EE_cmd[1] = EE_cmd[0] + 0.02 * sin (15771577 * time_loop * PI * PI);  // sine wave + noise
 }
 
 void InchControl::trajectory_gimbaling()

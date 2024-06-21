@@ -9,5 +9,13 @@
         "vector": "cpp",
         "unordered_map": "cpp",
         "dense": "cpp"
-    }
+    },
+    "python.autoComplete.extraPaths": [
+        "/home/seukubuntu/apisat_ws/devel/lib/python3/dist-packages",
+        "/opt/ros/noetic/lib/python3/dist-packages"
+    ],
+    "python.analysis.extraPaths": [
+        "/home/seukubuntu/apisat_ws/devel/lib/python3/dist-packages",
+        "/opt/ros/noetic/lib/python3/dist-packages"
+    ]
 }

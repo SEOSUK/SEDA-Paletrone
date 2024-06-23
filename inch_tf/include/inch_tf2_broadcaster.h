@@ -11,8 +11,10 @@
 #include "tf/transform_datatypes.h"
 #include <geometry_msgs/TransformStamped.h>
 #include <geometry_msgs/Twist.h>
+#include <geometry_msgs/Vector3.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <inch_toolbox/inch_misc.h>
+
 
 #define PI 3.14159256359
 
@@ -59,7 +61,7 @@ class TFBroadcaster : public inch::InchMisc
   /*****************************************************************************
   ** ROS Publishers
   *****************************************************************************/
-
+//  ros::Publisher Link1_pub_;
   /*****************************************************************************
   ** ROS Subscribers, Callback Functions and Relevant Functions
   *****************************************************************************/
@@ -68,7 +70,7 @@ class TFBroadcaster : public inch::InchMisc
   /*****************************************************************************
   ** Define variables
   *****************************************************************************/
-
+  //geometry_msgs::Vector3 Link1_msg;
 
   /*****************************************************************************
   ** Define functions

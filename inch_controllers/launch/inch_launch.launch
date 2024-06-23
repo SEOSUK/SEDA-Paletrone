@@ -3,16 +3,16 @@
 <!-- ################################# -->
 <!-- inch dynamixel -->
   <include file="$(find dynamixel_workbench_controllers)/launch/position_control.launch">
-  	 <arg name="device_name"			default="/dev/ttyINCH"/>
+  	 <arg name="device_name"			default="/dev/ttyUSB0"/>
  	 <arg name="baud_rate"				default="1000000"/>
   </include>
 
 <!-- ################################# -->
 <!-- optitrack -->
   <include file="$(find optitrack)/launch/optitrack.launch">
-	 <arg name="server"			default="123.456.7.8"/>
- 	 <arg name="local"			default="123.456.7.8"/>
- 	 <arg name="multicast_group"		default="123.456.7.8"/>
+	 <arg name="server"			default="192.168.10.105"/>
+ 	 <arg name="local"			default="192.168.10.104"/>
+ 	 <arg name="multicast_group"		default="239.255.42.99"/>
   </include>
 
 <!-- ################################# -->

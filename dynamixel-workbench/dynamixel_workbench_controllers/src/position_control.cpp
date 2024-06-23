@@ -39,7 +39,6 @@ PositionControl::PositionControl()
 
   dxl_wb_->begin(device_name.c_str(), dxl_baud_rate);
 
-
   if (dxl_wb_->scan(dxl_id_, &dxl_cnt_, scan_range) != true)
   {
     ROS_ERROR("Not found Motors, Please check scan range or baud rate");
@@ -110,7 +109,7 @@ void PositionControl::initPublisher()
 
 void PositionControl::initSubscriber()
 {
-  joint_command_sub_ = node_handle_.subscribe("/goal_dynamixel_position", 10, &PositionControl::goalJointPositionCallback, this);
+  joint_command_sub_ = node_handle_.subscribe("/goal_dynamixel_position", 10, &PositionControl::goalJointPositionCallback, this, ros::TransportHints().tcpNoDelay());
 }
 double present_current = 0;
 void PositionControl::dynamixelStatePublish()
@@ -147,13 +146,13 @@ void PositionControl::jointStatePublish()
 
   int32_t present_velocity[dxl_cnt_] = {0, };
 
-  for (int index = 0; index < dxl_cnt_; index++)
-    present_velocity[index] = dxl_wb_->itemRead(dxl_id_[index], "Present_Velocity");
+  //for (int index = 0; index < dxl_cnt_; index++)
+  //  present_velocity[index] = dxl_wb_->itemRead(dxl_id_[index], "Present_Velocity");
 
   int16_t present_current[dxl_cnt_] = {0, };
 
-  for (int index = 0; index < dxl_cnt_; index++)
-    present_current[index] = dxl_wb_->itemRead(dxl_id_[index], "Present_Current");
+  //for (int index = 0; index < dxl_cnt_; index++)
+  //  present_current[index] = dxl_wb_->itemRead(dxl_id_[index], "Present_Current");
 
   sensor_msgs::JointState dynamixel_;
   dynamixel_.header.stamp = ros::Time::now();
@@ -166,8 +165,8 @@ void PositionControl::jointStatePublish()
     dynamixel_.name.push_back(id_num.str());
 
     dynamixel_.position.push_back(dxl_wb_->convertValue2Radian(dxl_id_[index], present_position[index]));
-    dynamixel_.velocity.push_back(dxl_wb_->convertValue2Velocity(dxl_id_[index], present_velocity[index]));
-    dynamixel_.effort.push_back(dxl_wb_->convertValue2Torque(dxl_id_[index], present_current[index]));
+  //  dynamixel_.velocity.push_back(dxl_wb_->convertValue2Velocity(dxl_id_[index], present_velocity[index]));
+  //  dynamixel_.effort.push_back(dxl_wb_->convertValue2Torque(dxl_id_[index], present_current[index]));
 
     present_position_[index] = dxl_wb_->convertValue2Radian(dxl_id_[index], present_position[index]);
   }
@@ -188,9 +187,6 @@ void PositionControl::goalJointPositionCallback(const sensor_msgs::JointState::C
 
   for (int index = 0; index < dxl_cnt_; index++)
     goal_position[index] = msg->position.at(index);
-
-    goal_position[0] = goal_position[0];
-    goal_position[1] = goal_position[1];
 
   // int32_t goal_dxl_position[dxl_cnt_] = {0, };
 

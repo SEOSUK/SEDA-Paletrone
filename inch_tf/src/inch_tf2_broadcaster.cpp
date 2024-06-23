@@ -20,6 +20,11 @@ TFBroadcaster::~TFBroadcaster()
 }
 
 
+  double roll;
+  double pitch;
+  double yaw;
+  geometry_msgs::Vector3 Link1_msg;
+
 void TFBroadcaster::palletroneOptitrackCallback(const geometry_msgs::PoseStamped& msg)
 {
     static tf2_ros::StaticTransformBroadcaster br;
@@ -27,7 +32,7 @@ void TFBroadcaster::palletroneOptitrackCallback(const geometry_msgs::PoseStamped
 
     transformStamped.header.stamp = ros::Time::now();
     transformStamped.header.frame_id = "world";
-    transformStamped.child_frame_id = "tf/palletrone_optitrack";
+    transformStamped.child_frame_id = "tf/inchLink1";
     transformStamped.transform.translation.x = msg.pose.position.x;
     transformStamped.transform.translation.y = msg.pose.position.y;
     transformStamped.transform.translation.z = msg.pose.position.z;
@@ -38,17 +43,24 @@ void TFBroadcaster::palletroneOptitrackCallback(const geometry_msgs::PoseStamped
     transformStamped.transform.rotation.w = msg.pose.orientation.w;
 
     br.sendTransform(transformStamped);
+
+
+    tf::Quaternion quat;
+    tf::quaternionMsgToTF(msg.pose.orientation, quat);
+    tf::Matrix3x3(quat).getRPY(roll, pitch, yaw);
+
+  //  Link1_pub_.publish(Link1_msg);
 }
 
 
 void TFBroadcaster::initPublisher()
 {
-
+//  Link1_pub_ = node_handle_.advertise<geometry_msgs::Vector3>("/inch/tf/link1", 10);
 }
 
 void TFBroadcaster::initSubscriber()
 {                                          
-    palletrone_optitrack_sub_ = node_handle_.subscribe("/inchPalletrone/world", 10, &TFBroadcaster::palletroneOptitrackCallback, this, ros::TransportHints().tcpNoDelay());
+    palletrone_optitrack_sub_ = node_handle_.subscribe("/inchLink1/world", 10, &TFBroadcaster::palletroneOptitrackCallback, this, ros::TransportHints().tcpNoDelay());
 }
 
 int main(int argc, char **argv)
@@ -60,6 +72,9 @@ int main(int argc, char **argv)
 
     ros::Rate loop(120);
 
+  ros::Publisher Link1_pub_ = nh.advertise<geometry_msgs::Vector3>("/inch/tf/link1", 10);
+
+  geometry_msgs::Vector3 Link1_msg;
 
 
     tf_br_.time_i = ros::Time::now().toSec();
@@ -71,6 +86,12 @@ int main(int argc, char **argv)
         tf_br_.time_f = ros::Time::now().toSec();
         tf_br_.time_loop = tf_br_.time_f - tf_br_.time_i;
         tf_br_.time_i = ros::Time::now().toSec();
+
+    Link1_msg.x = roll;
+    Link1_msg.y = pitch;
+    Link1_msg.z = yaw;
+
+    Link1_pub_.publish(Link1_msg);
 
         ros::spinOnce();
         loop.sleep();

@@ -8,7 +8,9 @@
         "string": "cpp",
         "vector": "cpp",
         "unordered_map": "cpp",
-        "dense": "cpp"
+        "dense": "cpp",
+        "core": "cpp",
+        "unordered_set": "cpp"
     },
     "python.autoComplete.extraPaths": [
         "/home/seukubuntu/apisat_ws/devel/lib/python3/dist-packages",

@@ -55,7 +55,7 @@ class InchControl : public inch::InchWorkbench
   void Test_trajectory_generator_2dof();
   void Trajectory_mode();
   void trajectory_gimbaling();
-
+  void Experiment_0623_1Link();
 
 
 
@@ -87,7 +87,9 @@ class InchControl : public inch::InchWorkbench
   void initPublisher();
   void initSubscriber();
   void initServer();
-  
+  void dynamixel_workbench_callback(const sensor_msgs::JointState::ConstPtr &msg);
+  void Optitrack_callback(const geometry_msgs::Vector3 &msg);
+
   /*****************************************************************************
   ** ROS Publishers
   *****************************************************************************/
@@ -98,7 +100,8 @@ class InchControl : public inch::InchWorkbench
   /*****************************************************************************
   ** ROS Subscribers
   *****************************************************************************/
-
+  ros::Subscriber dynamixel_workbench_sub_;
+  ros::Subscriber Optitrack_sub_;
 
   /*****************************************************************************
   ** ROS Services Clients
@@ -109,8 +112,30 @@ class InchControl : public inch::InchWorkbench
   ** Define variables
   *****************************************************************************/
   Eigen::Vector2d theta_ref;
+  Eigen::Vector2d theta_cmd;
   Eigen::Vector2d EE_meas;
   Eigen::Vector2d EE_cmd;
+
+//Experiment_0623_1Link
+  Eigen::Vector2d theta_meas;
+  Eigen::Vector2d theta_dot_meas;
+  Eigen::Vector2d q_meas;
+  Eigen::Vector2d q_meas_dot;
+  Eigen::Vector2d phi_meas;
+  Eigen::Vector2d tau_meas;
+  Eigen::Vector2d tau_d;
+
+  double zeta;
+  double m;
+  double l;
+  double k;
+  double d;
+  double w0;
+  double rho;
+  double k1;
+  double k2;
+  double k3;
+  double dt;
 
 
 

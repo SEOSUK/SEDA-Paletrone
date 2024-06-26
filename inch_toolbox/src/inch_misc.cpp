@@ -49,18 +49,29 @@ void InchMisc::init_butterworth_2nd_filter(double cut_off_freq_)
   ROS_INFO("INIT butterworth_2nd_filter");
 }
 
-double InchMisc::PID_controller()
+double InchMisc::PID_controller(double input_error_, double time_loop_)
 {
-  ROS_INFO("PID..");
-  
+  if (input_error_ - error_i != 0) 
+  {
+    error_dot = (input_error_ - error_i) / time_loop_;
+    if (cut_off_freq != 0) error_dot = butterworth_2nd_filter(error_dot, time_loop_);
+  }
+  error_i = input_error_;
+  error_sum = error_sum + input_error_;
 
-  return 0;
+  return Kp * input_error_ + Ki * error_sum + Kd * error_dot;
 }
 
-void InchMisc::init_PID_controller(double Kp, double Ki, double Kd)
+void InchMisc::init_PID_controller(double Kp_, double Ki_, double Kd_, double cut_off_freq_)
 {
-  ROS_INFO("INITPID..");
+  Kp = Kp_;
+  Ki = Ki_;
+  Kd = Kd_;
+  error_i = 0;
+  error_sum = 0;
+  cut_off_freq = cut_off_freq_;
 
+  if(cut_off_freq_ != 0) init_butterworth_2nd_filter(cut_off_freq_);
 }
 
 double InchMisc::Dead_Zone_filter()

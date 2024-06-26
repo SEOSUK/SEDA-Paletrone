@@ -71,6 +71,8 @@ PositionControl::PositionControl()
     // dxl_wb_->itemWrite(dxl_id_[index], "Feedforward_1st_Gain", feedforward_1st_gain);
     // dxl_wb_->itemWrite(dxl_id_[index], "Feedforward_2nd_Gain", feedforward_2nd_gain);
   }
+  
+  ROS_INFO("PID PID PID %lf %lf %lf", position_p_gain, position_i_gain, position_d_gain);
 
 
   initPublisher();

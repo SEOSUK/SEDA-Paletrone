@@ -4,7 +4,7 @@ InchControl::InchControl()
 : node_handle_(""), priv_node_handle_("~")
 {
   ros::Rate init_sleep(0.2);
-  init_sleep.sleep();
+ // init_sleep.sleep();
 
   /************************************************************
   ** Launch file parameters
@@ -25,8 +25,8 @@ InchControl::InchControl()
   inch_jnt2_ = new InchJoint(); 
   inch_jnt3_ = new InchJoint(); 
 
-  inch_EE_1_misc_ = new InchMisc(); //InchJoint 1에 반영할 inch_misc
-  inch_EE_2_misc_ = new InchMisc(); //InchJoint 2에 반영할 inch_misc
+  inch_q_meas_butterworth = new InchMisc(); //qdot에 butterworth 넣을거임
+  inch_link1_PID = new InchMisc(); // link1에 pid 쓸거임
 
 
 
@@ -50,10 +50,8 @@ InchControl::InchControl()
 
 
   //Init Butterworth 2nd
-  inch_EE_1_misc_->init_butterworth_2nd_filter(40);
-  inch_EE_2_misc_->init_butterworth_2nd_filter(1.);
-
-
+  inch_q_meas_butterworth->init_butterworth_2nd_filter(40);
+  inch_link1_PID->init_PID_controller(0.2, 0.01, 0., 40);
 }
 
 
@@ -96,8 +94,6 @@ void InchControl::PublishData()
   theta_command_msg.position.push_back(theta_cmd[0]);
   theta_command_pub_.publish(theta_command_msg);
 
-  ROS_INFO("aaaaaaaaaaa[%lf] [%lf]", theta_cmd[0], theta_ref[0]);
-
 
   //inch/EE_meas
   //End Effector position from FK
@@ -108,10 +104,25 @@ void InchControl::PublishData()
 
   //inch/test_Pub
   //Just test
-  test_msg.data[0] = theta_ref[0];   //Sine wave
-  test_msg.data[1] = theta_cmd[0];
-  test_msg.data[2] = theta_meas[0];
-  test_msg.data[3] = q_meas[0];
+  test_msg.data[0] = theta_ref[0]; // (a.k.a.) q_command
+  test_msg.data[1] = theta_phi[0]; // 제어기가 만들어낸 추가 theta
+  test_msg.data[2] = theta_cmd[0]; // 최종적으로 가해지는 dyn theta
+  test_msg.data[3] = q_meas[0] - theta_meas[0]; // 스프링 변위
+  test_msg.data[4] = theta_ref[0] - q_meas[0];  // 제어 오차
+  test_msg.data[5] = q_meas_dot[0];
+
+
+  // 우리의 목적은 test_msg.data[4] = 0 이 되는것임.
+  // test_msg.data[3] 은 0 아니라도 알바 아님
+  // phi = q - theta
+  // error = theta_ref - q
+  // q = theta_ref가 되도록 하는게 우리의 목적!
+  // ---------------------------------//
+  // PID에 들어갈 Error는 error = theta_ref - q. 임
+  //  error            theta_phi
+  // -------->  [PID] ------------>
+  // theta_cmd = theta_ref + theta_phi
+
   
 
   test_pub_.publish(test_msg);
@@ -123,8 +134,8 @@ void InchControl::deleteToolbox()
   delete inch_jnt2_;
   delete inch_jnt3_;
   
-  delete inch_EE_1_misc_;
-  delete inch_EE_2_misc_;
+  delete inch_q_meas_butterworth;
+  delete inch_link1_PID;
 }
 
 void InchControl::TimeCount()
@@ -156,8 +167,10 @@ void InchControl::Test_trajectory_generator_2dof()
 {
   //theta_ref[0] = 0.3 * sin (2 *PI * 0.5 * time_real) + 0.3; // sine wave
 
-  if (time_real < 10) theta_ref[0] = 0;
-  else theta_ref[0] = PI/4;
+  if (time_real < 5) theta_ref[0] = 0 * PI/180;
+  else if (time_real < 10) theta_ref[0] = 45 * PI/180;
+//else time_real = 0;
+  
 }
 
 void InchControl::trajectory_gimbaling()
@@ -167,7 +180,14 @@ void InchControl::trajectory_gimbaling()
 
 void InchControl::Experiment_0623_1Link()
 {
-  //parameters;
+
+    theta_phi[0] = inch_link1_PID->PID_controller(theta_ref[0] - q_meas[0], time_loop);
+    ROS_INFO("ref: %lf, now: %lf, error: %lf", theta_ref[0], q_meas[0], theta_ref[0] - q_meas[0]);
+
+  theta_cmd[0] = theta_ref[0] + theta_phi[0];
+  
+  /*
+// -----------------------------------------------------//
   zeta = 1;
   m = 0.2;
   l = 0.55;
@@ -203,7 +223,41 @@ void InchControl::Experiment_0623_1Link()
   {
     theta_cmd[0] = 0;
     ROS_FATAL("under 0!!!");
-  } 
+  } */
+
+// -----------------------------------------------------//
+// SECOND EXPERIMENT
+// k1 = 15.966;
+// k2 = 5.65;
+// k3 = k1;
+
+// v = k3 *theta_ref[0] - k1 * q_meas[0] - k2 * q_meas_dot[0]; //v를 한번 계산
+
+// m=0.2;
+// l=0.5+0.05;
+// g=9.81;
+// k=1000;
+// d=0.02;
+
+// tau= m * l * l * v / 3 + 0.5 * m * g * l * cos(q_meas[0]); //tau를 계산
+
+// phi = tau / (4 * k * d * d);
+
+// theta_cmd[0] = q_meas[0] + phi;//u를 만듬 cmd theta
+
+//   if(theta_cmd[0] > 90 * PI / 180) 
+//   {
+//     theta_cmd[0] = 90 * PI / 180;
+//     ROS_FATAL("over 90!!!");
+//   }
+//   if(theta_cmd[0] < -5 * PI / 180)
+//   {
+//     theta_cmd[0] = 0;
+//     ROS_FATAL("under 0!!!");
+//   }
+
+
+  
 }
 
 
@@ -224,7 +278,7 @@ void InchControl::Optitrack_callback(const geometry_msgs::Vector3 &msg)
 
 if (q_meas[0] - q_meas[1] !=0 ) q_meas_dot[0] = (q_meas[0] - q_meas[1]) / time_loop;
   q_meas_dot[1] = q_meas_dot[0]; // law data
-  q_meas_dot[0] = inch_EE_1_misc_->butterworth_2nd_filter(q_meas_dot[0], time_loop);
+  q_meas_dot[0] = inch_q_meas_butterworth->butterworth_2nd_filter(q_meas_dot[0], time_loop);
 
   q_meas[1] = q_meas[0];
 }

@@ -29,8 +29,8 @@ namespace inch
     void test();  
     double butterworth_2nd_filter(double input_data_, double time_loop_);
     void init_butterworth_2nd_filter(double cut_off_freq_);
-    double PID_controller();
-    void init_PID_controller(double Kp, double Ki, double Kd);
+    double PID_controller(double input_error_, double time_loop_);
+    void init_PID_controller(double Kp_, double Ki_, double Kd_, double cut_off_freq_);
     double Dead_Zone_filter();
     void init_Dead_Zone_filter(double dead_zone_max_, double dead_zone_min_);
 
@@ -52,8 +52,14 @@ namespace inch
     Eigen::Vector2d bw_2nd_state;
     Eigen::Vector2d bw_2nd_state_dot;
 
-
-
+    //for PID controller
+    double Kp;
+    double Ki;
+    double Kd;
+    double error_dot;
+    double error_sum;
+    double error_i;
+    double cut_off_freq;
 
     /*****************************************************************************
     ** Define functions

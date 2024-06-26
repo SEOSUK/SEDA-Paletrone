@@ -78,8 +78,8 @@ class InchControl : public inch::InchWorkbench
   InchJoint *inch_jnt2_;
   InchJoint *inch_jnt3_;
 
-  InchMisc *inch_EE_1_misc_;
-  InchMisc *inch_EE_2_misc_;
+  InchMisc *inch_q_meas_butterworth;
+  InchMisc *inch_link1_PID;
   
   /*****************************************************************************
   ** Init Functions
@@ -118,12 +118,14 @@ class InchControl : public inch::InchWorkbench
 
 //Experiment_0623_1Link
   Eigen::Vector2d theta_meas;
+  Eigen::Vector2d theta_phi;
   Eigen::Vector2d theta_dot_meas;
   Eigen::Vector2d q_meas;
   Eigen::Vector2d q_meas_dot;
   Eigen::Vector2d phi_meas;
   Eigen::Vector2d tau_meas;
   Eigen::Vector2d tau_d;
+
 
   double zeta;
   double m;
@@ -136,8 +138,10 @@ class InchControl : public inch::InchWorkbench
   double k2;
   double k3;
   double dt;
-
-
+  double v;
+  double phi;
+  double tau;
+  double g;
 
   std_msgs::Float64MultiArray test_msg;
   geometry_msgs::Twist EE_meas_msg;

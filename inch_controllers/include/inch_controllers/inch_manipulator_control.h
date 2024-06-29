@@ -126,22 +126,9 @@ class InchControl : public inch::InchWorkbench
   Eigen::Vector2d tau_meas;
   Eigen::Vector2d tau_d;
 
+  
 
-  double zeta;
-  double m;
-  double l;
-  double k;
-  double d;
-  double w0;
-  double rho;
-  double k1;
-  double k2;
-  double k3;
-  double dt;
-  double v;
-  double phi;
-  double tau;
-  double g;
+
 
   std_msgs::Float64MultiArray test_msg;
   geometry_msgs::Twist EE_meas_msg;

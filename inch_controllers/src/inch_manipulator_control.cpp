@@ -109,7 +109,7 @@ void InchControl::PublishData()
   test_msg.data[2] = theta_cmd[0]; // 최종적으로 가해지는 dyn theta
   test_msg.data[3] = q_meas[0] - theta_meas[0]; // 스프링 변위
   test_msg.data[4] = theta_ref[0] - q_meas[0];  // 제어 오차
-  test_msg.data[5] = q_meas_dot[0];
+  test_msg.data[5] = q_meas[0];
 
 
   // 우리의 목적은 test_msg.data[4] = 0 이 되는것임.
@@ -165,10 +165,8 @@ void InchControl::Trajectory_mode()
 
 void InchControl::Test_trajectory_generator_2dof()
 {
-  //theta_ref[0] = 0.3 * sin (2 *PI * 0.5 * time_real) + 0.3; // sine wave
+   theta_ref[0] = 0.6 * sin (2 *PI * 0.3 * time_real) + 0.3; // sine wave
 
-  if (time_real < 5) theta_ref[0] = 0 * PI/180;
-  else if (time_real < 10) theta_ref[0] = 45 * PI/180;
 //else time_real = 0;
   
 }
@@ -181,11 +179,50 @@ void InchControl::trajectory_gimbaling()
 void InchControl::Experiment_0623_1Link()
 {
 
-    theta_phi[0] = inch_link1_PID->PID_controller(theta_ref[0] - q_meas[0], time_loop);
+  //MPC Solver [in: r,q,q_dot | out: v(q_ddot)]
+  double k1 = 15.966;
+  double k2 = 5.65;
+  double k3 = k1;
+  double v = k3*theta_ref[0]-k1*q_meas[0]-k2*q_meas_dot[0];   
+
+
+  //(Feedback Linearization)^-1 [in: v,q,q_dot,u_dot | out: theta_cmd]
+
+  //model parameter
+  double m=0.2;
+  double l=0.5+0.05;
+  double g=9.81;
+  double k=1000;
+  double d=0.02525;
+  double c=0.0; //Note* this code is """No damper Case""
+
+  double tau=m*l*l*v/3+0.5*m*g*l*cos(q_meas[0]);
+  
+  theta_cmd[0] = q_meas[0] - (tau)/(-4*k*d*d); //u = q-phi
+
+  //ROS_WARN("cmd: [%lf]    ref:[%lf]", theta_cmd[0], theta_ref[0]);
+
+  if(theta_cmd[0] > 90 * PI / 180) 
+  {
+    theta_cmd[0] = 90 * PI / 180;
+    ROS_FATAL("over 90!!!");
+  }
+  if(theta_cmd[0] < -5 * PI / 180)
+  {
+    theta_cmd[0] = 0;
+    ROS_FATAL("under 0!!!");
+  } 
+
+  ROS_INFO("ref[%lf] meas[%lf] cmd[%lf] err[%lf]", theta_ref[0], q_meas[0], theta_cmd[0], 180/PI*(theta_ref[0] - q_meas[0]));
+
+
+/*    theta_phi[0] = inch_link1_PID->PID_controller(theta_ref[0] - q_meas[0], time_loop);
     ROS_INFO("ref: %lf, now: %lf, error: %lf", theta_ref[0], q_meas[0], theta_ref[0] - q_meas[0]);
 
   theta_cmd[0] = theta_ref[0] + theta_phi[0];
-  
+*/
+
+
   /*
 // -----------------------------------------------------//
   zeta = 1;

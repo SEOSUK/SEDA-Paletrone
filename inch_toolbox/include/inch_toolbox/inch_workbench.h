@@ -19,15 +19,28 @@ namespace inch
     /*****************************************************************************
     ** Define variables
     *****************************************************************************/ 
-
     double length_1;
     double length_2;
     double length_3;
 
+    double admit_spring_y;
+    double admit_damper_y;
+    double admit_mass_y;
+    Eigen::Matrix2d admit_y_A;
+    Eigen::Vector2d admit_y_B;
+    Eigen::Vector2d admit_y_C;
+    Eigen::Vector2d admit_y_state;
+    Eigen::Vector2d admit_y_state_dot;
+    
+
     /*****************************************************************************
     ** Define functions
     *****************************************************************************/ 
-    void test();  
+    void test();
+    void init_Admittance(double m, double d, double k);
+    double admittanceControly(double ref, double f_ext, double time_loop);
+
+
     Eigen::Vector2d InverseKinematics_2dof(Eigen::Vector2d EE_cmd_);
     Eigen::Vector2d ForwardKinematics_2dof(Eigen::Vector2d q_meas_);
 

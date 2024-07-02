@@ -4,7 +4,7 @@ InchControl::InchControl()
 : node_handle_(""), priv_node_handle_("~")
 {
   ros::Rate init_sleep(0.2);
- // init_sleep.sleep();
+  init_sleep.sleep();
 
   /************************************************************
   ** Launch file parameters
@@ -21,14 +21,9 @@ InchControl::InchControl()
   ** class init
   ************************************************************/  
 
-  inch_jnt1_ = new InchJoint(); 
-  inch_jnt2_ = new InchJoint(); 
-  inch_jnt3_ = new InchJoint(); 
+  inch_joint = new InchJoint(); 
 
   inch_q_meas_butterworth = new InchMisc(); //qdot에 butterworth 넣을거임
-  inch_link1_PID = new InchMisc(); // link1에 pid 쓸거임
-
-
 
   /************************************************************
   ** Initialize ROS Subscribers and Clients
@@ -51,7 +46,8 @@ InchControl::InchControl()
 
   //Init Butterworth 2nd
   inch_q_meas_butterworth->init_butterworth_2nd_filter(40);
-  inch_link1_PID->init_PID_controller(0.2, 0.01, 0., 40);
+
+
 }
 
 
@@ -76,8 +72,7 @@ void InchControl::initPublisher()
 
 void InchControl::initSubscriber()
 {
-  dynamixel_workbench_sub_ = node_handle_.subscribe("/joint_states", 10, &InchControl::dynamixel_workbench_callback, this, ros::TransportHints().tcpNoDelay());
-  Optitrack_sub_ = node_handle_.subscribe("/inch/tf/link1", 10, &InchControl::Optitrack_callback, this, ros::TransportHints().tcpNoDelay());
+
 }
 
 void InchControl::initServer()
@@ -104,35 +99,19 @@ void InchControl::PublishData()
 
   //inch/test_Pub
   //Just test
-  test_msg.data[0] = theta_ref[0]; // (a.k.a.) q_command
-  test_msg.data[1] = theta_phi[0]; // 제어기가 만들어낸 추가 theta
-  test_msg.data[2] = theta_cmd[0]; // 최종적으로 가해지는 dyn theta
-  test_msg.data[3] = q_meas[0] - theta_meas[0]; // 스프링 변위
-  test_msg.data[4] = theta_ref[0] - q_meas[0];  // 제어 오차
-  test_msg.data[5] = q_meas[0];
+  test_msg.data[0] = q_ref[0]; // 레퍼런스
+  test_msg.data[1] = q_cmd[0]; // 어드미턴스 통과 레퍼런스
+  test_msg.data[2] = q_ref[0] - inch_joint->q_meas[0]; // 에러
+  test_msg.data[3] = theta_cmd[0]; // 서보커맨드
+  test_msg.data[4] = inch_joint->phi_meas[0]; // 서보커맨드
 
-
-  // 우리의 목적은 test_msg.data[4] = 0 이 되는것임.
-  // test_msg.data[3] 은 0 아니라도 알바 아님
-  // phi = q - theta
-  // error = theta_ref - q
-  // q = theta_ref가 되도록 하는게 우리의 목적!
-  // ---------------------------------//
-  // PID에 들어갈 Error는 error = theta_ref - q. 임
-  //  error            theta_phi
-  // -------->  [PID] ------------>
-  // theta_cmd = theta_ref + theta_phi
-
-  
 
   test_pub_.publish(test_msg);
 }
 
 void InchControl::deleteToolbox()
 {
-  delete inch_jnt1_;
-  delete inch_jnt2_;
-  delete inch_jnt3_;
+  delete inch_joint;
   
   delete inch_q_meas_butterworth;
   delete inch_link1_PID;
@@ -148,9 +127,9 @@ void InchControl::TimeCount()
 
 void InchControl::SolveInverseForwardKinematics()
 {
-  theta_cmd = InverseKinematics_2dof(EE_cmd);
+  q_cmd = InverseKinematics_2dof(EE_cmd);
 
-  EE_meas = ForwardKinematics_2dof(theta_cmd);
+  EE_meas = ForwardKinematics_2dof(q_cmd);
 
 }
 
@@ -165,7 +144,7 @@ void InchControl::Trajectory_mode()
 
 void InchControl::Test_trajectory_generator_2dof()
 {
-   theta_ref[0] = 0.6 * sin (2 *PI * 0.3 * time_real) + 0.3; // sine wave
+   q_ref[0] = 0.6 * sin (2 *PI * 0.3 * time_real) + 0.3; // sine wave
 
 //else time_real = 0;
   
@@ -176,9 +155,20 @@ void InchControl::trajectory_gimbaling()
   ROS_INFO("Happy Gimbaling YYEEEAAAHHH!");
 }
 
+
+void InchControl::F_ext_processing()
+{
+
+
+}
+
 void InchControl::Experiment_0623_1Link()
 {
 
+
+
+
+/*
   //MPC Solver [in: r,q,q_dot | out: v(q_ddot)]
   double k1 = 15.966;
   double k2 = 5.65;
@@ -212,112 +202,77 @@ void InchControl::Experiment_0623_1Link()
     theta_cmd[0] = 0;
     ROS_FATAL("under 0!!!");
   } 
-
-  ROS_INFO("ref[%lf] meas[%lf] cmd[%lf] err[%lf]", theta_ref[0], q_meas[0], theta_cmd[0], 180/PI*(theta_ref[0] - q_meas[0]));
-
-
-/*    theta_phi[0] = inch_link1_PID->PID_controller(theta_ref[0] - q_meas[0], time_loop);
-    ROS_INFO("ref: %lf, now: %lf, error: %lf", theta_ref[0], q_meas[0], theta_ref[0] - q_meas[0]);
-
-  theta_cmd[0] = theta_ref[0] + theta_phi[0];
 */
 
+}
 
-  /*
-// -----------------------------------------------------//
-  zeta = 1;
-  m = 0.2;
-  l = 0.55;
-  k = 1000;
-  d = 0.02;
-  /////////////////
-
-  dt = time_loop;
-
-  w0 = (4 * zeta + sqrt(16 * zeta * zeta - 2)) / dt;
-  rho = (2 - w0 * w0 * dt * dt) / (4 * w0 * w0);
-  k1 = 2 / (dt * dt + 4 * rho);
-  k3 = k1;
-  k2 = (2 * dt * dt + 4 * rho) / (dt * dt * dt + 4 * rho * dt);
+void InchControl::YujinInit()
+{
 
 
-  k1=1.006;
-  k3=k1;
-  k2 = 1.8256;
-  theta_cmd[0] =  ((1 - (m*l*l) / (12 * k * d * d) * k3) * theta_ref[0] + 
-                (m * l * l* k1) / (12 * k * d * d) * q_meas[0] - 
-                (m * l * l* k2) / (12 * k * d * d) * q_meas_dot[0] + 
-                (m * 9.81 * l) / (8 * k * d * d) * cos(q_meas[0]));
+}
 
-  //ROS_WARN("cmd: [%lf]    ref:[%lf]", theta_cmd[0], theta_ref[0]);
+void InchControl::YujinWhile()
+{
+
+
+}
+
+void InchControl::HanryungInit()
+{
+
+
+}
+
+void InchControl::HanryungWhile()
+{
+
   
-  if(theta_cmd[0] > 90 * PI / 180) 
+}
+
+void InchControl::SeukInit()
+{
+
+  inch_link1_PID = new InchMisc(); // link1에 pid 쓸거임
+
+  inch_link1_PID->init_PID_controller(1, 0.001, 0., 40);
+  init_Admittance(0.1, 0.5, 0.5);
+
+}
+
+void InchControl::SeukWhile()
+{
+  //Let's define Parameters~~
+  double k_spring = 1;
+
+  // end.
+  
+
+
+
+  //command generation
+  q_ref[0] = 45 * PI / 180 ;//45 * PI / 180 * sin (2 * PI * 0.1* time_real) + 45 * PI / 180 ; // sine wave
+
+
+  //admittance
+  q_ref[0] = admittanceControly(q_ref[0], -k_spring * inch_joint->phi_meas[0], time_loop);
+  
+  //PID
+  theta_cmd[0] = q_ref[0] + inch_link1_PID->PID_controller(q_ref[0] - inch_joint->q_meas[0], time_loop);
+  
+
+  //Saturation
+  if (theta_cmd[0] > 90*PI/180) 
   {
-    theta_cmd[0] = 90 * PI / 180;
-    ROS_FATAL("over 90!!!");
+    ROS_ERROR("OVER, %lf", theta_cmd[0]);
+    theta_cmd[0] = 90*PI/180;
   }
-  if(theta_cmd[0] < -5 * PI / 180)
+  else if (theta_cmd[0] < -10*PI/180) 
   {
-    theta_cmd[0] = 0;
-    ROS_FATAL("under 0!!!");
-  } */
+    ROS_ERROR("UNDER, %lf", theta_cmd[0]);
+    theta_cmd[0] = -10*PI/180;
+  }
 
-// -----------------------------------------------------//
-// SECOND EXPERIMENT
-// k1 = 15.966;
-// k2 = 5.65;
-// k3 = k1;
-
-// v = k3 *theta_ref[0] - k1 * q_meas[0] - k2 * q_meas_dot[0]; //v를 한번 계산
-
-// m=0.2;
-// l=0.5+0.05;
-// g=9.81;
-// k=1000;
-// d=0.02;
-
-// tau= m * l * l * v / 3 + 0.5 * m * g * l * cos(q_meas[0]); //tau를 계산
-
-// phi = tau / (4 * k * d * d);
-
-// theta_cmd[0] = q_meas[0] + phi;//u를 만듬 cmd theta
-
-//   if(theta_cmd[0] > 90 * PI / 180) 
-//   {
-//     theta_cmd[0] = 90 * PI / 180;
-//     ROS_FATAL("over 90!!!");
-//   }
-//   if(theta_cmd[0] < -5 * PI / 180)
-//   {
-//     theta_cmd[0] = 0;
-//     ROS_FATAL("under 0!!!");
-//   }
-
-
-  
-}
-
-
-/*****************************************************************************
-** Subscriber callbacks
-*****************************************************************************/
-
-void InchControl::dynamixel_workbench_callback(const sensor_msgs::JointState::ConstPtr &msg)
-{
-  theta_meas[0] = msg->position.at(0);
-//  theta_dot_meas[0] = msg->velocity.at(0);
-
-}
-
-void InchControl::Optitrack_callback(const geometry_msgs::Vector3 &msg)
-{
-  q_meas[0] = msg.x;
-
-if (q_meas[0] - q_meas[1] !=0 ) q_meas_dot[0] = (q_meas[0] - q_meas[1]) / time_loop;
-  q_meas_dot[1] = q_meas_dot[0]; // law data
-  q_meas_dot[0] = inch_q_meas_butterworth->butterworth_2nd_filter(q_meas_dot[0], time_loop);
-
-  q_meas[1] = q_meas[0];
 }
 
 
@@ -326,6 +281,9 @@ int main(int argc, char **argv)
   ros::init(argc, argv, "InchControl");
   InchControl inch_ctrl_;
 
+//  inch_ctrl_.YujinInit();
+//  inch_ctrl_.HanryungInit();
+  inch_ctrl_.SeukInit();
 
   ros::Rate loop_rate(200);
 
@@ -333,15 +291,9 @@ int main(int argc, char **argv)
   {
     inch_ctrl_.TimeCount();
 
-
-    //Functions for Control!! - start;
-    inch_ctrl_.Trajectory_mode();
-
-  //  inch_ctrl_.SolveInverseForwardKinematics();
-    inch_ctrl_.Experiment_0623_1Link();
-
-
-    //Functions for Control!! - End
+  //  inch_ctrl_.YujinWhile();
+  //  inch_ctrl_.HanryungWhile();
+    inch_ctrl_.SeukWhile();
 
     inch_ctrl_.PublishData();
 

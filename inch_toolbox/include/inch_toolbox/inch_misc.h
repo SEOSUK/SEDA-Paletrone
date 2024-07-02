@@ -7,7 +7,7 @@
 #include <eigen3/Eigen/Dense>
 #include <sensor_msgs/JointState.h>
 #include <cmath>
-
+#define PI 3.141592
 
 
 namespace inch

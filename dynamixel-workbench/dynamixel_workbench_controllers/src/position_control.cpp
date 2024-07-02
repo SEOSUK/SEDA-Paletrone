@@ -106,7 +106,7 @@ void PositionControl::initMsg()
 void PositionControl::initPublisher()
 {
   dynamixel_state_list_pub_ = node_handle_.advertise<dynamixel_workbench_msgs::DynamixelStateList>("dynamixel_state", 10);
-  joint_states_pub_ = node_handle_.advertise<sensor_msgs::JointState>("joint_states", 10);
+  joint_states_pub_ = node_handle_.advertise<sensor_msgs::JointState>("/inch/joint_states", 10);
 }
 
 void PositionControl::initSubscriber()

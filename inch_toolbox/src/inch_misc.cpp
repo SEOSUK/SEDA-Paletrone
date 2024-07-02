@@ -23,10 +23,9 @@ void InchMisc::test()
 
 double InchMisc::butterworth_2nd_filter(double input_data_, double time_loop_)
 {
-  //why not doing?
-  // FUcKing.. fix. later..
+  // why not doing?
+  // Doing Well. good!!!!
   bw_2nd_state_dot = bw_2nd_A * bw_2nd_state + bw_2nd_B * input_data_;
-  
   bw_2nd_state = bw_2nd_state + bw_2nd_state_dot * time_loop_;
 
   double output_data = bw_2nd_state[1];
@@ -57,7 +56,11 @@ double InchMisc::PID_controller(double input_error_, double time_loop_)
     if (cut_off_freq != 0) error_dot = butterworth_2nd_filter(error_dot, time_loop_);
   }
   error_i = input_error_;
+  
   error_sum = error_sum + input_error_;
+  if (error_sum > 1000 * PI / 180) error_sum = 1000 * PI / 180;
+  else if (error_sum < -1000 * PI / 180) error_sum = -1000 * PI / 180;
+  ROS_INFO("error_sum: %lf", error_sum);
 
   return Kp * input_error_ + Ki * error_sum + Kd * error_dot;
 }

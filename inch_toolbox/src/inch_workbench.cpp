@@ -11,6 +11,11 @@ InchWorkbench::InchWorkbench()
 
 
   ROS_INFO("workbench length [%lf] [%lf] [%lf]", length_1, length_2, length_3);
+
+  admit_y_B = admit_y_B.transpose();
+  admit_y_state = admit_y_state.transpose();
+  admit_y_state_dot = admit_y_state_dot.transpose();
+
 }
 
 InchWorkbench::~InchWorkbench()
@@ -42,4 +47,34 @@ Eigen::Vector2d InchWorkbench::ForwardKinematics_2dof(Eigen::Vector2d q_meas_)
     EE_meas[1] = length_1*sin(q_meas_[0]) + length_2*sin(q_meas_[0] + q_meas_[1]);
 
   return EE_meas;
+}
+
+
+void InchWorkbench::init_Admittance(double admit_mass_y, double admit_damper_y, double admit_spring_y)
+{
+
+  admit_y_A << - admit_damper_y / admit_mass_y, - admit_spring_y / admit_mass_y,
+                                1,                              0;
+
+  admit_y_B << 1 / admit_mass_y, 0;
+
+  admit_y_state << 0, 0;
+  admit_y_state_dot << 0, 0;
+  
+  //x랑 z도 필요하면 넣던가 하자 ...later ~~
+
+}
+
+
+double InchWorkbench::admittanceControly(double ref, double f_ext, double time_loop)
+{
+  double y_cmd = 0;
+  
+  admit_y_state_dot = admit_y_A * admit_y_state + admit_y_B * f_ext;
+  admit_y_state = admit_y_state + admit_y_state_dot * time_loop;
+
+
+  y_cmd = ref - admit_y_state[1];
+  
+  return y_cmd;
 }

@@ -56,7 +56,15 @@ class InchControl : public inch::InchWorkbench
   void Trajectory_mode();
   void trajectory_gimbaling();
   void Experiment_0623_1Link();
+  void F_ext_processing();
 
+  void YujinWhile();
+  void HanryungWhile();
+  void SeukWhile();
+
+  void YujinInit();
+  void HanryungInit();
+  void SeukInit();
 
 
  private:
@@ -74,9 +82,7 @@ class InchControl : public inch::InchWorkbench
   ** Inchtoolbox
   *****************************************************************************/
   // Inch
-  InchJoint *inch_jnt1_;
-  InchJoint *inch_jnt2_;
-  InchJoint *inch_jnt3_;
+  InchJoint *inch_joint;
 
   InchMisc *inch_q_meas_butterworth;
   InchMisc *inch_link1_PID;
@@ -87,8 +93,7 @@ class InchControl : public inch::InchWorkbench
   void initPublisher();
   void initSubscriber();
   void initServer();
-  void dynamixel_workbench_callback(const sensor_msgs::JointState::ConstPtr &msg);
-  void Optitrack_callback(const geometry_msgs::Vector3 &msg);
+  
 
   /*****************************************************************************
   ** ROS Publishers
@@ -111,20 +116,14 @@ class InchControl : public inch::InchWorkbench
   /*****************************************************************************
   ** Define variables
   *****************************************************************************/
-  Eigen::Vector2d theta_ref;
+  Eigen::Vector2d q_ref;
+  Eigen::Vector2d q_cmd;
   Eigen::Vector2d theta_cmd;
   Eigen::Vector2d EE_meas;
   Eigen::Vector2d EE_cmd;
-
+  Eigen::Vector2d F_ext;
 //Experiment_0623_1Link
-  Eigen::Vector2d theta_meas;
-  Eigen::Vector2d theta_phi;
-  Eigen::Vector2d theta_dot_meas;
-  Eigen::Vector2d q_meas;
-  Eigen::Vector2d q_meas_dot;
-  Eigen::Vector2d phi_meas;
-  Eigen::Vector2d tau_meas;
-  Eigen::Vector2d tau_d;
+
 
   
 

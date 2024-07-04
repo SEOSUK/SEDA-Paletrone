@@ -78,3 +78,31 @@ double InchWorkbench::admittanceControly(double ref, double f_ext, double time_l
   
   return y_cmd;
 }
+
+// yujin ~ing
+Eigen::Matrix2d InchWorkbench::Jacobian(Eigen::Vector2d q_meas_)
+{
+  Eigen::Matrix2d jacobian;
+
+  jacobian << -length_1*sin(q_meas_[0]) - length_2*sin(q_meas_[0] + q_meas_[1]), -length_2*sin(q_meas_[0] + q_meas_[1]),
+               length_1*cos(q_meas_[0]) + length_2*cos(q_meas_[0] + q_meas_[1]),  length_2*cos(q_meas_[0] + q_meas_[1]);
+
+  return jacobian;
+}
+
+Eigen::Vector2d InchWorkbench::ForceEstimation(Eigen::Vector2d q_meas_, Eigen::Vector2d tau_ext_)
+{
+  Eigen::Vector2d force_ext;
+  Eigen::Vector2d tau_extT;
+  Eigen::Matrix2d J;
+  Eigen::Matrix2d JT;
+  Eigen::Matrix2d JTI;  
+
+  J = Jacobian(q_meas_);
+  JT = J.transpose();
+  JTI = JT.inverse();  
+  tau_extT = tau_ext_.transpose();
+  force_ext = JTI*tau_extT;
+
+  return force_ext;
+}

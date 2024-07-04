@@ -20,6 +20,12 @@
 	  <arg name="length_1"				default="0.24215"/>
 	  <arg name="length_2"				default="0.1759"/>
 	  <arg name="length_3"				default="0."/>
+	  <arg name="com_1"					default="0.117"/>
+	  <arg name="com_2"					default="0.045"/>
+	  <arg name="mass_1"				default="0.340"/>
+	  <arg name="mass_2"				default="0.14"/>
+	  <arg name="g"				default="9.80665"/>
+
 
 	  <node name="inch_manipulator_control" pkg="inch_controllers" type="inch_manipulator_control" required="true" output="screen"> 
 	  </node>

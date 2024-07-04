@@ -31,6 +31,18 @@ class InchJoint
   Eigen::Vector2d k_sp;
   Eigen::Vector2d tau_phi;
 
+  // From Launch File
+  //Link Param
+  double length_1;
+  double length_2;
+  double length_3;
+  double com_1;
+  double com_2;
+  double mass_1;
+  double mass_2;
+  double g;
+  std::string robot_name_;
+
  private:
   /*****************************************************************************
   ** ROS NodeHandle
@@ -67,6 +79,7 @@ class InchJoint
   void initTimerCallback();
   void initParameters();
 
+  Eigen::Vector2d tau_ext_processing(Eigen::Vector2d q_meas_, Eigen::Vector2d tau_phi_);
 
 };
 

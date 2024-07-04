@@ -42,8 +42,13 @@ class InchControl : public inch::InchWorkbench
   double length_1;
   double length_2;
   double length_3;
+  double com_1;
+  double com_2;
+  double mass_1;
+  double mass_2;
+  double g;
   std::string robot_name_;
-
+  
   /*****************************************************************************
   ** Define functions
   *****************************************************************************/
@@ -124,8 +129,6 @@ class InchControl : public inch::InchWorkbench
   Eigen::Vector2d F_ext;
 //Experiment_0623_1Link
 
-
-  
 
 
 

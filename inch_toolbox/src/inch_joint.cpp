@@ -3,9 +3,21 @@
 InchJoint::InchJoint()
 : nh_(""), priv_nh_("~")
 {
+  /************************************************************
+  ** Launch file parameters
+  ************************************************************/  
+  length_1 = priv_nh_.param<double>("length_1", 0);
+  length_2 = priv_nh_.param<double>("length_2", 0);
+  length_3 = priv_nh_.param<double>("length_3", 0);
+  com_1 = priv_nh_.param<double>("com_1", 0);
+  com_2 = priv_nh_.param<double>("com_2", 0);
+  mass_1 = priv_nh_.param<double>("mass_1", 0);
+  mass_2 = priv_nh_.param<double>("mass_2", 0);
+  g = priv_nh_.param<double>("g", 0);
 
-
-
+  /************************************************************
+  ** Initialize ROS Subscribers and Clients
+  ************************************************************/
   initPublisher();
   initSubscriber();
   initTimerCallback();
@@ -66,3 +78,12 @@ void InchJoint::test()
   ROS_INFO("Here is Inch Joint Toolbox!");
 }
 
+Eigen::Vector2d InchJoint::tau_ext_processing(Eigen::Vector2d q_meas_, Eigen::Vector2d tau_phi_)
+{
+  Eigen::Vector2d tau_g;
+
+  tau_g << mass_1*g*com_1*cos(q_meas_[0]) + mass_2*g*length_1*cos(q_meas_[0]) + mass_2*g*com_2*cos(q_meas_[0] + q_meas_[1]),
+            mass_2*g*com_2*cos(q_meas_[0] + q_meas_[1]);
+
+  return tau_ext = tau_phi_ - tau_g;
+}

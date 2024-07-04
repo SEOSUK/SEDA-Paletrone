@@ -43,7 +43,8 @@ namespace inch
 
     Eigen::Vector2d InverseKinematics_2dof(Eigen::Vector2d EE_cmd_);
     Eigen::Vector2d ForwardKinematics_2dof(Eigen::Vector2d q_meas_);
-
+    Eigen::Matrix2d Jacobian(Eigen::Vector2d q_meas_);
+    Eigen::Vector2d ForceEstimation(Eigen::Vector2d q_meas_, Eigen::Vector2d tau_ext_);
 
 
   private:

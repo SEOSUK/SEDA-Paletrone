@@ -14,6 +14,11 @@ InchControl::InchControl()
   length_1 = node_handle_.param<double>("length_1", 0);
   length_2 = node_handle_.param<double>("length_2", 0);
   length_3 = node_handle_.param<double>("length_3", 0);
+  com_1 = node_handle_.param<double>("com_1", 0);
+  com_2 = node_handle_.param<double>("com_2", 0);
+  mass_1 = node_handle_.param<double>("mass_1", 0);
+  mass_2 = node_handle_.param<double>("mass_2", 0);
+  g = node_handle_.param<double>("g", 0);
 
   ROS_INFO("length [%lf] [%lf] [%lf]", length_1, length_2, length_3);
 
@@ -158,8 +163,8 @@ void InchControl::trajectory_gimbaling()
 
 void InchControl::F_ext_processing()
 {
-
-
+  F_ext = ForceEstimation(inch_joint->q_meas, inch_joint->tau_ext);
+  
 }
 
 void InchControl::Experiment_0623_1Link()

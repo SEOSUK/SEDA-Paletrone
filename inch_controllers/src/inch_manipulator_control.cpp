@@ -256,7 +256,7 @@ void InchControl::SeukWhile()
 
 
   //command generation
-  q_ref[0] = 45 * PI / 180 ;//45 * PI / 180 * sin (2 * PI * 0.1* time_real) + 45 * PI / 180 ; // sine wave
+  q_ref[0] = 45 * PI / 180 * sin (2 * PI * 0.1* time_real) + 45 * PI / 180 ; // sine wave
 
 
   //admittance

@@ -1,5 +1,5 @@
 <launch>
-  <arg name="device_name"                default="/dev/ttyUSB1"/>
+  <arg name="device_name"                default="/dev/ttyUSB0"/>
   <arg name="baud_rate"                  default="4500000"/>
 
   <arg name="scan_range"                 default="20"/>

@@ -61,12 +61,17 @@ void InchJoint::initTimerCallback()
 void InchJoint::dynamixel_callback(const sensor_msgs::JointState::ConstPtr &msg)
 {
   theta_meas[0] = msg->position.at(0);
+  theta_meas[1] = msg->position.at(1);
+
 }
 
 void InchJoint::encoder_phi_callback(const std_msgs::Float64MultiArray::ConstPtr &msg)
 {
   phi_meas[0] = msg->data.at(0) * PI / 180;
+  phi_meas[1] = msg->data.at(1) * PI / 180;
+  
   tau_phi[0] = -k_sp[0] * phi_meas[0];
+  tau_phi[1] = -k_sp[1] * phi_meas[1];
 }
 
 void InchJoint::calc_angle_timer_callback(const ros::TimerEvent&)
@@ -82,6 +87,7 @@ void InchJoint::calc_angle_timer_callback(const ros::TimerEvent&)
   phi_dot_meas[0] = inch_phi1_dot_->NumDiff(phi_meas[0], 0.01);
   phi_dot_meas[1] = inch_phi2_dot_->NumDiff(phi_meas[1], 0.01);
 
+  tau_MCG = calc_MCGDynamics();
 }
 
 

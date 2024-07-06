@@ -44,6 +44,8 @@ class InchJoint : public inch::InchMisc
 
   Eigen::Vector2d k_sp;
   Eigen::Vector2d tau_phi;
+  Eigen::Vector2d tau_MCG;
+
 
   Eigen::Vector2d q_dot_meas;
   Eigen::Vector2d q_ddot_meas;

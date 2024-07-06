@@ -6,11 +6,12 @@
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Dense>
 #include <sensor_msgs/JointState.h>
+#include <inch_toolbox/inch_misc.h>
 
 
 namespace inch
 {
-  class InchWorkbench
+  class InchWorkbench : public inch::InchMisc
   {
   public:
     InchWorkbench();

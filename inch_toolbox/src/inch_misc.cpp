@@ -30,6 +30,11 @@ double InchMisc::butterworth_2nd_filter(double input_data_, double time_loop_)
   bw_2nd_state_dot = bw_2nd_A * bw_2nd_state + bw_2nd_B * input_data_;
   bw_2nd_state = bw_2nd_state + bw_2nd_state_dot * time_loop_;
 
+  for (int i = 0; i>2; i++)
+  {
+    bw_2nd_state[i] = debugger_saturation(bw_2nd_state[i]);
+  }
+
   double output_data = bw_2nd_state[1];
 
   return output_data;
@@ -57,8 +62,7 @@ double InchMisc::PID_controller(double ref_, double meas_, double time_loop_)
   
   error_sum = error_sum + input_error_;
 
-  if (error_sum > 1000 * PI / 180) error_sum = 1000 * PI / 180;
-  else if (error_sum < -1000 * PI / 180) error_sum = -1000 * PI / 180;
+  error_sum = debugger_saturation(error_sum);
 
   return Kp * input_error_ + Ki * error_sum + Kd * error_dot;
 }
@@ -75,16 +79,15 @@ void InchMisc::init_PID_controller(double Kp_, double Ki_, double Kd_, double cu
   if(cut_off_freq_ != 0) init_butterworth_2nd_filter(cut_off_freq_);
 }
 
-double InchMisc::Dead_Zone_filter()
+double InchMisc::Dead_Zone_filter(double input_data_)
 {
-
-  return 0;
+  return (input_data_ < dead_zone_max && input_data_ > dead_zone_min) ? 0 : input_data_;
 }
 
 void InchMisc::init_Dead_Zone_filter(double dead_zone_max_, double dead_zone_min_)
 {
-
-
+  dead_zone_max = dead_zone_max_;
+  dead_zone_min = dead_zone_min_;
 }
 
 double InchMisc::NumDiff(double input_data_, double time_loop_)
@@ -96,4 +99,17 @@ double InchMisc::NumDiff(double input_data_, double time_loop_)
   input_data_prev = input_data_;
 
   return output_data;
+}
+
+double InchMisc::debugger_saturation(double input_data_)
+{
+  if (input_data_ > 100) input_data_ = 100;
+  else if (input_data_ < -100) input_data_ = -100;
+  else return input_data_;
+}
+
+double InchMisc::tanh_function(double input_data, double cut_off_force)
+{
+  double data = input_data / cut_off_force * 4;
+  return abs((exp(data) - exp(-data)) / (exp(data) + exp(-data)));
 }

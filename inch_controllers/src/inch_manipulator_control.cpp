@@ -18,9 +18,6 @@ InchControl::InchControl()
   Link2_mass = node_handle_.param<double>("Link2_mass", 0);
 
 
-
-
-
   /************************************************************
   ** class init
   ************************************************************/  
@@ -91,6 +88,8 @@ void InchControl::PublishData()
   sensor_msgs::JointState theta_command_msg;
 
   theta_command_msg.position.push_back(theta_cmd[0]);
+  theta_command_msg.position.push_back(theta_cmd[1]);
+
   theta_command_pub_.publish(theta_command_msg);
 
 
@@ -103,11 +102,15 @@ void InchControl::PublishData()
 
   //inch/test_Pub
   //Just test
-  test_msg.data[0] = q_ref[0]; // 레퍼런스
-  test_msg.data[1] = q_cmd[0]; // 어드미턴스 통과 레퍼런스
-  test_msg.data[2] = q_ref[0] - inch_joint->q_meas[0]; // 에러
-  test_msg.data[3] = theta_cmd[0]; // 서보커맨드
-  test_msg.data[4] = inch_joint->phi_meas[0]; // 서보커맨드
+  test_msg.data[0] = inch_joint->tau_MCG[0]; // 
+  test_msg.data[1] = inch_joint->tau_MCG[1]; // 
+  test_msg.data[2] = inch_joint->tau_phi[0]; //
+  test_msg.data[3] = inch_joint->tau_phi[1]; // tau_MCG와 tau_phi를 맞추고 
+  test_msg.data[4] = tau_ext[0]; //  tau_ext가 0 언저리에서 노는것 보고
+  test_msg.data[5] = tau_ext[1]; //  도저히 안되겠다 싶으면 tanh filter 적용
+  test_msg.data[6] = F_ext[0]; // 
+  test_msg.data[7] = F_ext[1]; //     tau_ext 충분히 가공하고 F_ext 확인
+  
 
 
   test_pub_.publish(test_msg);
@@ -148,7 +151,8 @@ void InchControl::Trajectory_mode()
 
 void InchControl::Test_trajectory_generator_2dof()
 {
-   q_ref[0] = 0.6 * sin (2 *PI * 0.3 * time_real) + 0.3; // sine wave
+   EE_ref[0] = 0.6 * sin (2 *PI * 0.3 * time_real) + 0.3; // sine wave
+   EE_ref[1] = 0.1; // sine wave
 
 //else time_real = 0;
   
@@ -160,10 +164,15 @@ void InchControl::trajectory_gimbaling()
 }
 
 
-void InchControl::F_ext_processing()
+Eigen::Vector2d InchControl::F_ext_processing()
 {
-  F_ext = ForceEstimation(inch_joint->q_meas, inch_joint->tau_ext);
-
+  Eigen::Vector2d F_ext_;
+  tau_ext = inch_joint->tau_phi - inch_joint->tau_MCG;
+  tau_ext[0] = tanh_function(tau_ext[0], 1);
+  tau_ext[1] = tanh_function(tau_ext[1], 1);
+  
+  F_ext_ = ForceEstimation(inch_joint->q_meas, tau_ext);
+  return F_ext_;
 }
 
 void InchControl::Experiment_0623_1Link()
@@ -225,40 +234,18 @@ void InchControl::YujinWhile()
 void InchControl::HanryungInit()
 {
 
-
-}
-
-void InchControl::HanryungWhile()
-{
-
-  
-}
-
-void InchControl::SeukInit()
-{
-
   inch_link1_PID = new InchMisc(); // link1에 pid 쓸거임
 
   inch_link1_PID->init_PID_controller(1, 0.001, 0., 40);
   init_Admittance(0.1, 0.5, 0.5);
-
-
 }
 
-void InchControl::SeukWhile()
+void InchControl::HanryungWhile()
 {
-  //Let's define Parameters~~
-  double k_spring = 1;
-
-  // end.
-  
-
-
-
   //command generation
   q_ref[0] = 45 * PI / 180 * sin (2 * PI * 0.1* time_real) + 45 * PI / 180 ; // sine wave
 
-
+  double k_spring = 1;
   //admittance
   q_ref[0] = admittanceControly(q_ref[0], -k_spring * inch_joint->phi_meas[0], time_loop);
   
@@ -278,6 +265,32 @@ void InchControl::SeukWhile()
     theta_cmd[0] = -10*PI/180;
   }
 
+}
+
+void InchControl::SeukInit()
+{
+  inch_link1_PID->init_PID_controller(1, 0.001, 0., 40);
+  inch_link2_PID->init_PID_controller(1, 0.001, 0., 40);
+  init_Admittance(0.1, 0.5, 0.5);
+
+}
+
+void InchControl::SeukWhile()
+{
+
+  Test_trajectory_generator_2dof();
+  F_ext = F_ext_processing(); // F_ext Fitting 필요 !!!!
+  EE_cmd[0] = admittanceControly(EE_ref[0], F_ext[0], time_loop);
+  EE_cmd[1] = admittanceControly(EE_ref[1], F_ext[1], time_loop);
+  
+  q_cmd = InverseKinematics_2dof(EE_cmd);
+  
+  theta_cmd[0] = q_cmd[0] + inch_link1_PID->PID_controller(q_cmd[0], - inch_joint->q_meas[0], time_loop);
+  theta_cmd[1] = q_cmd[1] + inch_link1_PID->PID_controller(q_cmd[1], - inch_joint->q_meas[1], time_loop);
+  // 또는 유진's MPC!! 
+  
+
+  EE_meas = ForwardKinematics_2dof(inch_joint->q_meas);
 }
 
 

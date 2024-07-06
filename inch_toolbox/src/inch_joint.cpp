@@ -65,4 +65,3 @@ void InchJoint::test()
 {
   ROS_INFO("Here is Inch Joint Toolbox!");
 }
-

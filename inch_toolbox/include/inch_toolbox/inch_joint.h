@@ -61,6 +61,7 @@ class InchJoint
   void dynamixel_callback(const sensor_msgs::JointState::ConstPtr &msg);
   void encoder_phi_callback(const std_msgs::Float64MultiArray::ConstPtr &msg);
   void calc_angle_timer_callback(const ros::TimerEvent&);
+  Eigen::Vector2d tau_ext_processing(Eigen::Vector2d q_meas_, Eigen::Vector2d tau_phi_);
   
   void initPublisher();
   void initSubscriber();

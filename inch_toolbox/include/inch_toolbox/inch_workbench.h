@@ -19,9 +19,15 @@ namespace inch
     /*****************************************************************************
     ** Define variables
     *****************************************************************************/ 
-    double length_1;
-    double length_2;
-    double length_3;
+    double Link1_length;
+    double Link2_length;
+
+    double Link1_COM;
+    double Link2_COM;
+
+    double Link1_mass;
+    double Link2_mass;
+  
 
     double admit_spring_y;
     double admit_damper_y;
@@ -43,7 +49,8 @@ namespace inch
 
     Eigen::Vector2d InverseKinematics_2dof(Eigen::Vector2d EE_cmd_);
     Eigen::Vector2d ForwardKinematics_2dof(Eigen::Vector2d q_meas_);
-
+    Eigen::Matrix2d Jacobian(Eigen::Vector2d q_meas_);
+    Eigen::Vector2d ForceEstimation(Eigen::Vector2d q_meas_, Eigen::Vector2d tau_ext_);
 
 
   private:

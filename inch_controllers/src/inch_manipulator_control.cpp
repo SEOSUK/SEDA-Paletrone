@@ -3,19 +3,23 @@
 InchControl::InchControl()
 : node_handle_(""), priv_node_handle_("~")
 {
-  ros::Rate init_sleep(0.2);
-  init_sleep.sleep();
-
   /************************************************************
   ** Launch file parameters
   ************************************************************/  
 
   robot_name_ = node_handle_.param<std::string>("robot_name", "inch"); 
-  length_1 = node_handle_.param<double>("length_1", 0);
-  length_2 = node_handle_.param<double>("length_2", 0);
-  length_3 = node_handle_.param<double>("length_3", 0);
+  Link1_length = node_handle_.param<double>("Link1_length", 0);
+  Link2_length = node_handle_.param<double>("Link2_length", 0);
 
-  ROS_INFO("length [%lf] [%lf] [%lf]", length_1, length_2, length_3);
+  Link1_COM = node_handle_.param<double>("Link1_COM", 0);
+  Link2_COM = node_handle_.param<double>("Link2_COM", 0);
+
+  Link1_mass = node_handle_.param<double>("Link1_mass", 0);
+  Link2_mass = node_handle_.param<double>("Link2_mass", 0);
+
+
+
+
 
   /************************************************************
   ** class init
@@ -158,7 +162,7 @@ void InchControl::trajectory_gimbaling()
 
 void InchControl::F_ext_processing()
 {
-
+  F_ext = ForceEstimation(inch_joint->q_meas, inch_joint->tau_ext);
 
 }
 
@@ -237,6 +241,7 @@ void InchControl::SeukInit()
 
   inch_link1_PID->init_PID_controller(1, 0.001, 0., 40);
   init_Admittance(0.1, 0.5, 0.5);
+
 
 }
 

@@ -39,9 +39,16 @@ class InchControl : public inch::InchWorkbench
 
   // From Launch File
     //Link Param
-  double length_1;
-  double length_2;
-  double length_3;
+  double Link1_length;
+  double Link2_length;
+
+  double Link1_COM;
+  double Link2_COM;
+
+  double Link1_mass;
+  double Link2_mass;
+
+
   std::string robot_name_;
 
   /*****************************************************************************

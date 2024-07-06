@@ -102,15 +102,20 @@ void InchControl::PublishData()
 
   //inch/test_Pub
   //Just test
-  test_msg.data[0] = inch_joint->tau_MCG[0]; // 
-  test_msg.data[1] = inch_joint->tau_MCG[1]; // 
-  test_msg.data[2] = inch_joint->tau_phi[0]; //
-  test_msg.data[3] = inch_joint->tau_phi[1]; // tau_MCG와 tau_phi를 맞추고 
-  test_msg.data[4] = tau_ext[0]; //  tau_ext가 0 언저리에서 노는것 보고
-  test_msg.data[5] = tau_ext[1]; //  도저히 안되겠다 싶으면 tanh filter 적용
-  test_msg.data[6] = F_ext[0]; // 
-  test_msg.data[7] = F_ext[1]; //     tau_ext 충분히 가공하고 F_ext 확인
+  // test_msg.data[0] = inch_joint->tau_MCG[0]; // 
+  // test_msg.data[1] = inch_joint->tau_MCG[1]; // 
+  // test_msg.data[2] = inch_joint->tau_phi[0]; //
+  // test_msg.data[3] = inch_joint->tau_phi[1]; // tau_MCG와 tau_phi를 맞추고 
+  // test_msg.data[4] = tau_ext[0]; //  tau_ext가 0 언저리에서 노는것 보고
+  // test_msg.data[5] = tau_ext[1]; //  도저히 안되겠다 싶으면 tanh filter 적용
+  // test_msg.data[6] = F_ext[0]; // 
+  // test_msg.data[7] = F_ext[1]; //     tau_ext 충분히 가공하고 F_ext 확인
   
+  test_msg.data[0] = q_ref[0]; // 레퍼런스
+  test_msg.data[1] = q_cmd[0]; // 어드미턴스 통과 레퍼런스
+  test_msg.data[2] = inch_joint->q_meas[0]; // 에러
+  test_msg.data[3] = theta_cmd[0]; // 서보커맨드
+  test_msg.data[4] = inch_joint->theta_meas[0]; // 서보커맨드
 
 
   test_pub_.publish(test_msg);
@@ -235,23 +240,29 @@ void InchControl::HanryungInit()
 {
 
   inch_link1_PID = new InchMisc(); // link1에 pid 쓸거임
+  inch_link2_PID = new InchMisc(); // link1에 pid 쓸거임
 
-  inch_link1_PID->init_PID_controller(1, 0.001, 0., 40);
-  init_Admittance(0.1, 0.5, 0.5);
+  inch_link1_PID->init_PID_controller(1, 0.001, 0.05, 40);
+  inch_link2_PID->init_PID_controller(1, 0.001, 0.05, 40);
+
+  init_Admittance(0.05, 0.1, 0.5);
 }
 
 void InchControl::HanryungWhile()
 {
   //command generation
-  q_ref[0] = 45 * PI / 180 * sin (2 * PI * 0.1* time_real) + 45 * PI / 180 ; // sine wave
+  //q_ref[0] = 30 * PI / 180 * sin (2 * PI * 0.1* time_real) + 45 * PI / 180 ; // sine wave
+  q_ref[0] = 60 * PI / 180;
+  q_ref[1] = 45 * PI / 180;
 
   double k_spring = 1;
   //admittance
-  q_ref[0] = admittanceControly(q_ref[0], -k_spring * inch_joint->phi_meas[0], time_loop);
+  //q_cmd[0] = admittanceControly(q_ref[0], -k_spring * inch_joint->phi_meas[0], time_loop);
   
   //PID
-  theta_cmd[0] = q_ref[0] + inch_link1_PID->PID_controller(q_ref[0], - inch_joint->q_meas[0], time_loop);
-  
+  theta_cmd[0] = q_ref[0] + inch_link1_PID->PID_controller(q_ref[0], inch_joint->q_meas[0], time_loop);
+  theta_cmd[1] = q_ref[1] + inch_link2_PID->PID_controller(q_ref[1], inch_joint->q_meas[1], time_loop);
+
 
   //Saturation
   if (theta_cmd[0] > 90*PI/180) 
@@ -300,8 +311,8 @@ int main(int argc, char **argv)
   InchControl inch_ctrl_;
 
 //  inch_ctrl_.YujinInit();
-//  inch_ctrl_.HanryungInit();
-  inch_ctrl_.SeukInit();
+  inch_ctrl_.HanryungInit();
+//  inch_ctrl_.SeukInit();
 
   ros::Rate loop_rate(200);
 
@@ -310,8 +321,8 @@ int main(int argc, char **argv)
     inch_ctrl_.TimeCount();
 
   //  inch_ctrl_.YujinWhile();
-  //  inch_ctrl_.HanryungWhile();
-    inch_ctrl_.SeukWhile();
+    inch_ctrl_.HanryungWhile();
+  //  inch_ctrl_.SeukWhile();
 
     inch_ctrl_.PublishData();
 

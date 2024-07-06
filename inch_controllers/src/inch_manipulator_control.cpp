@@ -263,7 +263,7 @@ void InchControl::SeukWhile()
   q_ref[0] = admittanceControly(q_ref[0], -k_spring * inch_joint->phi_meas[0], time_loop);
   
   //PID
-  theta_cmd[0] = q_ref[0] + inch_link1_PID->PID_controller(q_ref[0] - inch_joint->q_meas[0], time_loop);
+  theta_cmd[0] = q_ref[0] + inch_link1_PID->PID_controller(q_ref[0], - inch_joint->q_meas[0], time_loop);
   
 
   //Saturation

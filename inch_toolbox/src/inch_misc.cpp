@@ -8,6 +8,8 @@ InchMisc::InchMisc()
   bw_2nd_B = bw_2nd_B.transpose();
   bw_2nd_state = bw_2nd_state.transpose();
   bw_2nd_state_dot = bw_2nd_state_dot.transpose();
+
+  init_butterworth_2nd_filter(40);
 }
 
 InchMisc::~InchMisc()
@@ -48,19 +50,15 @@ void InchMisc::init_butterworth_2nd_filter(double cut_off_freq_)
   ROS_INFO("INIT butterworth_2nd_filter");
 }
 
-double InchMisc::PID_controller(double input_error_, double time_loop_)
+double InchMisc::PID_controller(double ref_, double meas_, double time_loop_)
 {
-  if (input_error_ - error_i != 0) 
-  {
-    error_dot = (input_error_ - error_i) / time_loop_;
-    if (cut_off_freq != 0) error_dot = butterworth_2nd_filter(error_dot, time_loop_);
-  }
-  error_i = input_error_;
+  double input_error_ = ref_ - meas_;
+  double error_dot = NumDiff(meas_, time_loop_);
   
   error_sum = error_sum + input_error_;
+
   if (error_sum > 1000 * PI / 180) error_sum = 1000 * PI / 180;
   else if (error_sum < -1000 * PI / 180) error_sum = -1000 * PI / 180;
-  ROS_INFO("error_sum: %lf", error_sum);
 
   return Kp * input_error_ + Ki * error_sum + Kd * error_dot;
 }
@@ -87,4 +85,15 @@ void InchMisc::init_Dead_Zone_filter(double dead_zone_max_, double dead_zone_min
 {
 
 
+}
+
+double InchMisc::NumDiff(double input_data_, double time_loop_)
+{
+  double output_data;
+  if (input_data_ != input_data_prev)
+  output_data = butterworth_2nd_filter((input_data_ - input_data_prev) / time_loop_, time_loop_);
+
+  input_data_prev = input_data_;
+
+  return output_data;
 }

@@ -6,9 +6,16 @@
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Dense>
 #include <std_msgs/Float64MultiArray.h>
+#include <inch_toolbox/inch_misc.h>
+#include <iostream>
+#include <cmath>
+#include <functional>
+
 #define PI 3.141592
 
-class InchJoint
+using namespace inch;
+
+class InchJoint : public inch::InchMisc
 {
  public:
   InchJoint();
@@ -19,6 +26,13 @@ class InchJoint
   *****************************************************************************/
   void test();
 
+
+  InchMisc *inch_q1_dot_;
+  InchMisc *inch_q2_dot_;
+  InchMisc *inch_q1_ddot_;
+  InchMisc *inch_q2_ddot_;
+  InchMisc *inch_phi1_dot_;
+  InchMisc *inch_phi2_dot_;
   /*****************************************************************************
   ** Define variables
   *****************************************************************************/
@@ -30,6 +44,11 @@ class InchJoint
 
   Eigen::Vector2d k_sp;
   Eigen::Vector2d tau_phi;
+
+  Eigen::Vector2d q_dot_meas;
+  Eigen::Vector2d q_ddot_meas;
+  Eigen::Vector2d phi_dot_meas;
+
 
  private:
   /*****************************************************************************
@@ -61,7 +80,10 @@ class InchJoint
   void dynamixel_callback(const sensor_msgs::JointState::ConstPtr &msg);
   void encoder_phi_callback(const std_msgs::Float64MultiArray::ConstPtr &msg);
   void calc_angle_timer_callback(const ros::TimerEvent&);
-  Eigen::Vector2d tau_ext_processing(Eigen::Vector2d q_meas_, Eigen::Vector2d tau_phi_);
+  Eigen::Matrix2d M_Matrix();
+  Eigen::Matrix2d C_Matrix();
+  Eigen::Vector2d G_Matrix();
+  Eigen::Vector2d calc_MCGDynamics();
   
   void initPublisher();
   void initSubscriber();

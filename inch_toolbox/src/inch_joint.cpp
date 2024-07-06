@@ -3,13 +3,17 @@
 InchJoint::InchJoint()
 : nh_(""), priv_nh_("~")
 {
-
-
-
   initPublisher();
   initSubscriber();
   initTimerCallback();
 
+  inch_q1_dot_ = new InchMisc(); 
+  inch_q2_dot_ = new InchMisc(); 
+
+  inch_q1_ddot_ = new InchMisc(); 
+  inch_q2_ddot_ = new InchMisc(); 
+  inch_phi1_dot_ = new InchMisc(); 
+  inch_phi2_dot_ = new InchMisc(); 
 
 }
 
@@ -58,6 +62,61 @@ void InchJoint::encoder_phi_callback(const std_msgs::Float64MultiArray::ConstPtr
 void InchJoint::calc_angle_timer_callback(const ros::TimerEvent&)
 {
   q_meas = theta_meas + phi_meas;
+  
+  q_dot_meas[0] = inch_q1_dot_->NumDiff(q_meas[0], 0.01);
+  q_dot_meas[1] = inch_q2_dot_->NumDiff(q_meas[1], 0.01);
+  
+  q_ddot_meas[0] = inch_q2_dot_->NumDiff(q_dot_meas[0], 0.01);
+  q_ddot_meas[1] = inch_q2_dot_->NumDiff(q_dot_meas[1], 0.01);
+
+  phi_dot_meas[0] = inch_phi1_dot_->NumDiff(phi_meas[0], 0.01);
+  phi_dot_meas[1] = inch_phi2_dot_->NumDiff(phi_meas[1], 0.01);
+
+}
+
+
+
+
+Eigen::Matrix2d InchJoint::M_Matrix()
+{
+  Eigen::Matrix2d M_matrix;
+
+
+
+  return M_matrix;
+}
+
+Eigen::Matrix2d InchJoint::C_Matrix()
+{
+  Eigen::Matrix2d C_matrix;
+
+
+
+  return C_matrix;
+}
+
+Eigen::Vector2d InchJoint::G_Matrix()
+{
+  Eigen::Vector2d G_matrix;
+
+
+
+  return G_matrix;
+}
+
+Eigen::Vector2d InchJoint::calc_MCGDynamics()
+{
+  Eigen::Vector2d tau_MCG;
+  Eigen::Matrix2d M;
+  Eigen::Matrix2d C;
+  Eigen::Vector2d G;
+  M = M_Matrix();
+  C = C_Matrix();
+  G = G_Matrix();
+
+  tau_MCG = M * q_ddot_meas + C * q_dot_meas + G;
+  
+  return tau_MCG;
 }
 
 

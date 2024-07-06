@@ -3,6 +3,16 @@
 InchJoint::InchJoint()
 : nh_(""), priv_nh_("~")
 {
+  Link1_length = priv_nh_.param<double>("Link1_length", 0);
+  Link2_length = priv_nh_.param<double>("Link2_length", 0);
+
+  Link1_COM = priv_nh_.param<double>("Link1_COM", 0);
+  Link2_COM = priv_nh_.param<double>("Link2_COM", 0);
+
+  Link1_mass = priv_nh_.param<double>("Link1_mass", 0);
+  Link2_mass = priv_nh_.param<double>("Link2_mass", 0);
+
+
   initPublisher();
   initSubscriber();
   initTimerCallback();
@@ -115,7 +125,7 @@ Eigen::Vector2d InchJoint::calc_MCGDynamics()
   G = G_Matrix();
 
   tau_MCG = M * q_ddot_meas + C * q_dot_meas + G;
-  
+
   return tau_MCG;
 }
 

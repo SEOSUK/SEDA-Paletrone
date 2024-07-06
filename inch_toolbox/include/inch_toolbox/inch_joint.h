@@ -90,7 +90,14 @@ class InchJoint : public inch::InchMisc
   void initTimerCallback();
   void initParameters();
 
+  double Link1_length;
+  double Link2_length;
 
+  double Link1_COM;
+  double Link2_COM;
+  
+  double Link1_mass;
+  double Link2_mass;
 };
 
 #endif /*INCH_JOINT_H_*/

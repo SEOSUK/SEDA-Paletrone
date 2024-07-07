@@ -39,14 +39,16 @@ class InchControl : public inch::InchWorkbench
 
   // From Launch File
     //Link Param
-  double length_1;
-  double length_2;
-  double length_3;
-  double com_1;
-  double com_2;
-  double mass_1;
-  double mass_2;
-  double g;
+  double Link1_length;
+  double Link2_length;
+
+  double Link1_COM;
+  double Link2_COM;
+
+  double Link1_mass;
+  double Link2_mass;
+
+
   std::string robot_name_;
   
   /*****************************************************************************
@@ -61,7 +63,7 @@ class InchControl : public inch::InchWorkbench
   void Trajectory_mode();
   void trajectory_gimbaling();
   void Experiment_0623_1Link();
-  void F_ext_processing();
+  Eigen::Vector2d F_ext_processing();
 
   void YujinWhile();
   void HanryungWhile();
@@ -91,7 +93,8 @@ class InchControl : public inch::InchWorkbench
 
   InchMisc *inch_q_meas_butterworth;
   InchMisc *inch_link1_PID;
-  
+  InchMisc *inch_link2_PID;
+
   /*****************************************************************************
   ** Init Functions
   *****************************************************************************/
@@ -126,10 +129,10 @@ class InchControl : public inch::InchWorkbench
   Eigen::Vector2d theta_cmd;
   Eigen::Vector2d EE_meas;
   Eigen::Vector2d EE_cmd;
+  Eigen::Vector2d EE_ref;
   Eigen::Vector2d F_ext;
-//Experiment_0623_1Link
-
-
+  Eigen::Vector2d tau_ext;
+  //Experiment_0623_1Link
 
 
   std_msgs::Float64MultiArray test_msg;

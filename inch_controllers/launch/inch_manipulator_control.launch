@@ -2,11 +2,29 @@
 
 <!-- ################################# -->
 <!-- inch manipulator -->
-  <arg name="robot_name"			default="/inch"/>
-  <arg name="length_1"				default="0.24215"/>
-  <arg name="length_2"				default="0.1759"/>
-  <arg name="length_3"				default="0."/>
+  <arg name="robot_name"				default="/inch"/>
+  <arg name="Link1_length"				default="0.24215"/>
+  <arg name="Link2_length"				default="0.1759"/>
 
+  <arg name="Link1_COM"				default="1"/>
+  <arg name="Link2_COM"				default="2"/>
+
+  <arg name="Link1_mass"				default="3"/>
+  <arg name="Link2_mass"				default="4"/>
+
+  <param name="robot_name"           value="$(arg robot_name)"/>
+  <param name="Link1_length"         value="$(arg Link1_length)"/>
+  <param name="Link2_length"         value="$(arg Link2_length)"/>
+
+  <param name="Link1_COM"            value="$(arg Link1_COM)"/>  
+  <param name="Link2_COM"            value="$(arg Link2_COM)"/>
+  
+  <param name="Link1_mass"           value="$(arg Link1_mass)"/>  
+  <param name="Link2_mass"           value="$(arg Link2_mass)"/>
+
+  
+  
+  
   <node name="inch_manipulator_control" pkg="inch_controllers" type="inch_manipulator_control" required="true" output="screen"> 
   </node>
 

@@ -49,27 +49,28 @@ PositionControl::PositionControl()
 
   initMsg();
 
-  // for (int index = 0; index < dxl_cnt_; index++)
-  // {
-  //   dxl_wb_->itemWrite(dxl_id_[index], "Torque_Enable", 0);
-  //   dxl_wb_->itemWrite(dxl_id_[index], "Operating_Mode", X_SERIES_CURRENT_BASED_POSITION_CONTROL_MODE);
-  //   dxl_wb_->itemWrite(dxl_id_[index], "Torque_Enable", 1);
-  // }
+  for (int index = 0; index < dxl_cnt_; index++)
+  {
+    dxl_wb_->itemWrite(dxl_id_[index], "Torque_Enable", 0);
+    dxl_wb_->itemWrite(dxl_id_[index], "Operating_Mode", X_SERIES_CURRENT_BASED_POSITION_CONTROL_MODE);
+    dxl_wb_->itemWrite(dxl_id_[index], "Torque_Enable", 1);
+  }
 
-    for (int index = 0; index < dxl_cnt_; index++)
-    dxl_wb_->jointMode(dxl_id_[index], profile_velocity, profile_acceleration);
-  
+  //  for (int index = 0; index < dxl_cnt_; index++)
+  //  dxl_wb_->jointMode(dxl_id_[index], profile_velocity, profile_acceleration);
+  // 이거키면 포지션컨트롤모드임
+
   dxl_wb_->addSyncWrite("Goal_Position");
   dxl_wb_->addSyncRead("Present_Position");
-  dxl_wb_->addSyncRead("Present_Current");
+  //dxl_wb_->addSyncRead("Present_Current");
 
   for (int index = 0; index < dxl_cnt_; index++)
   {
     dxl_wb_->itemWrite(dxl_id_[index], "Position_P_Gain", position_p_gain);
     dxl_wb_->itemWrite(dxl_id_[index], "Position_I_Gain", position_i_gain);
     dxl_wb_->itemWrite(dxl_id_[index], "Position_D_Gain", position_d_gain);
-    // dxl_wb_->itemWrite(dxl_id_[index], "Feedforward_1st_Gain", feedforward_1st_gain);
-    // dxl_wb_->itemWrite(dxl_id_[index], "Feedforward_2nd_Gain", feedforward_2nd_gain);
+  //   dxl_wb_->itemWrite(dxl_id_[index], "Feedforward_1st_Gain", feedforward_1st_gain);
+  //   dxl_wb_->itemWrite(dxl_id_[index], "Feedforward_2nd_Gain", feedforward_2nd_gain);
   }
   
   ROS_INFO("PID PID PID %lf %lf %lf", position_p_gain, position_i_gain, position_d_gain);

@@ -6,11 +6,12 @@
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Dense>
 #include <sensor_msgs/JointState.h>
+#include <inch_toolbox/inch_misc.h>
 
 
 namespace inch
 {
-  class InchWorkbench
+  class InchWorkbench : public inch::InchMisc
   {
   public:
     InchWorkbench();
@@ -19,9 +20,15 @@ namespace inch
     /*****************************************************************************
     ** Define variables
     *****************************************************************************/ 
-    double length_1;
-    double length_2;
-    double length_3;
+    double Link1_length;
+    double Link2_length;
+
+    double Link1_COM;
+    double Link2_COM;
+
+    double Link1_mass;
+    double Link2_mass;
+  
 
     double admit_spring_y;
     double admit_damper_y;

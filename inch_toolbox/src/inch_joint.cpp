@@ -12,6 +12,16 @@ InchJoint::InchJoint()
   Link1_mass = priv_nh_.param<double>("Link1_mass", 0);
   Link2_mass = priv_nh_.param<double>("Link2_mass", 0);
 
+  Link1_spring = priv_nh_.param<double>("Link1_spring", 0);
+  Link2_spring = priv_nh_.param<double>("Link2_spring", 0);
+
+  Gravity = priv_nh_.param<double>("Gravity", 0);
+
+  N1 = priv_nh_.param<double>("N1", 0);
+  N2 = priv_nh_.param<double>("N2", 0);
+  N3 = priv_nh_.param<double>("N3", 0);
+
+
 
   initPublisher();
   initSubscriber();
@@ -49,7 +59,6 @@ void InchJoint::initSubscriber()
 void InchJoint::initParameters()
 {
   k_sp << 1, 1;
-
 }
 
 void InchJoint::initTimerCallback()
@@ -72,6 +81,8 @@ void InchJoint::encoder_phi_callback(const std_msgs::Float64MultiArray::ConstPtr
   
   tau_phi[0] = -k_sp[0] * phi_meas[0];
   tau_phi[1] = -k_sp[1] * phi_meas[1];
+
+  ROS_INFO("phi1: [%lf]  phi2: [%lf]", phi_meas[0], phi_meas[1]);
 }
 
 void InchJoint::calc_angle_timer_callback(const ros::TimerEvent&)
@@ -81,8 +92,8 @@ void InchJoint::calc_angle_timer_callback(const ros::TimerEvent&)
   q_dot_meas[0] = inch_q1_dot_->NumDiff(q_meas[0], 0.01);
   q_dot_meas[1] = inch_q2_dot_->NumDiff(q_meas[1], 0.01);
   
-  q_ddot_meas[0] = inch_q2_dot_->NumDiff(q_dot_meas[0], 0.01);
-  q_ddot_meas[1] = inch_q2_dot_->NumDiff(q_dot_meas[1], 0.01);
+  q_ddot_meas[0] = inch_q1_ddot_->NumDiff(q_dot_meas[0], 0.01);
+  q_ddot_meas[1] = inch_q2_ddot_->NumDiff(q_dot_meas[1], 0.01);
 
   phi_dot_meas[0] = inch_phi1_dot_->NumDiff(phi_meas[0], 0.01);
   phi_dot_meas[1] = inch_phi2_dot_->NumDiff(phi_meas[1], 0.01);
@@ -97,16 +108,18 @@ Eigen::Matrix2d InchJoint::M_Matrix()
 {
   Eigen::Matrix2d M_matrix;
 
-
+  M_matrix << N1 + N2 + 2*N3*cos(q_meas[1]), N2 + N3*cos(q_meas[1]),
+                     N2 + N3*cos(q_meas[1]),                     N2; 
 
   return M_matrix;
 }
 
-Eigen::Matrix2d InchJoint::C_Matrix()
+Eigen::Vector2d InchJoint::C_Matrix()
 {
-  Eigen::Matrix2d C_matrix;
+  Eigen::Vector2d C_matrix;
 
-
+  C_matrix << -N3*sin(q_meas[1])*(2*q_dot_meas[0]*q_dot_meas[1] + pow(q_dot_meas[1], 2)),
+                                                   N3*pow(q_dot_meas[0], 2)*sin(q_meas[1]);
 
   return C_matrix;
 }
@@ -115,7 +128,8 @@ Eigen::Vector2d InchJoint::G_Matrix()
 {
   Eigen::Vector2d G_matrix;
 
-
+  G_matrix << Link1_mass * Gravity * Link1_COM * cos(q_meas[0]) + Link2_mass * Gravity * Link1_length * cos(q_meas[0]) + Link2_mass * Gravity * Link2_COM * cos(q_meas[0] + q_meas[1]),
+              Link2_mass * Gravity * Link2_COM * cos(q_meas[0] + q_meas[1]); 
 
   return G_matrix;
 }
@@ -124,15 +138,69 @@ Eigen::Vector2d InchJoint::calc_MCGDynamics()
 {
   Eigen::Vector2d tau_MCG;
   Eigen::Matrix2d M;
-  Eigen::Matrix2d C;
+  Eigen::Vector2d C;
   Eigen::Vector2d G;
   M = M_Matrix();
   C = C_Matrix();
   G = G_Matrix();
 
-  tau_MCG = M * q_ddot_meas + C * q_dot_meas + G;
+  tau_MCG = M * q_ddot_meas + C + G;
 
   return tau_MCG;
+}
+
+
+/*****************************************************************************
+** MPC
+*****************************************************************************/
+Eigen::Vector2d InchJoint::MPC_controller_2Link(Eigen::Vector2d ref_)
+{
+  Eigen::Vector2d v_MPC;
+  Eigen::Vector2d theta_MPC;
+  Eigen::Vector2d tau_MPC;
+  Eigen::Matrix2d M;
+  Eigen::Vector2d C;
+  Eigen::Vector2d G;
+
+  v_MPC = K3 * ref_ - K1 * q_meas  - K2 * q_dot_meas;
+  M = M_Matrix();
+  C = C_Matrix();
+  G = G_Matrix();
+
+
+  tau_MPC = M * v_MPC + C + G;
+  tau_MPC[0] = tau_MPC[0] / k_sp[0];
+  tau_MPC[1] = tau_MPC[1] / k_sp[1];
+  theta_MPC = q_meas - tau_MPC;
+
+  return theta_MPC;
+}
+
+
+
+void InchJoint::init_MPC_controller_2Link(double w0_Link1, double zeta_Link1, double w0_Link2, double zeta_Link2)
+{
+  double k1_Link1 = w0_Link1 * w0_Link1;
+  double k2_Link1 = 2 * zeta_Link1 * w0_Link1;
+  double k3_Link1 = k1_Link1;
+
+  double k1_Link2 = w0_Link2 * w0_Link2;
+  double k2_Link2 = 2 * zeta_Link2 * w0_Link2;
+  double k3_Link2 = k1_Link2;
+
+  K1 << k1_Link1, 0,
+            0,   k1_Link2;
+  K2 << k2_Link1, 0,
+            0,   k2_Link2;
+  K3 << k3_Link1, 0,
+            0,   k3_Link2;
+}
+
+
+void InchJoint::init_Link1_MPC_controller(double w0_, double zeta_)
+{
+
+
 }
 
 

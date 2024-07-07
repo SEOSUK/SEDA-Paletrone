@@ -48,6 +48,15 @@ class InchControl : public inch::InchWorkbench
   double Link1_mass;
   double Link2_mass;
 
+  double Link1_spring;
+  double Link2_spring;
+
+  double Gravity;
+  double N1;
+  double N2;
+  double N3;
+  
+
 
   std::string robot_name_;
 

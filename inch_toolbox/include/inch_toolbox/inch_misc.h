@@ -36,7 +36,6 @@ namespace inch
     double NumDiff(double input_data_, double time_loop_);
     double debugger_saturation(double input_data_);
     double tanh_function(double input_data, double cut_off_force);
-
     
   private:
     /*****************************************************************************
@@ -66,6 +65,8 @@ namespace inch
     double input_data_prev;
     double dead_zone_max;
     double dead_zone_min;
+
+    
 
     /*****************************************************************************
     ** Define functions

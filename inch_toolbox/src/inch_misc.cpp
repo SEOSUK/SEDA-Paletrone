@@ -111,5 +111,5 @@ double InchMisc::debugger_saturation(double input_data_)
 double InchMisc::tanh_function(double input_data, double cut_off_force)
 {
   double data = input_data / cut_off_force * 4;
-  return abs((exp(data) - exp(-data)) / (exp(data) + exp(-data)));
+  return input_data * abs((exp(data) - exp(-data)) / (exp(data) + exp(-data)));
 }

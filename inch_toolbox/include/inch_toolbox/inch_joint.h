@@ -25,6 +25,27 @@ class InchJoint : public inch::InchMisc
   ** Define functions
   *****************************************************************************/
   void test();
+  void dynamixel_callback(const sensor_msgs::JointState::ConstPtr &msg);
+  void encoder_phi_callback(const std_msgs::Float64MultiArray::ConstPtr &msg);
+  void calc_angle_timer_callback(const ros::TimerEvent&);
+
+  Eigen::Vector2d MPC_controller_2Link(Eigen::Vector2d ref_);
+  void init_MPC_controller_2Link(double w0_Link1, double zeta_Link1, double w0_Link2, double zeta_Link2);
+  void init_Link1_MPC_controller(double w0_, double zeta_);
+
+
+  Eigen::Matrix2d M_Matrix();
+  Eigen::Vector2d C_Matrix();
+  Eigen::Vector2d G_Matrix();
+  Eigen::Vector2d calc_MCGDynamics();
+  
+  void initPublisher();
+  void initSubscriber();
+  void initTimerCallback();
+  void initParameters();
+
+
+
 
 
   InchMisc *inch_q1_dot_;
@@ -47,9 +68,31 @@ class InchJoint : public inch::InchMisc
   Eigen::Vector2d tau_MCG;
 
 
+
   Eigen::Vector2d q_dot_meas;
   Eigen::Vector2d q_ddot_meas;
   Eigen::Vector2d phi_dot_meas;
+
+  double Link1_length;
+  double Link2_length;
+
+  double Link1_COM;
+  double Link2_COM;
+
+  double Link1_mass;
+  double Link2_mass;
+
+  double Link1_spring;
+  double Link2_spring;
+
+  double Gravity;
+  double N1;
+  double N2;
+  double N3;
+
+  Eigen::Matrix2d K1;
+  Eigen::Matrix2d K2;
+  Eigen::Matrix2d K3;  
 
 
  private:
@@ -79,27 +122,8 @@ class InchJoint : public inch::InchMisc
   /*****************************************************************************
   ** Define functions
   *****************************************************************************/
-  void dynamixel_callback(const sensor_msgs::JointState::ConstPtr &msg);
-  void encoder_phi_callback(const std_msgs::Float64MultiArray::ConstPtr &msg);
-  void calc_angle_timer_callback(const ros::TimerEvent&);
-  Eigen::Matrix2d M_Matrix();
-  Eigen::Matrix2d C_Matrix();
-  Eigen::Vector2d G_Matrix();
-  Eigen::Vector2d calc_MCGDynamics();
-  
-  void initPublisher();
-  void initSubscriber();
-  void initTimerCallback();
-  void initParameters();
 
-  double Link1_length;
-  double Link2_length;
 
-  double Link1_COM;
-  double Link2_COM;
-  
-  double Link1_mass;
-  double Link2_mass;
 };
 
 #endif /*INCH_JOINT_H_*/

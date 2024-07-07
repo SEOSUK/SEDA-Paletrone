@@ -6,25 +6,42 @@
   <arg name="Link1_length"				default="0.24215"/>
   <arg name="Link2_length"				default="0.1759"/>
 
-  <arg name="Link1_COM"				default="1"/>
-  <arg name="Link2_COM"				default="2"/>
+  <arg name="Link1_COM"				default="0.163"/>
+  <arg name="Link2_COM"				default="0.076"/>
 
-  <arg name="Link1_mass"				default="3"/>
-  <arg name="Link2_mass"				default="4"/>
+  <arg name="Link1_mass"				default="0.375"/>
+  <arg name="Link2_mass"				default="0.135"/>
+  
+  <arg name="Link1_spring"				default="5.10"/>
+  <arg name="Link2_spring"				default="2.55"/>  
+  
+  <arg name="Gravity"					default="9.81"/>
 
-  <param name="robot_name"           value="$(arg robot_name)"/>
-  <param name="Link1_length"         value="$(arg Link1_length)"/>
-  <param name="Link2_length"         value="$(arg Link2_length)"/>
+  <arg name="N1"					default="5.10"/>
+  <arg name="N2"					default="2.55"/>  
+  <arg name="N3"					default="5.10"/>
 
-  <param name="Link1_COM"            value="$(arg Link1_COM)"/>  
-  <param name="Link2_COM"            value="$(arg Link2_COM)"/>
-  
-  <param name="Link1_mass"           value="$(arg Link1_mass)"/>  
-  <param name="Link2_mass"           value="$(arg Link2_mass)"/>
 
+  <param name="robot_name"         	  value="$(arg robot_name)"/>
+  <param name="Link1_length"       	  value="$(arg Link1_length)"/>
+  <param name="Link2_length"       	  value="$(arg Link2_length)"/>
+
+  <param name="Link1_COM"          	  value="$(arg Link1_COM)"/>  
+  <param name="Link2_COM"           	  value="$(arg Link2_COM)"/>
   
+  <param name="Link1_mass"         	  value="$(arg Link1_mass)"/>  
+  <param name="Link2_mass"           	  value="$(arg Link2_mass)"/>
+
+  <param name="Link1_spring"            value="$(arg Link1_spring)"/>  
+  <param name="Link2_spring"            value="$(arg Link2_spring)"/>  
   
+  <param name="Gravity"                 value="$(arg Gravity)"/>  
+
+  <param name="N1"      		  value="$(arg N1)"/>  
+  <param name="N2"           		  value="$(arg N2)"/>    
+  <param name="N3"       		  value="$(arg N3)"/>  
   
+    
   <node name="inch_manipulator_control" pkg="inch_controllers" type="inch_manipulator_control" required="true" output="screen"> 
   </node>
 

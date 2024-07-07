@@ -9,7 +9,7 @@
 
   <arg name="position_p_gain"	             default="800"/>
   <arg name="position_i_gain" 	             default="0"/>
-  <arg name="position_d_gain"    	     default="3000"/>
+  <arg name="position_d_gain"    	     default="9500"/>
 
   <param name="device_name"              value="$(arg device_name)"/>
   <param name="baud_rate"                value="$(arg baud_rate)"/>

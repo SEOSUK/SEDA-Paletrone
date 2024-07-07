@@ -16,7 +16,15 @@ InchControl::InchControl()
 
   Link1_mass = node_handle_.param<double>("Link1_mass", 0);
   Link2_mass = node_handle_.param<double>("Link2_mass", 0);
+  
+  Link1_spring = node_handle_.param<double>("Link1_spring", 0);
+  Link2_spring = node_handle_.param<double>("Link2_spring", 0);
 
+  Gravity = node_handle_.param<double>("Gravity", 0);
+
+  N1 = node_handle_.param<double>("N1", 0);
+  N2 = node_handle_.param<double>("N2", 0);
+  N3 = node_handle_.param<double>("N3", 0);
 
   /************************************************************
   ** class init
@@ -111,12 +119,15 @@ void InchControl::PublishData()
   // test_msg.data[6] = F_ext[0]; // 
   // test_msg.data[7] = F_ext[1]; //     tau_ext 충분히 가공하고 F_ext 확인
   
-  test_msg.data[0] = q_ref[0]; // 레퍼런스
-  test_msg.data[1] = q_cmd[0]; // 어드미턴스 통과 레퍼런스
-  test_msg.data[2] = inch_joint->q_meas[0]; // 에러
-  test_msg.data[3] = theta_cmd[0]; // 서보커맨드
-  test_msg.data[4] = inch_joint->theta_meas[0]; // 서보커맨드
+  test_msg.data[0] = q_cmd[0]; // 레퍼런스
+  test_msg.data[1] = inch_joint->q_meas[0]; // 어드미턴스 통과 레퍼런스
+  test_msg.data[2] = theta_cmd[0]; // 에러
+  test_msg.data[3] = inch_joint->theta_meas[0]; // 서보커맨드
 
+  test_msg.data[4] = q_cmd[1]; // 레퍼런스
+  test_msg.data[5] = inch_joint->q_meas[1]; // 어드미턴스 통과 레퍼런스
+  test_msg.data[6] = theta_cmd[1]; // 에러
+  test_msg.data[7] = inch_joint->theta_meas[1]; // 서보커맨드
 
   test_pub_.publish(test_msg);
 }
@@ -242,8 +253,8 @@ void InchControl::HanryungInit()
   inch_link1_PID = new InchMisc(); // link1에 pid 쓸거임
   inch_link2_PID = new InchMisc(); // link1에 pid 쓸거임
 
-  inch_link1_PID->init_PID_controller(1, 0.001, 0.05, 40);
-  inch_link2_PID->init_PID_controller(1, 0.001, 0.05, 40);
+  inch_link1_PID->init_PID_controller(1, 0.001, 0.0, 40);
+  inch_link2_PID->init_PID_controller(1, 0.001, 0.0, 40);
 
   init_Admittance(0.05, 0.1, 0.5);
 }
@@ -265,43 +276,52 @@ void InchControl::HanryungWhile()
 
 
   //Saturation
-  if (theta_cmd[0] > 90*PI/180) 
-  {
-    ROS_ERROR("OVER, %lf", theta_cmd[0]);
-    theta_cmd[0] = 90*PI/180;
-  }
-  else if (theta_cmd[0] < -10*PI/180) 
-  {
-    ROS_ERROR("UNDER, %lf", theta_cmd[0]);
-    theta_cmd[0] = -10*PI/180;
-  }
+  // if (theta_cmd[0] > 90*PI/180) 
+  // {
+  //   ROS_ERROR("OVER, %lf", theta_cmd[0]);
+  //   theta_cmd[0] = 90*PI/180;
+  // }
+  // else if (theta_cmd[0] < -10*PI/180) 
+  // {
+  //   ROS_ERROR("UNDER, %lf", theta_cmd[0]);
+  //   theta_cmd[0] = -10*PI/180;
+  // }
 
 }
 
 void InchControl::SeukInit()
 {
-  inch_link1_PID->init_PID_controller(1, 0.001, 0., 40);
-  inch_link2_PID->init_PID_controller(1, 0.001, 0., 40);
-  init_Admittance(0.1, 0.5, 0.5);
+  inch_link1_PID = new InchMisc(); // link1에 pid 쓸거임
+  inch_link2_PID = new InchMisc(); // link2에 pid 쓸거임
 
+  inch_link1_PID->init_PID_controller(1, 0.00, 0.05, 40);
+  inch_link2_PID->init_PID_controller(1, 0.00, 0.05, 40);
+  //init_Admittance(0.1, 0.5, 0.5);
+  inch_joint->init_MPC_controller_2Link(1, 1, 1, 1);
 }
 
 void InchControl::SeukWhile()
 {
 
-  Test_trajectory_generator_2dof();
-  F_ext = F_ext_processing(); // F_ext Fitting 필요 !!!!
-  EE_cmd[0] = admittanceControly(EE_ref[0], F_ext[0], time_loop);
-  EE_cmd[1] = admittanceControly(EE_ref[1], F_ext[1], time_loop);
+  //Test_trajectory_generator_2dof();
+  //F_ext = F_ext_processing(); // F_ext Fitting 필요 !!!!
+  //EE_cmd[0] = admittanceControly(EE_ref[0], F_ext[0], time_loop);
+  //EE_cmd[1] = admittanceControly(EE_ref[1], F_ext[1], time_loop);
   
-  q_cmd = InverseKinematics_2dof(EE_cmd);
-  
-  theta_cmd[0] = q_cmd[0] + inch_link1_PID->PID_controller(q_cmd[0], - inch_joint->q_meas[0], time_loop);
-  theta_cmd[1] = q_cmd[1] + inch_link1_PID->PID_controller(q_cmd[1], - inch_joint->q_meas[1], time_loop);
-  // 또는 유진's MPC!! 
+  //q_cmd = InverseKinematics_2dof(EE_cmd);
+  q_cmd[0] = 70 * PI /180;
+  q_cmd[1] = 60 * PI /180;
   
 
-  EE_meas = ForwardKinematics_2dof(inch_joint->q_meas);
+
+  // IF PID!!
+  // theta_cmd[0] = q_cmd[0] + inch_link1_PID->PID_controller(q_cmd[0], inch_joint->q_meas[0], time_loop);
+  // theta_cmd[1] = q_cmd[1] + inch_link2_PID->PID_controller(q_cmd[1], inch_joint->q_meas[1], time_loop);
+  // IF MPC!!
+    theta_cmd = inch_joint->MPC_controller_2Link(EE_cmd);
+  
+
+  //EE_meas = ForwardKinematics_2dof(inch_joint->q_meas);
 }
 
 
@@ -311,8 +331,8 @@ int main(int argc, char **argv)
   InchControl inch_ctrl_;
 
 //  inch_ctrl_.YujinInit();
-  inch_ctrl_.HanryungInit();
-//  inch_ctrl_.SeukInit();
+  //inch_ctrl_.HanryungInit();
+  inch_ctrl_.SeukInit();
 
   ros::Rate loop_rate(200);
 
@@ -321,8 +341,8 @@ int main(int argc, char **argv)
     inch_ctrl_.TimeCount();
 
   //  inch_ctrl_.YujinWhile();
-    inch_ctrl_.HanryungWhile();
-  //  inch_ctrl_.SeukWhile();
+  //  inch_ctrl_.HanryungWhile();
+    inch_ctrl_.SeukWhile();
 
     inch_ctrl_.PublishData();
 

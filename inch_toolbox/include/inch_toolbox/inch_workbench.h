@@ -38,7 +38,9 @@ namespace inch
     Eigen::Vector2d admit_y_C;
     Eigen::Vector2d admit_y_state;
     Eigen::Vector2d admit_y_state_dot;
-    
+    Eigen::Vector2d theta_ref_i;
+    Eigen::Vector2d EE_command_vel_limit;
+    Eigen::Vector2d EE_command_vel_limit_i;
 
     /*****************************************************************************
     ** Define functions
@@ -52,6 +54,7 @@ namespace inch
     Eigen::Vector2d ForwardKinematics_2dof(Eigen::Vector2d q_meas_);
     Eigen::Matrix2d Jacobian(Eigen::Vector2d q_meas_);
     Eigen::Vector2d ForceEstimation(Eigen::Vector2d q_meas_, Eigen::Vector2d tau_ext_);
+    Eigen::Vector2d CommandVelocityLimit(Eigen::Vector2d EE_cmd_, double vel_limit_, double time_loop_);
 
 
   private:

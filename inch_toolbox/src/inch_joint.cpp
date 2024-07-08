@@ -82,7 +82,7 @@ void InchJoint::encoder_phi_callback(const std_msgs::Float64MultiArray::ConstPtr
   tau_phi[0] = -k_sp[0] * phi_meas[0];
   tau_phi[1] = -k_sp[1] * phi_meas[1];
 
-  ROS_INFO("phi1: [%lf]  phi2: [%lf]", phi_meas[0], phi_meas[1]);
+  // ROS_INFO("phi1: [%lf]  phi2: [%lf]", phi_meas[0], phi_meas[1]);
 }
 
 void InchJoint::calc_angle_timer_callback(const ros::TimerEvent&)

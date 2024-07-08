@@ -40,8 +40,51 @@ Eigen::Vector2d InchWorkbench::InverseKinematics_2dof(Eigen::Vector2d EE_cmd_)
   theta_ref[1] = acos((pow(EE_cmd_[0],2) +  pow(EE_cmd_[1],2) - pow(Link1_length,2) - pow(Link2_length,2)) / (2*Link1_length*Link2_length));
   theta_ref[0] = atan(EE_cmd_[1] / EE_cmd_[0]) - atan((Link2_length * sin(theta_ref[1])/(Link1_length + Link2_length * cos(theta_ref[1]))));
 
-  return theta_ref;
+
+  if (std::isnan(theta_ref[0]) || std::isnan(theta_ref[1]) ||
+    (Link1_length + Link2_length) < sqrt(EE_cmd_[0] * EE_cmd_[0] + EE_cmd_[1] * EE_cmd_[1]))
+  {
+    ROS_ERROR("Outa Of WorkSpace!!!");
+    return theta_ref_i;
+  }
+  else if (abs(theta_ref[1]) > 106 * PI / 180)
+  {
+    ROS_ERROR("Joint 2 is in Constraint!!: [%lf]", theta_ref[1]);
+    return theta_ref_i;
+  }
+  else
+  {
+    theta_ref_i = theta_ref;
+    return theta_ref;
+  }
 }
+
+
+Eigen::Vector2d InchWorkbench::CommandVelocityLimit(Eigen::Vector2d EE_cmd_, double vel_limit_, double time_loop_)
+{
+
+  for (int i = 0; i < 2; i++)
+  {
+    if((EE_cmd_[i] - EE_command_vel_limit[i]) > vel_limit_ * time_loop_)
+    {
+      EE_command_vel_limit[i] = EE_command_vel_limit[i] + vel_limit_ * time_loop_;
+    }
+    else if ((EE_cmd_[i] - EE_command_vel_limit[i]) < - vel_limit_ * time_loop_) 
+    {
+      EE_command_vel_limit[i] = EE_command_vel_limit[i] - vel_limit_ * time_loop_;     
+    }
+    else
+    {
+      EE_command_vel_limit[i] = EE_cmd_[i];
+    }
+  }
+
+
+  return EE_command_vel_limit;
+}
+
+
+
 
 Eigen::Vector2d InchWorkbench::ForwardKinematics_2dof(Eigen::Vector2d q_meas_)
 {

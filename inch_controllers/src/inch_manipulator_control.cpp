@@ -103,8 +103,8 @@ void InchControl::PublishData()
 
   //inch/EE_meas
   //End Effector position from FK
-  EE_meas_msg.linear.x = EE_cmd[0];
-  EE_meas_msg.linear.y = EE_cmd[1];
+  EE_meas_msg.linear.x = EE_meas[0];
+  EE_meas_msg.linear.y = EE_meas[1];
   EE_meas_pub_.publish(EE_meas_msg);
 
 
@@ -119,15 +119,12 @@ void InchControl::PublishData()
   // test_msg.data[6] = F_ext[0]; // 
   // test_msg.data[7] = F_ext[1]; //     tau_ext 충분히 가공하고 F_ext 확인
   
-  test_msg.data[0] = q_cmd[0]; // 레퍼런스
-  test_msg.data[1] = inch_joint->q_meas[0]; // 어드미턴스 통과 레퍼런스
-  test_msg.data[2] = theta_cmd[0]; // 에러
-  test_msg.data[3] = inch_joint->theta_meas[0]; // 서보커맨드
+  test_msg.data[0] = EE_ref[0]; // 레퍼런스
+  test_msg.data[1] = EE_cmd[0]; // 어드미턴스 통과 레퍼런스
 
-  test_msg.data[4] = q_cmd[1]; // 레퍼런스
-  test_msg.data[5] = inch_joint->q_meas[1]; // 어드미턴스 통과 레퍼런스
-  test_msg.data[6] = theta_cmd[1]; // 에러
-  test_msg.data[7] = inch_joint->theta_meas[1]; // 서보커맨드
+
+  test_msg.data[4] = EE_ref[1]; // 레퍼런스
+  test_msg.data[5] = EE_cmd[1]; // 어드미턴스 통과 레퍼런스
 
   test_pub_.publish(test_msg);
 }
@@ -167,8 +164,8 @@ void InchControl::Trajectory_mode()
 
 void InchControl::Test_trajectory_generator_2dof()
 {
-   EE_ref[0] = 0.6 * sin (2 *PI * 0.3 * time_real) + 0.3; // sine wave
-   EE_ref[1] = 0.1; // sine wave
+   EE_ref[0] = 0.2 * sin (2 *PI * 0.3 * time_real); // sine wave
+   EE_ref[1] = 0.2; // sine wave
 
 //else time_real = 0;
   
@@ -309,19 +306,30 @@ void InchControl::SeukWhile()
   //EE_cmd[1] = admittanceControly(EE_ref[1], F_ext[1], time_loop);
   
   //q_cmd = InverseKinematics_2dof(EE_cmd);
-  q_cmd[0] = 70 * PI /180;
-  q_cmd[1] = 60 * PI /180;
-  
+
+   EE_ref[0] = 0.05 * sin (2 *PI * 0.3 * time_real) + 0.15; // sine wave
+   EE_ref[1] = 0.35; // sine wave
+
+
+  //EE_cmd = CommandVelocityLimit(EE_ref, 0.1, time_loop);
+  theta_cmd = InverseKinematics_2dof(EE_ref);
 
 
   // IF PID!!
   // theta_cmd[0] = q_cmd[0] + inch_link1_PID->PID_controller(q_cmd[0], inch_joint->q_meas[0], time_loop);
   // theta_cmd[1] = q_cmd[1] + inch_link2_PID->PID_controller(q_cmd[1], inch_joint->q_meas[1], time_loop);
   // IF MPC!!
-    theta_cmd = inch_joint->MPC_controller_2Link(EE_cmd);
-  
 
-  //EE_meas = ForwardKinematics_2dof(inch_joint->q_meas);
+  //  theta_cmd = inch_joint->MPC_controller_2Link(EE_cmd);
+
+
+  EE_meas = ForwardKinematics_2dof(inch_joint->theta_meas);
+  theta_cmd = InverseKinematics_2dof(EE_meas);
+
+  ROS_INFO("FK : [%lf], [%lf], CMD: [%lf], [%lf]", EE_meas[0], EE_meas[1], theta_cmd[0], theta_cmd[1]);
+  ROS_INFO("ref - FK : [%lf], [%lf]", EE_ref[0] - EE_meas[0], EE_ref[1] - EE_meas[1]);
+  // IK, FK Cross Check!!
+
 }
 
 

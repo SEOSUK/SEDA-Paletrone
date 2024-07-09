@@ -59,6 +59,7 @@ void InchJoint::initSubscriber()
 void InchJoint::initParameters()
 {
   k_sp << Link1_spring, Link2_spring;
+
 }
 
 void InchJoint::initTimerCallback()
@@ -157,7 +158,7 @@ Eigen::Vector2d InchJoint::MPC_controller_2Link(Eigen::Vector2d ref_)
 {
   Eigen::Vector2d v_MPC;
   Eigen::Vector2d theta_MPC;
-  Eigen::Vector2d tau_MPC;
+  
   Eigen::Matrix2d M;
   Eigen::Vector2d C;
   Eigen::Vector2d G;
@@ -169,9 +170,11 @@ Eigen::Vector2d InchJoint::MPC_controller_2Link(Eigen::Vector2d ref_)
 
 
   tau_MPC = M * v_MPC + C + G;
-  tau_MPC[0] = tau_MPC[0] / k_sp[0];
-  tau_MPC[1] = tau_MPC[1] / k_sp[1];
-  theta_MPC = q_meas - tau_MPC;
+  phi_MPC[0] = - tau_MPC[0] / k_sp[0];
+  phi_MPC[1] = - tau_MPC[1] / k_sp[1];
+  theta_MPC = ref_ - phi_MPC;
+
+  // ROS_INFO("%lf %lf", tau_MPC[0], tau_MPC[1]);
 
   return theta_MPC;
 }
@@ -187,6 +190,14 @@ void InchJoint::init_MPC_controller_2Link(double w0_Link1, double zeta_Link1, do
   double k1_Link2 = w0_Link2 * w0_Link2;
   double k2_Link2 = 2 * zeta_Link2 * w0_Link2;
   double k3_Link2 = k1_Link2;
+  //   double k1_Link1 = 1;
+  // double k2_Link1 = 0.05;
+  // double k3_Link1 = 2;
+
+  // double k1_Link2 = 1;
+  // double k2_Link2 = 0.05;
+  // double k3_Link2 = 2;
+
 
   K1 << k1_Link1, 0,
             0,   k1_Link2;

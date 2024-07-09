@@ -12,8 +12,8 @@
   <arg name="Link1_mass"				default="0.375"/>
   <arg name="Link2_mass"				default="0.135"/>
   
-  <arg name="Link1_spring"				default="4.5"/>
-  <arg name="Link2_spring"				default="2.55025"/>  
+  <arg name="Link1_spring"				default="5.1"/>
+  <arg name="Link2_spring"				default="2.55"/>  
   
   <arg name="init_X"					default="0.17"/>
   <arg name="init_Y"					default="0.34"/>    

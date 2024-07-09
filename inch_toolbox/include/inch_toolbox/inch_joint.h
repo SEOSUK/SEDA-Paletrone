@@ -67,6 +67,10 @@ class InchJoint : public inch::InchMisc
   Eigen::Vector2d tau_phi;
   Eigen::Vector2d tau_MCG;
 
+  Eigen::Vector2d tau_MPC;
+
+  Eigen::Vector2d phi_MPC;
+
 
 
   Eigen::Vector2d q_dot_meas;

@@ -148,6 +148,7 @@ class InchControl : public inch::InchWorkbench
   *****************************************************************************/
   Eigen::Vector2d q_ref;
   Eigen::Vector2d q_cmd;
+  Eigen::Vector2d q_des;
   Eigen::Vector2d theta_ref; // theta 레퍼런스
   Eigen::Vector2d theta_des; // theta 레퍼런스 (속도리미트 걸림)
   Eigen::Vector2d theta_cmd; // theta 커맨드 (제어기 통과)

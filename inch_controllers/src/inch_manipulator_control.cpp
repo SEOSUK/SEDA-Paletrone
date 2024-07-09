@@ -52,7 +52,7 @@ InchControl::InchControl()
   // Initializer
   // 처음에 딱 한 번 발동했음 하는 것들 모음
   time_i = ros::Time::now().toSec();
-  test_msg.data.resize(10);
+  test_msg.data.resize(20);
 
 
 
@@ -118,6 +118,8 @@ void InchControl::PublishData()
   //End Effector position ref
   EE_ref_msg.linear.y = EE_ref[0];
   EE_ref_msg.linear.z = EE_ref[1];
+  EE_ref_msg.angular.y = EE_cmd[0];
+  EE_ref_msg.angular.z = EE_cmd[1];
   EE_ref_pub_.publish(EE_ref_msg);
 
 
@@ -125,11 +127,28 @@ void InchControl::PublishData()
   //inch/test_Pub
   //Just test
   test_msg.data[0] = init_theta[0]; // 
-  test_msg.data[1] = theta_cmd[0]; // 
+  test_msg.data[1] = theta_cmd[0]; // Motor command
+
+  // test_msg.data[4] = init_theta[1]; // 
+  // test_msg.data[5] = theta_cmd[1]; // 
+
+  // test_msg.data[3] = q_ref[0]; // IK
+  // test_msg.data[4] = theta_des[0]; // vel IK
+
+  
+  test_msg.data[3] = inch_joint->q_meas[0]; 
+  test_msg.data[4] = q_ref[0]; 
+  // test_msg.data[3] = q_cmd[0]; 
+  // test_msg.data[3] = inch_joint->q_meas[0]; 
+  // test_msg.data[3] = inch_joint->q_meas[0]; 
+
+  test_msg.data[6] = inch_joint->phi_meas[0]; 
+  test_msg.data[7] = inch_joint->phi_MPC[0]; 
+  test_msg.data[8] = inch_joint->phi_meas[1]; 
+  test_msg.data[9] = inch_joint->phi_MPC[1]; 
 
 
-  test_msg.data[4] = init_theta[1]; // 
-  test_msg.data[5] = theta_cmd[1]; // 
+
 
   test_pub_.publish(test_msg);
 }
@@ -166,7 +185,6 @@ void InchControl::Trajectory_mode()
   if (gimbal_Flag) Test_trajectory_generator_2dof();
   else trajectory_gimbaling();
 }
-
 
 void InchControl::Test_trajectory_generator_2dof()
 {
@@ -265,41 +283,10 @@ void InchControl::YujinWhile()
 void InchControl::HanryungInit()
 {
 
-  // inch_link1_PID = new InchMisc(); // link1에 pid 쓸거임
-  // inch_link2_PID = new InchMisc(); // link1에 pid 쓸거임
-
-  // inch_link1_PID->init_PID_controller(1, 0.001, 0.0, 40);
-  // inch_link2_PID->init_PID_controller(1, 0.001, 0.0, 40);
-
 }
 
 void InchControl::HanryungWhile()
 {
-  // //command generation
-  // //q_ref[0] = 30 * PI / 180 * sin (2 * PI * 0.1* time_real) + 45 * PI / 180 ; // sine wave
-  // q_ref[0] = 60 * PI / 180;
-  // q_ref[1] = 45 * PI / 180;
-
-  // double k_spring = 1;
-  // //admittance
-  // //q_cmd[0] = admittanceControly(q_ref[0], -k_spring * inch_joint->phi_meas[0], time_loop);
-  
-  // //PID
-  // theta_cmd[0] = q_ref[0] + inch_link1_PID->PID_controller(q_ref[0], inch_joint->q_meas[0], time_loop);
-  // theta_cmd[1] = q_ref[1] + inch_link2_PID->PID_controller(q_ref[1], inch_joint->q_meas[1], time_loop);
-
-
-  // //Saturation
-  // // if (theta_cmd[0] > 90*PI/180) 
-  // // {
-  // //   ROS_ERROR("OVER, %lf", theta_cmd[0]);
-  // //   theta_cmd[0] = 90*PI/180;
-  // // }
-  // // else if (theta_cmd[0] < -10*PI/180) 
-  // // {
-  // //   ROS_ERROR("UNDER, %lf", theta_cmd[0]);
-  // //   theta_cmd[0] = -10*PI/180;
-  // // }
 
 }
 
@@ -310,13 +297,14 @@ void InchControl::SeukInit()
 
   inch_link1_PID->init_PID_controller(1, 0.00, 0.05, 40);
   inch_link2_PID->init_PID_controller(1, 0.00, 0.05, 40);
+  // P:1 D:0.05 
 
-  init_Admittancey(10000, 10000, 0.5);
-  init_Admittancez(10000, 10000, 0.5);
+  init_Admittancey(0.5, 3, 3);
+  // init_Admittancez(1, 6, 6);
 
 
   //init_Admittance(0.1, 0.5, 0.5);
-  inch_joint->init_MPC_controller_2Link(1, 1, 1, 1);
+  inch_joint->init_MPC_controller_2Link(8, 1/sqrt(2), 8, 1/sqrt(2));
 
   init_pose << 0.17, 0.34;
 
@@ -336,41 +324,71 @@ void InchControl::SeukInit()
 
 void InchControl::SeukWhile()
 {
-  // 1st step: init_pose safe 및 command Velocity Limit  확인
-  EE_ref = init_pose;
-
-  theta_ref = InverseKinematics_2dof(EE_ref);
-  //theta_des = CommandVelocityLimit(theta_ref, 0.1, time_loop);
-
-  theta_cmd = theta_ref;
-
-  // --------------------------------------------------------------
-  // 2st step: MPC로 cmd 제어 해보기
-  // EE_ref = init_pose;
+  // // 1st step: init_pose safe 및 command Velocity Limit  확인
+  // EE_ref << 0.2, 0.3;
 
   // theta_ref = InverseKinematics_2dof(EE_ref);
   // theta_des = CommandVelocityLimit(theta_ref, 0.1, time_loop);
 
-  // theta_cmd = inch_joint->MPC_controller_2Link(theta_des);
+  // theta_cmd = theta_des;
 
+  // // --------------------------------------------------------------
+  // // 2st step: MPC로 cmd 제어 해보기
+  // EE_ref = init_pose;
+
+  // q_ref = InverseKinematics_2dof(EE_ref);
+  // q_des = CommandVelocityLimit(q_ref, 0.1, time_loop);
+  // // theta_cmd = theta_des;
+  // theta_cmd = inch_joint->MPC_controller_2Link(q_des);
+
+  // ROS_INFO("%lf %lf", q_ref[0], inch_joint->q_meas[0]);
+
+
+  // // --------------------------------------------------------------
+  // // 2-1 nd step: PID로 cmd 제어 해보기
+  // EE_ref = init_pose;
+
+  // q_ref = InverseKinematics_2dof(EE_ref);
+  // q_des = CommandVelocityLimit(q_ref, 0.1, time_loop);
+  // // theta_cmd = theta_des;
+  // theta_cmd[0] = q_des[0] + inch_link1_PID->PID_controller(q_des[0], inch_joint->q_meas[0], time_loop);
+  // theta_cmd[1] = q_des[1] + inch_link2_PID->PID_controller(q_des[1], inch_joint->q_meas[1], time_loop);
 
 
   // --------------------------------------------------------------
-  // // 3rd step: MPC + admittance
-  // EE_ref = init_pose;
+  // 3rd step: MPC + admittance
+  EE_ref = init_pose;
 
-  // EE_cmd[0] = admittanceControly(EE_ref[0], F_ext[0], time_loop);
-  // EE_cmd[1] = admittanceControlz(EE_ref[1], F_ext[1], time_loop);
+  F_ext = F_ext_processing();
 
-  // theta_ref = InverseKinematics_2dof(EE_cmd);
-  // theta_des = CommandVelocityLimit(theta_ref, 0.1, time_loop);
+  EE_cmd[0] = admittanceControly(EE_ref[0], F_ext[0], time_loop);
+  EE_cmd[1] = EE_ref[1];
 
-  // theta_cmd = inch_joint->MPC_controller_2Link(theta_des);
+  q_ref = InverseKinematics_2dof(EE_cmd);
+  q_des = CommandVelocityLimit(q_ref, 0.1, time_loop);
 
+  theta_cmd = inch_joint->MPC_controller_2Link(q_des);
+
+//   --------------------------------------------------------------
+//   // 3-1rd step: PID + admittance
+//   EE_ref = init_pose;
+
+//   F_ext = F_ext_processing();
+
+//   EE_cmd[0] = admittanceControly(EE_ref[0], F_ext[0], time_loop);
+//   // EE_cmd[1] = admittanceControlz(EE_ref[1], F_ext[1], time_loop);
+//   EE_cmd[1] = EE_ref[1]; 
+
+
+//   q_ref = InverseKinematics_2dof(EE_cmd);
+//   q_des = CommandVelocityLimit(q_ref, 0.1, time_loop);
+
+//   theta_cmd[0] = q_des[0] + inch_link1_PID->PID_controller(q_des[0], inch_joint->q_meas[0], time_loop);
+//   theta_cmd[1] = q_des[1] + inch_link2_PID->PID_controller(q_des[1], inch_joint->q_meas[1], time_loop);
 
 
 /////////////////////////////////////////////////////////////////
-  EE_meas = ForwardKinematics_2dof(inch_joint->theta_meas);
+  EE_meas = ForwardKinematics_2dof(inch_joint->q_meas);
 
 }
 

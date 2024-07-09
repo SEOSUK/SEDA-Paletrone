@@ -10,6 +10,12 @@ InchMisc::InchMisc()
   bw_2nd_state_dot = bw_2nd_state_dot.transpose();
 
   init_butterworth_2nd_filter(40);
+
+  init_X = priv_nh_.param<double>("init_X", 0);
+  init_Y = priv_nh_.param<double>("init_Y", 0);
+
+  init_pose << init_X, init_Y;
+  EE_command_vel_limit << 0.745600, 0.870141;
 }
 
 InchMisc::~InchMisc()
@@ -112,4 +118,27 @@ double InchMisc::tanh_function(double input_data, double cut_off_force)
 {
   double data = input_data / cut_off_force * 4;
   return input_data * abs((exp(data) - exp(-data)) / (exp(data) + exp(-data)));
+}
+
+Eigen::Vector2d InchMisc::CommandVelocityLimit(Eigen::Vector2d input_data_, double vel_limit_, double time_loop_)
+{
+
+  for (int i = 0; i < 2; i++)
+  {
+    if((input_data_[i] - EE_command_vel_limit[i]) > vel_limit_ * time_loop_)
+    {
+      EE_command_vel_limit[i] = EE_command_vel_limit[i] + vel_limit_ * time_loop_;
+    }
+    else if ((input_data_[i] - EE_command_vel_limit[i]) < - vel_limit_ * time_loop_) 
+    {
+      EE_command_vel_limit[i] = EE_command_vel_limit[i] - vel_limit_ * time_loop_;     
+    }
+    else
+    {
+      EE_command_vel_limit[i] = input_data_[i];
+    }
+  }
+
+
+  return EE_command_vel_limit;
 }

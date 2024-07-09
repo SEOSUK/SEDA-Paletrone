@@ -18,6 +18,7 @@
 #include <inch_toolbox/inch_workbench.h>
 #include <inch_toolbox/inch_joint.h>
 #include <inch_toolbox/inch_misc.h>
+#include <std_srvs/Empty.h>
 #define PI 3.141592
 
 using namespace inch;
@@ -51,11 +52,16 @@ class InchControl : public inch::InchWorkbench
   double Link1_spring;
   double Link2_spring;
 
+  double init_X;
+  double init_Y;
+
   double Gravity;
   double N1;
   double N2;
   double N3;
   
+  bool gimbal_Flag;
+  bool initPoseFlag;
 
 
   std::string robot_name_;
@@ -73,7 +79,12 @@ class InchControl : public inch::InchWorkbench
   void trajectory_gimbaling();
   void Experiment_0623_1Link();
   Eigen::Vector2d F_ext_processing();
+  void init_pose_function();
+  //ROS
+  void inch_gimbal_EE_cmd_callback(const geometry_msgs::Twist& msg);
+  bool gimbal_callback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
 
+  //TeamWork!
   void YujinWhile();
   void HanryungWhile();
   void SeukWhile();
@@ -117,6 +128,7 @@ class InchControl : public inch::InchWorkbench
   *****************************************************************************/
   ros::Publisher theta_command_pub_;
   ros::Publisher EE_meas_pub_;
+  ros::Publisher EE_ref_pub_;
   ros::Publisher test_pub_;
 
   /*****************************************************************************
@@ -124,7 +136,8 @@ class InchControl : public inch::InchWorkbench
   *****************************************************************************/
   ros::Subscriber dynamixel_workbench_sub_;
   ros::Subscriber Optitrack_sub_;
-
+  ros::Subscriber gimbal_EE_cmd_sub_;
+  ros::ServiceServer inch_gimbal_Flag_server_;
   /*****************************************************************************
   ** ROS Services Clients
   *****************************************************************************/
@@ -135,17 +148,22 @@ class InchControl : public inch::InchWorkbench
   *****************************************************************************/
   Eigen::Vector2d q_ref;
   Eigen::Vector2d q_cmd;
-  Eigen::Vector2d theta_cmd;
+  Eigen::Vector2d theta_ref; // theta 레퍼런스
+  Eigen::Vector2d theta_des; // theta 레퍼런스 (속도리미트 걸림)
+  Eigen::Vector2d theta_cmd; // theta 커맨드 (제어기 통과)
   Eigen::Vector2d EE_meas;
   Eigen::Vector2d EE_cmd;
+  Eigen::Vector2d EE_gimbal_cmd;
   Eigen::Vector2d EE_ref;
   Eigen::Vector2d F_ext;
   Eigen::Vector2d tau_ext;
+  Eigen::Vector2d init_pose;
+  Eigen::Vector2d init_theta;
   //Experiment_0623_1Link
-
 
   std_msgs::Float64MultiArray test_msg;
   geometry_msgs::Twist EE_meas_msg;
+  geometry_msgs::Twist EE_ref_msg;
   sensor_msgs::JointState theta_command_msg;
 
 };

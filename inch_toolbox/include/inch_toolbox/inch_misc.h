@@ -36,7 +36,8 @@ namespace inch
     double NumDiff(double input_data_, double time_loop_);
     double debugger_saturation(double input_data_);
     double tanh_function(double input_data, double cut_off_force);
-    
+    Eigen::Vector2d CommandVelocityLimit(Eigen::Vector2d input_data_, double vel_limit_, double time_loop_);
+
   private:
     /*****************************************************************************
     ** ROS NodeHandle
@@ -53,6 +54,9 @@ namespace inch
     Eigen::Vector2d bw_2nd_C;
     Eigen::Vector2d bw_2nd_state;
     Eigen::Vector2d bw_2nd_state_dot;
+    Eigen::Vector2d EE_command_vel_limit;
+    Eigen::Vector2d init_pose;
+    bool gimbal_Flag;
 
     //for PID controller
     double Kp;
@@ -66,8 +70,11 @@ namespace inch
     double dead_zone_max;
     double dead_zone_min;
 
-    
+    double init_X;
+    double init_Y;
 
+    
+    ros::Subscriber gimbal_Flag_sub_;
     /*****************************************************************************
     ** Define functions
     *****************************************************************************/

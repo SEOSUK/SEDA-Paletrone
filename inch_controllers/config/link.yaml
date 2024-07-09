@@ -1,8 +1,10 @@
 robot_name: inch
 
-length_1: 0.24215
+length_1: 0.11111111111111111
 length_2: 0.1759
 length_3: 0.
+
+Link1_spring: 58774
 
 server: 111.168.11.9
 local: 111.168.1000.9

@@ -14,6 +14,7 @@
 #include <geometry_msgs/Vector3.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <inch_toolbox/inch_misc.h>
+#include <std_srvs/Empty.h>
 
 
 #define PI 3.14159256359
@@ -31,7 +32,7 @@ class TFBroadcaster : public inch::InchMisc
   double time_i = 0;
   double time_f = 0;
   double time_loop = 0;
-
+  double gimbal_Flag;
   /*****************************************************************************
   ** Define functions
   *****************************************************************************/
@@ -65,8 +66,11 @@ class TFBroadcaster : public inch::InchMisc
   /*****************************************************************************
   ** ROS Subscribers, Callback Functions and Relevant Functions
   *****************************************************************************/
-  ros::Subscriber palletrone_optitrack_sub_;
-
+  ros::Subscriber inch_EE_meas_sub_;
+  ros::Subscriber inch_EE_cmd_sub_;
+  ros::Subscriber inch_BasePlate_sub_;
+  ros::ServiceServer inch_gimbal_Flag_server_;
+  
   /*****************************************************************************
   ** Define variables
   *****************************************************************************/
@@ -76,7 +80,12 @@ class TFBroadcaster : public inch::InchMisc
   ** Define functions
   *****************************************************************************/
 
-  void palletroneOptitrackCallback(const geometry_msgs::PoseStamped& msg);
+  void inch_EE_meas_callback(const geometry_msgs::Twist& msg);
+  void inch_EE_cmd_callback(const geometry_msgs::Twist& msg);
+
+  void inch_Palletrone_callback(const geometry_msgs::PoseStamped& msg);
+  bool gimbal_callback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
+  
 };
 
 #endif //TF_BROADCASTER_H_

@@ -15,12 +15,9 @@ int main(int argc, char** argv)
     tf2_ros::Buffer tfBuffer;
     tf2_ros::TransformListener tfListener(tfBuffer);
     
-    geometry_msgs::PoseStamped global_frame;
+    geometry_msgs::Twist gimbal_EE_cmd;
 
-    ros::Publisher listner_publisher = nh.advertise<geometry_msgs::PoseStamped>("/inch/tf/tf_listener", 10);
-
-  ros::Rate init_sleep(0.5);
-  init_sleep.sleep();
+    ros::Publisher gimbal_EE_cmd_pub_ = nh.advertise<geometry_msgs::Twist>("/inch/gimbal_EE_cmd", 10);
 
 
     ros::Rate rate(120);
@@ -31,7 +28,7 @@ int main(int argc, char** argv)
 
         try
         {
-            transformStamped = tfBuffer.lookupTransform("world", "tf/global_EE_pose", ros::Time(0));
+            transformStamped = tfBuffer.lookupTransform("tf/inch/Base", "tf/inch/EE_gimbal_tf", ros::Time(0));
         }
         catch(tf2::TransformException &ex)
         {
@@ -39,16 +36,12 @@ int main(int argc, char** argv)
             ros::Duration(1.0).sleep();
             continue;
         }
-        global_frame.pose.position.x = transformStamped.transform.translation.x;
-        global_frame.pose.position.y = transformStamped.transform.translation.y;
-        global_frame.pose.position.z = transformStamped.transform.translation.z;
+        gimbal_EE_cmd.linear.x = 0;
+        gimbal_EE_cmd.linear.y = transformStamped.transform.translation.y;
+        gimbal_EE_cmd.linear.z = transformStamped.transform.translation.z;
 
-        global_frame.pose.orientation.x = transformStamped.transform.rotation.x;
-        global_frame.pose.orientation.y = transformStamped.transform.rotation.y;
-        global_frame.pose.orientation.z = transformStamped.transform.rotation.z;
-        global_frame.pose.orientation.w = transformStamped.transform.rotation.w;
 
-        listner_publisher.publish(global_frame);
+        gimbal_EE_cmd_pub_.publish(gimbal_EE_cmd);
 
         rate.sleep();
         ros::spinOnce();

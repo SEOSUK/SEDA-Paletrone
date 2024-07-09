@@ -2,9 +2,8 @@
 <launch>
 
     <rosparam command="load" file="$(find inch_controllers)/config/link.yaml"/>  
-    
-    <arg name="server" default="192.168.1.9" /> <!-- Optitrack computer IP  -->
-    <arg name="local" default="192.168.1.8" />  <!-- ROSCORE IP -->
+    <arg name="server" default="192.168.10.101" /> <!-- Optitrack computer IP  -->
+    <arg name="local" default="192.168.10.106" />  <!-- ROSCORE IP -->
     <arg name="multicast_group" default="239.255.42.99" /> <!-- optitrack computer multicast group IP -->
     <arg name="command_port" default="1510" />
     <arg name="data_port" default="1511" />

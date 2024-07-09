@@ -1,7 +1,7 @@
 #include "inch_toolbox/inch_joint.h"
 
 InchJoint::InchJoint()
-: nh_(""), priv_nh_("~")
+: nh_(""), priv_nh_("")
 {
   Link1_length = priv_nh_.param<double>("Link1_length", 0);
   Link2_length = priv_nh_.param<double>("Link2_length", 0);
@@ -22,10 +22,10 @@ InchJoint::InchJoint()
   N3 = priv_nh_.param<double>("N3", 0);
 
 
-
   initPublisher();
   initSubscriber();
   initTimerCallback();
+  initParameters();  
 
   inch_q1_dot_ = new InchMisc(); 
   inch_q2_dot_ = new InchMisc(); 
@@ -58,7 +58,7 @@ void InchJoint::initSubscriber()
 
 void InchJoint::initParameters()
 {
-  k_sp << 1, 1;
+  k_sp << Link1_spring, Link2_spring;
 }
 
 void InchJoint::initTimerCallback()

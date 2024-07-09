@@ -12,14 +12,17 @@
   <arg name="Link1_mass"				default="0.375"/>
   <arg name="Link2_mass"				default="0.135"/>
   
-  <arg name="Link1_spring"				default="5.10"/>
-  <arg name="Link2_spring"				default="2.55"/>  
+  <arg name="Link1_spring"				default="4.5"/>
+  <arg name="Link2_spring"				default="2.55025"/>  
+  
+  <arg name="init_X"					default="0.17"/>
+  <arg name="init_Y"					default="0.34"/>    
   
   <arg name="Gravity"					default="9.81"/>
 
-  <arg name="N1"					default="5.10"/>
-  <arg name="N2"					default="2.55"/>  
-  <arg name="N3"					default="5.10"/>
+  <arg name="N1"					default="0.02967"/>
+  <arg name="N2"					default="0.0019093"/>  
+  <arg name="N3"					default="0.0024845"/>
 
 
   <param name="robot_name"         	  value="$(arg robot_name)"/>
@@ -32,9 +35,12 @@
   <param name="Link1_mass"         	  value="$(arg Link1_mass)"/>  
   <param name="Link2_mass"           	  value="$(arg Link2_mass)"/>
 
-  <param name="Link1_spring"            value="$(arg Link1_spring)"/>  
-  <param name="Link2_spring"            value="$(arg Link2_spring)"/>  
+  <param name="Link1_spring"             value="$(arg Link1_spring)"/>  
+  <param name="Link2_spring"             value="$(arg Link2_spring)"/>  
   
+  <param name="init_X"            	  value="$(arg init_X)"/>  
+  <param name="init_Y"            	  value="$(arg init_Y)"/>  
+    
   <param name="Gravity"                 value="$(arg Gravity)"/>  
 
   <param name="N1"      		  value="$(arg N1)"/>  
@@ -46,3 +52,4 @@
   </node>
 
 </launch>
+

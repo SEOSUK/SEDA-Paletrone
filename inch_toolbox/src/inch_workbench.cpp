@@ -60,28 +60,6 @@ Eigen::Vector2d InchWorkbench::InverseKinematics_2dof(Eigen::Vector2d EE_cmd_)
 }
 
 
-Eigen::Vector2d InchWorkbench::CommandVelocityLimit(Eigen::Vector2d EE_cmd_, double vel_limit_, double time_loop_)
-{
-
-  for (int i = 0; i < 2; i++)
-  {
-    if((EE_cmd_[i] - EE_command_vel_limit[i]) > vel_limit_ * time_loop_)
-    {
-      EE_command_vel_limit[i] = EE_command_vel_limit[i] + vel_limit_ * time_loop_;
-    }
-    else if ((EE_cmd_[i] - EE_command_vel_limit[i]) < - vel_limit_ * time_loop_) 
-    {
-      EE_command_vel_limit[i] = EE_command_vel_limit[i] - vel_limit_ * time_loop_;     
-    }
-    else
-    {
-      EE_command_vel_limit[i] = EE_cmd_[i];
-    }
-  }
-
-
-  return EE_command_vel_limit;
-}
 
 
 
@@ -97,9 +75,9 @@ Eigen::Vector2d InchWorkbench::ForwardKinematics_2dof(Eigen::Vector2d q_meas_)
 }
 
 
-void InchWorkbench::init_Admittance(double admit_mass_y, double admit_damper_y, double admit_spring_y)
+void InchWorkbench::init_Admittancey(double admit_mass_y, double admit_damper_y, double admit_spring_y)
 {
-
+// y Axis
   admit_y_A << - admit_damper_y / admit_mass_y, - admit_spring_y / admit_mass_y,
                                 1,                              0;
 
@@ -108,7 +86,6 @@ void InchWorkbench::init_Admittance(double admit_mass_y, double admit_damper_y, 
   admit_y_state << 0, 0;
   admit_y_state_dot << 0, 0;
   
-  //x랑 z도 필요하면 넣던가 하자 ...later ~~
 
 }
 
@@ -124,6 +101,33 @@ double InchWorkbench::admittanceControly(double ref, double f_ext, double time_l
   y_cmd = ref - admit_y_state[1];
   
   return y_cmd;
+}
+
+void InchWorkbench::init_Admittancez(double admit_mass_z, double admit_damper_z, double admit_spring_z)
+{
+// z Axis
+  admit_z_A << - admit_damper_z / admit_mass_z, - admit_spring_z / admit_mass_z,
+                                1,                              0;
+
+  admit_z_B << 1 / admit_mass_z, 0;
+
+  admit_z_state << 0, 0;
+  admit_z_state_dot << 0, 0;
+}
+
+
+
+double InchWorkbench::admittanceControlz(double ref, double f_ext, double time_loop)
+{
+  double z_cmd = 0;
+  
+  admit_z_state_dot = admit_z_A * admit_z_state + admit_z_B * f_ext;
+  admit_z_state = admit_z_state + admit_z_state_dot * time_loop;
+
+
+  z_cmd = ref - admit_z_state[1];
+  
+  return z_cmd;
 }
 
 

@@ -130,7 +130,7 @@ void InchControl::PublishData()
   //Just test
   test_msg.data[0] = inch_joint->q_meas[0]; // 
   test_msg.data[1] = inch_joint->q_dot_meas[0]; // Motor command
-  test_msg.data[2] = inch_q_meas_butterworth->butterworth_2nd_filter(inch_joint->q_dot_meas[0], time_loop); // Motor command
+  test_msg.data[2] = inch_joint->q_ddot_meas[0];
 
   // test_msg.data[4] = init_theta[1]; // 
   // test_msg.data[5] = theta_cmd[1]; // 

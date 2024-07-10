@@ -9,7 +9,7 @@ InchMisc::InchMisc()
   bw_2nd_state = bw_2nd_state.transpose();
   bw_2nd_state_dot = bw_2nd_state_dot.transpose();
 
-  init_butterworth_2nd_filter(40);
+  init_butterworth_2nd_filter(30);
 
   init_X = priv_nh_.param<double>("init_X", 0);
   init_Y = priv_nh_.param<double>("init_Y", 0);

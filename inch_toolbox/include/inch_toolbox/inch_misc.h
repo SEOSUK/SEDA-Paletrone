@@ -23,8 +23,8 @@ namespace inch
     *****************************************************************************/ 
 
 
-    ** Define functions    /*****************************************************************************
-
+    /*****************************************************************************
+    ** Define functions
     *****************************************************************************/ 
     void test();  
     double butterworth_2nd_filter(double input_data_, double time_loop_);
@@ -67,6 +67,7 @@ namespace inch
     double error_i;
     double cut_off_freq;
     double input_data_prev;
+    double num_diff;
     double dead_zone_max;
     double dead_zone_min;
 

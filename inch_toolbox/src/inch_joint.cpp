@@ -1,4 +1,5 @@
 #include "inch_toolbox/inch_joint.h"
+#include "cmath"
 
 InchJoint::InchJoint()
 : nh_(""), priv_nh_("")
@@ -85,11 +86,10 @@ void InchJoint::encoder_phi_callback(const std_msgs::Float64MultiArray::ConstPtr
 
   // ROS_INFO("phi1: [%lf]  phi2: [%lf]", phi_meas[0], phi_meas[1]);
 }
-
 void InchJoint::calc_angle_timer_callback(const ros::TimerEvent&)
 {
   q_meas = theta_meas + phi_meas;
-  
+
   q_dot_meas[0] = inch_q1_dot_->NumDiff(q_meas[0], 0.01);
   q_dot_meas[1] = inch_q2_dot_->NumDiff(q_meas[1], 0.01);
   

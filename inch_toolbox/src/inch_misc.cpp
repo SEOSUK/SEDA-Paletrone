@@ -98,12 +98,17 @@ void InchMisc::init_Dead_Zone_filter(double dead_zone_max_, double dead_zone_min
 
 double InchMisc::NumDiff(double input_data_, double time_loop_)
 {
-  double output_data;
+  
   if (input_data_ != input_data_prev)
   {
-    output_data = butterworth_2nd_filter((input_data_ - input_data_prev) / time_loop_, time_loop_);
-    input_data_prev = input_data_;
+    num_diff = (input_data_ - input_data_prev) / time_loop_;
   }
+
+
+  double output_data = butterworth_2nd_filter(num_diff, time_loop_);
+
+  input_data_prev = input_data_;
+
   return output_data;
 }
 

@@ -369,7 +369,7 @@ void InchControl::SeukWhile()
   q_ref = InverseKinematics_2dof(EE_cmd);
   q_des = CommandVelocityLimit(q_ref, 0.1, time_loop);
 
-  theta_cmd = inch_joint->MPC_controller_2Link(q_des);
+  theta_cmd = inch_joint->MPC_controller_2Link(q_des, time_loop);
 
 //   --------------------------------------------------------------
 //   // 3-1rd step: PID + admittance

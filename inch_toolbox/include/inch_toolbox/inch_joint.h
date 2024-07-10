@@ -29,7 +29,7 @@ class InchJoint : public inch::InchMisc
   void encoder_phi_callback(const std_msgs::Float64MultiArray::ConstPtr &msg);
   void calc_angle_timer_callback(const ros::TimerEvent&);
 
-  Eigen::Vector2d MPC_controller_2Link(Eigen::Vector2d ref_);
+  Eigen::Vector2d MPC_controller_2Link(Eigen::Vector2d ref_, double time_loop_);
   void init_MPC_controller_2Link(double w0_Link1, double zeta_Link1, double w0_Link2, double zeta_Link2);
   void init_Link1_MPC_controller(double w0_, double zeta_);
 
@@ -70,7 +70,7 @@ class InchJoint : public inch::InchMisc
   Eigen::Vector2d tau_MPC;
 
   Eigen::Vector2d phi_MPC;
-
+  Eigen::Vector2d theta_MPC_i;
 
 
   Eigen::Vector2d q_dot_meas;
@@ -97,6 +97,7 @@ class InchJoint : public inch::InchMisc
   Eigen::Matrix2d K1;
   Eigen::Matrix2d K2;
   Eigen::Matrix2d K3;  
+  Eigen::Matrix2d damping_coef;
 
 
  private:

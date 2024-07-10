@@ -119,6 +119,14 @@ double InchMisc::debugger_saturation(double input_data_)
   else return input_data_;
 }
 
+double InchMisc::saturation(double input_data_, double saturation)
+{
+  if (input_data_ > saturation) input_data_ = saturation;
+  else if (input_data_ < -saturation) input_data_ = -saturation;
+  else return input_data_;
+}
+
+
 double InchMisc::tanh_function(double input_data, double cut_off_force)
 {
   double data = input_data / cut_off_force * 4;

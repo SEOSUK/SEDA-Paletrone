@@ -154,11 +154,11 @@ Eigen::Vector2d InchJoint::calc_MCGDynamics()
 /*****************************************************************************
 ** MPC
 *****************************************************************************/
-Eigen::Vector2d InchJoint::MPC_controller_2Link(Eigen::Vector2d ref_)
+Eigen::Vector2d InchJoint::MPC_controller_2Link(Eigen::Vector2d ref_, double time_loop_)
 {
   Eigen::Vector2d v_MPC;
   Eigen::Vector2d theta_MPC;
-  
+  Eigen::Vector2d theta_MPC_dot;
   Eigen::Matrix2d M;
   Eigen::Vector2d C;
   Eigen::Vector2d G;
@@ -174,9 +174,12 @@ Eigen::Vector2d InchJoint::MPC_controller_2Link(Eigen::Vector2d ref_)
   phi_MPC[1] = - tau_MPC[1] / k_sp[1];
   theta_MPC = ref_ - phi_MPC;
 
-  // ROS_INFO("%lf %lf", tau_MPC[0], tau_MPC[1]);
+  theta_MPC_dot[0] = NumDiff((theta_MPC[0] - theta_MPC_i[0]) / time_loop_, time_loop_);
+  theta_MPC_dot[1] = NumDiff((theta_MPC[1] - theta_MPC_i[1]) / time_loop_, time_loop_);
 
-  return theta_MPC;
+
+  theta_MPC_i = theta_MPC;
+  return theta_MPC + damping_coef * q_dot_meas - damping_coef * theta_MPC_dot;
 }
 
 
@@ -205,6 +208,9 @@ void InchJoint::init_MPC_controller_2Link(double w0_Link1, double zeta_Link1, do
             0,   k2_Link2;
   K3 << k3_Link1, 0,
             0,   k3_Link2;
+
+  damping_coef << 1, 0,
+                  0, 1;
 }
 
 

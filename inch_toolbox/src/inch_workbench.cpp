@@ -14,12 +14,6 @@ InchWorkbench::InchWorkbench()
   Link1_mass = priv_nh_.param<double>("Link1_mass", 0);
   Link2_mass = priv_nh_.param<double>("Link2_mass", 0);
 
-
-
-  admit_y_B = admit_y_B.transpose();
-  admit_y_state = admit_y_state.transpose();
-  admit_y_state_dot = admit_y_state_dot.transpose();
-
 }
 
 InchWorkbench::~InchWorkbench()
@@ -85,8 +79,6 @@ void InchWorkbench::init_Admittancey(double admit_mass_y, double admit_damper_y,
 
   admit_y_state << 0, 0;
   admit_y_state_dot << 0, 0;
-  
-
 }
 
 
@@ -130,6 +122,38 @@ double InchWorkbench::admittanceControlz(double ref, double f_ext, double time_l
   return z_cmd;
 }
 
+
+void InchWorkbench::init_CKAdmittancey(double CKadmit_damper_y_, double CKadmit_spring_y_)
+{
+// y Axis
+  CKadmit_damper_y = CKadmit_damper_y_;
+  CKadmit_spring_y = CKadmit_spring_y_;
+
+}
+
+double InchWorkbench::CKadmittanceControly(double ref, double f_ext, double time_loop)
+{
+  CKadmit_y_state_dot = f_ext / CKadmit_damper_y - CKadmit_spring_y / CKadmit_damper_y * CKadmit_y_state;
+  CKadmit_y_state = CKadmit_y_state + CKadmit_y_state_dot * time_loop;
+    
+  return CKadmit_y_state;
+}
+
+
+void InchWorkbench::init_CKAdmittancez(double CKadmit_damper_z_, double CKadmit_spring_z_)
+{
+// y Axis
+  CKadmit_damper_z = CKadmit_damper_z_;
+  CKadmit_spring_z = CKadmit_spring_z_;
+}
+
+double InchWorkbench::CKadmittanceControlz(double ref, double f_ext, double time_loop)
+{
+  CKadmit_z_state_dot = f_ext / CKadmit_damper_z - CKadmit_spring_z / CKadmit_damper_z * CKadmit_z_state;
+  CKadmit_z_state = CKadmit_z_state + CKadmit_z_state_dot * time_loop;
+    
+  return CKadmit_z_state;
+}
 
 Eigen::Vector2d InchWorkbench::ForceEstimation(Eigen::Vector2d q_meas_, Eigen::Vector2d tau_ext_)
 {

@@ -1,21 +1,23 @@
 <launch>
-    
+      <rosparam command="load" file="$(find inch_controllers)/config/parameters.yaml"/>
+      
 	<!-- inch dynamixel -->
 	  <include file="$(find dynamixel_workbench_controllers)/launch/position_control.launch">
-	  	 <arg name="device_name"			default="/dev/ttyUSB0"/>
-	 	 <arg name="baud_rate"				default="4500000"/>
 	  </include>
-
 
 
 	<!-- rosserial_arduino -->
 	  <node pkg="rosserial_arduino" type="serial_node.py" name="ros_arduino_encoder" >
-		<param name="port" value="/dev/ttyUSB1"/>
-		<param name="baud" value="57600"/>
 	  </node>
    
 
 	<!-- inch manipulator -->
 	  <include file="$(find inch_controllers)/launch/inch_manipulator_control.launch">
 	  </include>
+	  
+	  
+	<!-- tf -->
+	  <include file="$(find inch_tf)/launch/inch_tf2_setting.launch">
+	  </include>
+	  	  
 </launch>

@@ -49,6 +49,18 @@ namespace inch
     Eigen::Vector2d admit_z_state_dot;
 
 
+    double CKadmit_damper_y;
+    double CKadmit_spring_y;
+    double CKadmit_y_state_dot;
+    double CKadmit_y_state;
+
+    double CKadmit_damper_z;
+    double CKadmit_spring_z;
+    double CKadmit_z_state_dot;
+    double CKadmit_z_state;
+
+
+
     Eigen::Vector2d theta_ref_i;
     Eigen::Vector2d EE_command_vel_limit;
 
@@ -60,6 +72,10 @@ namespace inch
     void init_Admittancez(double admit_mass_z, double admit_damper_z, double admit_spring_z);
     double admittanceControly(double ref, double f_ext, double time_loop);
     double admittanceControlz(double ref, double f_ext, double time_loop);
+    void init_CKAdmittancey(double CKadmit_damper_y_, double CKadmit_spring_y_);
+    double CKadmittanceControly(double ref, double f_ext, double time_loop);
+    void init_CKAdmittancez(double CKadmit_damper_z_, double CKadmit_spring_z_);
+    double CKadmittanceControlz(double ref, double f_ext, double time_loop);
 
 
     Eigen::Vector2d InverseKinematics_2dof(Eigen::Vector2d EE_cmd_);

@@ -25,6 +25,8 @@ InchControl::InchControl()
 
   Gravity = node_handle_.param<double>("Gravity", 0);
 
+  ROS_INFO("Link1_length[%lf] Link2_length[%lf]", Link1_length, Link2_length);
+
   N1 = node_handle_.param<double>("N1", 0);
   N2 = node_handle_.param<double>("N2", 0);
   N3 = node_handle_.param<double>("N3", 0);
@@ -312,8 +314,7 @@ void InchControl::SeukInit()
   // 초기값 튀는거 방지용 입니다.
   init_theta = InverseKinematics_2dof(init_pose);
 
-  ROS_FATAL("INIT_THETA  %lf, %lf", init_theta[0], init_theta[1]);
-  ros::Rate init_rate(0.2);
+  ros::Rate init_rate(0.5);
   init_rate.sleep();
 
   ros::spinOnce();
@@ -324,7 +325,7 @@ void InchControl::SeukInit()
 
 void InchControl::SeukWhile()
 {
-  // // 1st step: init_pose safe 및 command Velocity Limit  확인
+  // // 1st step: _pose safe 및 command Velocity Limit  확인
   // EE_ref << 0.2, 0.3;
 
   // theta_ref = InverseKinematics_2dof(EE_ref);

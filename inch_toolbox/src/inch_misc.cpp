@@ -125,6 +125,7 @@ double InchMisc::saturation(double input_data_, double saturation)
   if (input_data_ > saturation) input_data_ = saturation;
   else if (input_data_ < -saturation) input_data_ = -saturation;
 <<<<<<< HEAD
+<<<<<<< HEAD
   else return input_data_;
 }
 
@@ -134,6 +135,11 @@ double InchMisc::saturation(double input_data_, double saturation)
 }
 
 >>>>>>> ecc7b78
+=======
+  return input_data_;
+}
+
+>>>>>>> ecc7b78... Now, Admittance tuning
 double InchMisc::tanh_function(double input_data, double cut_off_force)
 {
   double data = input_data / cut_off_force * 4;

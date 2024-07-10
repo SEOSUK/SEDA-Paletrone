@@ -92,11 +92,14 @@ double InchWorkbench::admittanceControly(double ref, double f_ext, double time_l
   admit_y_state[1] = saturation(admit_y_state[1],0.05);
   y_cmd = ref - admit_y_state[1];
 <<<<<<< HEAD
+<<<<<<< HEAD
   
   y_cmd = saturation(y_cmd, 0.05);
 
 =======
 >>>>>>> ecc7b78
+=======
+>>>>>>> ecc7b78... Now, Admittance tuning
 
   return y_cmd;
 }
@@ -145,10 +148,14 @@ double InchWorkbench::CKadmittanceControly(double ref, double f_ext, double time
   CKadmit_y_state_dot = f_ext / CKadmit_damper_y - CKadmit_spring_y / CKadmit_damper_y * CKadmit_y_state;
   CKadmit_y_state = CKadmit_y_state + CKadmit_y_state_dot * time_loop;
 <<<<<<< HEAD
+<<<<<<< HEAD
     
 =======
 
 >>>>>>> ecc7b78
+=======
+
+>>>>>>> ecc7b78... Now, Admittance tuning
   CKadmit_y_state = saturation(CKadmit_y_state, 0.05);
 
   return CKadmit_y_state;

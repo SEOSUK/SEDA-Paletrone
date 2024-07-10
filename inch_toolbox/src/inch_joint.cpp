@@ -178,10 +178,14 @@ Eigen::Vector2d InchJoint::MPC_controller_2Link(Eigen::Vector2d ref_, double tim
   theta_MPC_dot[0] = NumDiff((theta_MPC[0] - theta_MPC_i[0]) / time_loop_, time_loop_);
   theta_MPC_dot[1] = NumDiff((theta_MPC[1] - theta_MPC_i[1]) / time_loop_, time_loop_);
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> ecc7b78
 
+=======
+
+>>>>>>> ecc7b78... Now, Admittance tuning
   theta_MPC_i = theta_MPC;
   return theta_MPC + damping_coef * q_dot_meas - damping_coef * theta_MPC_dot;
 }
@@ -214,6 +218,7 @@ void InchJoint::init_MPC_controller_2Link(double w0_Link1, double zeta_Link1, do
             0,   k3_Link2;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   damping_coef << 1, 0,
                   0, 1;
 =======
@@ -221,6 +226,11 @@ void InchJoint::init_MPC_controller_2Link(double w0_Link1, double zeta_Link1, do
                      0, 1/15/Link2_spring;
             
 >>>>>>> ecc7b78
+=======
+  damping_coef << 1/15/Link1_spring,    0,
+                     0, 1/15/Link2_spring;
+            
+>>>>>>> ecc7b78... Now, Admittance tuning
 }
 
 

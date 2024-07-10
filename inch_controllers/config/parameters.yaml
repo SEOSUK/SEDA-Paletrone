@@ -14,16 +14,16 @@ Link2_mass: 0.135
 
 Gravity: 9.81
 
-N1: 5.10
-N2: 2.55
-N3: 5.10
+N1: 0.02967
+N2: 0.0019093
+N3: 0.0024845
 
 
-port: /dev/ttyUSB0
+port: /dev/ttyUSB1
 baud: 57600
 
 
-device_name: /dev/ttyUSB1
+device_name: /dev/ttyUSB0
 baud_rate: 4500000
 scan_range: 20
 profile_velocity: 200

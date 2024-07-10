@@ -9,7 +9,7 @@ InchMisc::InchMisc()
   bw_2nd_state = bw_2nd_state.transpose();
   bw_2nd_state_dot = bw_2nd_state_dot.transpose();
 
-  init_butterworth_2nd_filter(30);
+  init_butterworth_2nd_filter(10);
 
   init_X = priv_nh_.param<double>("init_X", 0);
   init_Y = priv_nh_.param<double>("init_Y", 0);
@@ -96,32 +96,32 @@ void InchMisc::init_Dead_Zone_filter(double dead_zone_max_, double dead_zone_min
   dead_zone_min = dead_zone_min_;
 }
 
-// double InchMisc::NumDiff(double input_data_, double time_loop_)
-// {
-  
-//   if (input_data_ != input_data_prev)
-//   {
-//     num_diff = (input_data_ - input_data_prev) / time_loop_;
-//   }
-
-
-//   double output_data = butterworth_2nd_filter(num_diff, time_loop_);
-
-//   input_data_prev = input_data_;
-
-//   return output_data;
-// }
-
 double InchMisc::NumDiff(double input_data_, double time_loop_)
 {
-  double output_data;
+  
   if (input_data_ != input_data_prev)
-  output_data = butterworth_2nd_filter((input_data_ - input_data_prev) / time_loop_, time_loop_);
+  {
+    num_diff = (input_data_ - input_data_prev) / time_loop_;
+  }
+
+
+  double output_data = butterworth_2nd_filter(num_diff, time_loop_);
 
   input_data_prev = input_data_;
 
   return output_data;
 }
+
+// double InchMisc::NumDiff(double input_data_, double time_loop_)
+// {
+//   double output_data;
+//   if (input_data_ != input_data_prev)
+//   output_data = butterworth_2nd_filter((input_data_ - input_data_prev) / time_loop_, time_loop_);
+
+//   input_data_prev = input_data_;
+
+//   return output_data;
+// }
 
 
 double InchMisc::debugger_saturation(double input_data_)

@@ -139,16 +139,16 @@ void InchControl::PublishData()
   // test_msg.data[4] = theta_des[0]; // vel IK
 
   
-  test_msg.data[3] = inch_joint->q_meas[0]; 
-  test_msg.data[4] = q_ref[0]; 
-  // test_msg.data[3] = q_cmd[0]; 
   // test_msg.data[3] = inch_joint->q_meas[0]; 
-  // test_msg.data[3] = inch_joint->q_meas[0]; 
+  // test_msg.data[4] = q_ref[0]; 
+  // // test_msg.data[3] = q_cmd[0]; 
+  // // test_msg.data[3] = inch_joint->q_meas[0]; 
+  // // test_msg.data[3] = inch_joint->q_meas[0]; 
 
-  test_msg.data[6] = inch_joint->phi_meas[0]; 
-  test_msg.data[7] = inch_joint->phi_MPC[0]; 
-  test_msg.data[8] = inch_joint->phi_meas[1]; 
-  test_msg.data[9] = inch_joint->phi_MPC[1]; 
+  // test_msg.data[6] = inch_joint->phi_meas[0]; 
+  // test_msg.data[7] = inch_joint->phi_MPC[0]; 
+  // test_msg.data[8] = inch_joint->phi_meas[1]; 
+  // test_msg.data[9] = inch_joint->phi_MPC[1]; 
 
 
 
@@ -191,8 +191,19 @@ void InchControl::Trajectory_mode()
 
 void InchControl::Test_trajectory_generator_2dof()
 {
-   EE_ref[0] = 0.2 * sin (2 *PI * 0.3 * time_real); // sine wave
-   EE_ref[1] = 0.2;
+  EE_ref[0] = init_pose[0] + 0.05 * sin (2 *PI * 0.5 * time_real)- 0.07; // sine wave
+  EE_ref[1] = init_pose[1];
+
+  // init_pose[0] += 0.05 *sin (2 *PI * 0.3 * time_real);
+  // init_pose[1] = init_pose[1];
+
+
+  // EE_meas_msg.linear.y = EE_meas[0];
+  // EE_meas_msg.linear.z = EE_meas[1];
+
+  // EE_ref_msg.linear.y = EE_ref[0];
+  // EE_ref_msg.angular.y = EE_cmd[0];
+
 }
 
 void InchControl::trajectory_gimbaling()
@@ -274,7 +285,6 @@ void InchControl::Experiment_0623_1Link()
 void InchControl::YujinInit()
 {
 
-
 }
 
 void InchControl::YujinWhile()
@@ -310,7 +320,7 @@ void InchControl::SeukInit()
   inch_joint->init_MPC_controller_2Link(8, 1/sqrt(2), 8, 1/sqrt(2));
 
   init_pose << 0.17, 0.34;
-
+  EE_ref = init_pose;
 
   // 초기값 튀는거 방지용 입니다.
   init_theta = InverseKinematics_2dof(init_pose);
@@ -336,10 +346,12 @@ void InchControl::SeukWhile()
 
   // --------------------------------------------------------------
   // 2st step: MPC로 cmd 제어 해보기
-  EE_ref = init_pose;
+  // EE_ref = init_pose;
+
+  Test_trajectory_generator_2dof();
 
   q_ref = InverseKinematics_2dof(EE_ref);
-  q_des = CommandVelocityLimit(q_ref, 0.4, time_loop);
+  q_des = CommandVelocityLimit(q_ref, 0.5, time_loop);
   // theta_cmd = theta_des;
   theta_cmd = inch_joint->MPC_controller_2Link(q_des);
 

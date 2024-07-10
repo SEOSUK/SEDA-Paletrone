@@ -112,23 +112,19 @@ double InchMisc::NumDiff(double input_data_, double time_loop_)
   return output_data;
 }
 
-// double InchMisc::NumDiff(double input_data_, double time_loop_)
-// {
-//   double output_data;
-//   if (input_data_ != input_data_prev)
-//   output_data = butterworth_2nd_filter((input_data_ - input_data_prev) / time_loop_, time_loop_);
-
-//   input_data_prev = input_data_;
-
-//   return output_data;
-// }
-
 
 double InchMisc::debugger_saturation(double input_data_)
 {
   if (input_data_ > 100) input_data_ = 100;
   else if (input_data_ < -100) input_data_ = -100;
   else return input_data_;
+}
+
+double InchMisc::saturation(double input_data_, double saturation)
+{
+  if (input_data_ > saturation) input_data_ = saturation;
+  else if (input_data_ < -saturation) input_data_ = -saturation;
+  return input_data_;
 }
 
 double InchMisc::tanh_function(double input_data, double cut_off_force)

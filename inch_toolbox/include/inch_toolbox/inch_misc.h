@@ -37,6 +37,7 @@ namespace inch
     double debugger_saturation(double input_data_);
     double tanh_function(double input_data, double cut_off_force);
     Eigen::Vector2d CommandVelocityLimit(Eigen::Vector2d input_data_, double vel_limit_, double time_loop_);
+    double saturation(double input_data_, double saturation);
 
   private:
     /*****************************************************************************

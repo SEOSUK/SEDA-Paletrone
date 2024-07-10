@@ -128,7 +128,7 @@ void InchControl::PublishData()
 
   //inch/test_Pub
   //Just test
-  test_msg.data[0] = inch_joint->q_meas[0]; // 
+  test_msg.data[0] = F_ext[0]; // 
   test_msg.data[1] = inch_joint->q_dot_meas[0]; // Motor command
   test_msg.data[2] = inch_joint->q_ddot_meas[0];
 
@@ -149,6 +149,12 @@ void InchControl::PublishData()
   // test_msg.data[7] = inch_joint->phi_MPC[0]; 
   // test_msg.data[8] = inch_joint->phi_meas[1]; 
   // test_msg.data[9] = inch_joint->phi_MPC[1]; 
+
+
+  test_msg.data[6] = inch_joint->tau_phi[0]; 
+  test_msg.data[7] = inch_joint->tau_MCG[0]; 
+  test_msg.data[8] = inch_joint->phi_meas[1]; 
+  test_msg.data[9] = inch_joint->phi_MPC[1]; 
 
 
 
@@ -308,8 +314,8 @@ void InchControl::SeukInit()
   inch_link1_PID = new InchMisc(); // link1에 pid 쓸거임
   inch_link2_PID = new InchMisc(); // link2에 pid 쓸거임
 
-  inch_link1_PID->init_PID_controller(1, 0.00, 0.05, 40);
-  inch_link2_PID->init_PID_controller(1, 0.00, 0.05, 40);
+  inch_link1_PID->init_PID_controller(3, 0.00, 0.0, 40);
+  inch_link2_PID->init_PID_controller(3, 0.00, 0.0, 40);
   // P:1 D:0.05 
 
   init_Admittancey(0.5, 3, 3);
@@ -344,23 +350,20 @@ void InchControl::SeukWhile()
 
   // theta_cmd = theta_des;
 
-  // --------------------------------------------------------------
-  // 2st step: MPC로 cmd 제어 해보기
-  // EE_ref = init_pose;
+  // // --------------------------------------------------------------
+  // // 2st step: MPC로 cmd 제어 해보기
+  // // EE_ref = init_pose;
 
-  Test_trajectory_generator_2dof();
+  // Test_trajectory_generator_2dof();
 
-  q_ref = InverseKinematics_2dof(EE_ref);
-  q_des = CommandVelocityLimit(q_ref, 0.5, time_loop);
-  // theta_cmd = theta_des;
-  theta_cmd = inch_joint->MPC_controller_2Link(q_des);
-
-  ROS_INFO("%lf %lf", q_des[0], q_des[1]);
-
+  // q_ref = InverseKinematics_2dof(EE_ref);
+  // q_des = CommandVelocityLimit(q_ref, 0.5, time_loop);
+  // // theta_cmd = theta_des;
+  // theta_cmd = inch_joint->MPC_controller_2Link(q_des, time_loop);
 
   // // --------------------------------------------------------------
   // // 2-1 nd step: PID로 cmd 제어 해보기
-  // EE_ref = init_pose;
+  // Test_trajectory_generator_2dof();
 
   // q_ref = InverseKinematics_2dof(EE_ref);
   // q_des = CommandVelocityLimit(q_ref, 0.1, time_loop);
@@ -368,22 +371,23 @@ void InchControl::SeukWhile()
   // theta_cmd[0] = q_des[0] + inch_link1_PID->PID_controller(q_des[0], inch_joint->q_meas[0], time_loop);
   // theta_cmd[1] = q_des[1] + inch_link2_PID->PID_controller(q_des[1], inch_joint->q_meas[1], time_loop);
 
+  // ROS_INFO("%lf %lf", q_des[0], q_des[1]);
 
-  // // --------------------------------------------------------------
-  // // 3rd step: MPC + admittance
-  // EE_ref = init_pose;
+  // --------------------------------------------------------------
+  // 3rd step: MPC + admittance
 
-  // F_ext = F_ext_processing();
+  EE_ref = init_pose;
+  // Test_trajectory_generator_2dof();
 
-  // EE_cmd[0] = admittanceControly(EE_ref[0], F_ext[0], time_loop);
-  // EE_cmd[1] = EE_ref[1];
+  F_ext = F_ext_processing();
 
-  // ROS_INFO("%lf %lf", F_ext[0], F_ext[1]);
+  EE_cmd[0] = admittanceControly(EE_ref[0], F_ext[0], time_loop);
+  EE_cmd[1] = EE_ref[1];
 
-  // q_ref = InverseKinematics_2dof(EE_cmd);
-  // q_des = CommandVelocityLimit(q_ref, 0.1, time_loop);
+  q_ref = InverseKinematics_2dof(EE_cmd);
+  q_des = CommandVelocityLimit(q_ref, 1, time_loop);
 
-  // theta_cmd = inch_joint->MPC_controller_2Link(q_des);
+  theta_cmd = inch_joint->MPC_controller_2Link(q_des, time_loop);
 
 //   --------------------------------------------------------------
 //   // 3-1rd step: PID + admittance

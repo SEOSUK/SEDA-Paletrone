@@ -1,0 +1,39 @@
+robot_name: inch
+
+Link1_length: 0.24215
+Link2_length: 0.1759
+
+Link1_COM: 0.163
+Link2_COM: 0.076
+
+Link1_spring: 5.1
+Link2_spring: 2.55
+
+Link1_mass: 0.375
+Link2_mass: 0.135
+
+Gravity: 9.81
+
+N1: 5.10
+N2: 2.55
+N3: 5.10
+
+
+port: /dev/ttyUSB0
+baud: 57600
+
+
+device_name: /dev/ttyUSB1
+baud_rate: 4500000
+scan_range: 20
+profile_velocity: 200
+profile_acceleration: 50
+position_p_gain: 800
+position_i_gain: 0
+position_d_gain: 9500
+
+
+
+server: 111.168.11.9
+local: 111.168.1000.9
+multicast_group: 111.168.1000.9

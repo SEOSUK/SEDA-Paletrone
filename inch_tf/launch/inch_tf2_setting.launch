@@ -1,0 +1,4 @@
+<launch>
+    <node pkg="inch_tf" type="inch_tf2_broadcaster" name="inch_tf2_broadcaster" output="screen"/>
+    <node pkg="inch_tf" type="inch_tf2_listener" name="inch_tf2_listener" output="screen"/>
+</launch>

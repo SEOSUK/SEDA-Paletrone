@@ -1,0 +1,23 @@
+<launch>
+      <rosparam command="load" file="$(find inch_controllers)/config/parameters.yaml"/>
+      
+	<!-- inch dynamixel -->
+	  <include file="$(find dynamixel_workbench_controllers)/launch/position_control.launch">
+	  </include>
+
+
+	<!-- rosserial_arduino -->
+	  <node pkg="rosserial_arduino" type="serial_node.py" name="ros_arduino_encoder" >
+	  </node>
+   
+
+	<!-- inch manipulator -->
+	  <include file="$(find inch_controllers)/launch/inch_manipulator_control.launch">
+	  </include>
+	  
+	  
+	<!-- tf -->
+	  <include file="$(find inch_tf)/launch/inch_tf2_setting.launch">
+	  </include>
+	  	  
+</launch>

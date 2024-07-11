@@ -98,7 +98,10 @@ class InchJoint : public inch::InchMisc
   Eigen::Matrix2d K2;
   Eigen::Matrix2d K3;  
   Eigen::Matrix2d damping_coef;
+<<<<<<< HEAD
 
+=======
+>>>>>>> ecc7b78
 
  private:
   /*****************************************************************************

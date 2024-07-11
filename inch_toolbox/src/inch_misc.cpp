@@ -9,7 +9,7 @@ InchMisc::InchMisc()
   bw_2nd_state = bw_2nd_state.transpose();
   bw_2nd_state_dot = bw_2nd_state_dot.transpose();
 
-  init_butterworth_2nd_filter(30);
+  init_butterworth_2nd_filter(10);
 
   init_X = priv_nh_.param<double>("init_X", 0);
   init_Y = priv_nh_.param<double>("init_Y", 0);
@@ -112,6 +112,7 @@ double InchMisc::NumDiff(double input_data_, double time_loop_)
   return output_data;
 }
 
+
 double InchMisc::debugger_saturation(double input_data_)
 {
   if (input_data_ > 100) input_data_ = 100;
@@ -123,10 +124,16 @@ double InchMisc::saturation(double input_data_, double saturation)
 {
   if (input_data_ > saturation) input_data_ = saturation;
   else if (input_data_ < -saturation) input_data_ = -saturation;
+<<<<<<< HEAD
   else return input_data_;
 }
 
 
+=======
+  return input_data_;
+}
+
+>>>>>>> ecc7b78
 double InchMisc::tanh_function(double input_data, double cut_off_force)
 {
   double data = input_data / cut_off_force * 4;

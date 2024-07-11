@@ -146,6 +146,7 @@ Eigen::Vector2d InchJoint::calc_MCGDynamics()
   G = G_Matrix();
 
   tau_MCG = M * q_ddot_meas + C + G;
+  
 
   return tau_MCG;
 }
@@ -176,7 +177,10 @@ Eigen::Vector2d InchJoint::MPC_controller_2Link(Eigen::Vector2d ref_, double tim
 
   theta_MPC_dot[0] = NumDiff((theta_MPC[0] - theta_MPC_i[0]) / time_loop_, time_loop_);
   theta_MPC_dot[1] = NumDiff((theta_MPC[1] - theta_MPC_i[1]) / time_loop_, time_loop_);
+<<<<<<< HEAD
 
+=======
+>>>>>>> ecc7b78
 
   theta_MPC_i = theta_MPC;
   return theta_MPC + damping_coef * q_dot_meas - damping_coef * theta_MPC_dot;
@@ -209,8 +213,14 @@ void InchJoint::init_MPC_controller_2Link(double w0_Link1, double zeta_Link1, do
   K3 << k3_Link1, 0,
             0,   k3_Link2;
 
+<<<<<<< HEAD
   damping_coef << 1, 0,
                   0, 1;
+=======
+  damping_coef << 1/15/Link1_spring,    0,
+                     0, 1/15/Link2_spring;
+            
+>>>>>>> ecc7b78
 }
 
 

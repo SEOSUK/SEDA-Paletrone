@@ -305,7 +305,7 @@ void InchControl::SeukInit()
 
 
   //init_Admittance(0.1, 0.5, 0.5);
-  inch_joint->init_MPC_controller_2Link(4, 1/sqrt(2), 4, 1/sqrt(2));
+  inch_joint->init_MPC_controller_2Link(8, 1/sqrt(2), 8, 1/sqrt(2));
 
   init_pose << 0.17, 0.34;
   EE_ref = init_pose;

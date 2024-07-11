@@ -1,4 +1,4 @@
-robot_name: inch
+robot_name: /inch
 
 Link1_length: 0.24215
 Link2_length: 0.1759
@@ -24,7 +24,7 @@ baud: 57600
 
 
 device_name: /dev/ttyUSB0
-baud_rate: 4500000
+baud_rate: 1000000
 scan_range: 20
 profile_velocity: 200
 profile_acceleration: 50

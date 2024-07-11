@@ -98,13 +98,6 @@ class InchJoint : public inch::InchMisc
   Eigen::Matrix2d K2;
   Eigen::Matrix2d K3;  
   Eigen::Matrix2d damping_coef;
-<<<<<<< HEAD
-<<<<<<< HEAD
-
-=======
->>>>>>> ecc7b78
-=======
->>>>>>> ecc7b78... Now, Admittance tuning
 
  private:
   /*****************************************************************************

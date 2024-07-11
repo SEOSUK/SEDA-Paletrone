@@ -9,7 +9,7 @@ InchMisc::InchMisc()
   bw_2nd_state = bw_2nd_state.transpose();
   bw_2nd_state_dot = bw_2nd_state_dot.transpose();
 
-  init_butterworth_2nd_filter(10);
+  init_butterworth_2nd_filter(35);
 
   init_X = priv_nh_.param<double>("init_X", 0);
   init_Y = priv_nh_.param<double>("init_Y", 0);
@@ -99,10 +99,10 @@ void InchMisc::init_Dead_Zone_filter(double dead_zone_max_, double dead_zone_min
 double InchMisc::NumDiff(double input_data_, double time_loop_)
 {
   
-  if (input_data_ != input_data_prev)
-  {
+  // if (input_data_ != input_data_prev)
+  // {
     num_diff = (input_data_ - input_data_prev) / time_loop_;
-  }
+  // }
 
 
   double output_data = butterworth_2nd_filter(num_diff, time_loop_);
@@ -124,22 +124,11 @@ double InchMisc::saturation(double input_data_, double saturation)
 {
   if (input_data_ > saturation) input_data_ = saturation;
   else if (input_data_ < -saturation) input_data_ = -saturation;
-<<<<<<< HEAD
-<<<<<<< HEAD
+
   else return input_data_;
 }
 
 
-=======
-  return input_data_;
-}
-
->>>>>>> ecc7b78
-=======
-  return input_data_;
-}
-
->>>>>>> ecc7b78... Now, Admittance tuning
 double InchMisc::tanh_function(double input_data, double cut_off_force)
 {
   double data = input_data / cut_off_force * 4;

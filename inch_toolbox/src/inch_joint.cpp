@@ -52,8 +52,8 @@ void InchJoint::initPublisher()
 
 void InchJoint::initSubscriber()
 {
-  dynamixel_callback_sub_ = nh_.subscribe("/inch/joint_states", 10, &InchJoint::dynamixel_callback, this, ros::TransportHints().tcpNoDelay());
-  encoder_phi_callback_sub_ = nh_.subscribe("/inch/phi_encoder", 10, &InchJoint::encoder_phi_callback, this, ros::TransportHints().tcpNoDelay());
+  dynamixel_callback_sub_ = nh_.subscribe("/inch/joint_states", 10, &InchJoint::dynamixel_callback, this);
+  encoder_phi_callback_sub_ = nh_.subscribe("/inch/phi_encoder", 10, &InchJoint::encoder_phi_callback, this);
 
 }
 
@@ -73,6 +73,7 @@ void InchJoint::dynamixel_callback(const sensor_msgs::JointState::ConstPtr &msg)
 {
   theta_meas[0] = msg->position.at(0);
   theta_meas[1] = msg->position.at(1);
+  ROS_FATAL("dynTHeta MEAS!!:%lf, %lf ", theta_meas[0], theta_meas[1]);
 
 }
 
@@ -177,15 +178,8 @@ Eigen::Vector2d InchJoint::MPC_controller_2Link(Eigen::Vector2d ref_, double tim
 
   theta_MPC_dot[0] = NumDiff((theta_MPC[0] - theta_MPC_i[0]) / time_loop_, time_loop_);
   theta_MPC_dot[1] = NumDiff((theta_MPC[1] - theta_MPC_i[1]) / time_loop_, time_loop_);
-<<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
->>>>>>> ecc7b78
 
-=======
-
->>>>>>> ecc7b78... Now, Admittance tuning
   theta_MPC_i = theta_MPC;
   return theta_MPC + damping_coef * q_dot_meas - damping_coef * theta_MPC_dot;
 }
@@ -217,20 +211,17 @@ void InchJoint::init_MPC_controller_2Link(double w0_Link1, double zeta_Link1, do
   K3 << k3_Link1, 0,
             0,   k3_Link2;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
+
   damping_coef << 1, 0,
                   0, 1;
-=======
+
   damping_coef << 1/15/Link1_spring,    0,
                      0, 1/15/Link2_spring;
             
->>>>>>> ecc7b78
-=======
+
   damping_coef << 1/15/Link1_spring,    0,
                      0, 1/15/Link2_spring;
             
->>>>>>> ecc7b78... Now, Admittance tuning
 }
 
 

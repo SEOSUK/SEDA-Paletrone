@@ -9,7 +9,7 @@ InchMisc::InchMisc()
   bw_2nd_state = bw_2nd_state.transpose();
   bw_2nd_state_dot = bw_2nd_state_dot.transpose();
 
-  init_butterworth_2nd_filter(35);
+  init_butterworth_2nd_filter(40);
 
   init_X = priv_nh_.param<double>("init_X", 0);
   init_Y = priv_nh_.param<double>("init_Y", 0);
@@ -68,9 +68,10 @@ double InchMisc::PID_controller(double ref_, double meas_, double time_loop_)
   
   error_sum = error_sum + input_error_;
 
-  error_sum = debugger_saturation(error_sum);
+  error_sum = saturation(error_sum, 6);
+  ROS_INFO("ERROR_SUM: [%lf]", error_sum);
 
-  return Kp * input_error_ + Ki * error_sum + Kd * error_dot;
+  return Kp * input_error_ + Ki * error_sum - Kd * error_dot;
 }
 
 void InchMisc::init_PID_controller(double Kp_, double Ki_, double Kd_, double cut_off_freq_)

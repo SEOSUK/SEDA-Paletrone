@@ -73,7 +73,6 @@ void InchJoint::dynamixel_callback(const sensor_msgs::JointState::ConstPtr &msg)
 {
   theta_meas[0] = msg->position.at(0);
   theta_meas[1] = msg->position.at(1);
-  ROS_FATAL("dynTHeta MEAS!!:%lf, %lf ", theta_meas[0], theta_meas[1]);
 
 }
 

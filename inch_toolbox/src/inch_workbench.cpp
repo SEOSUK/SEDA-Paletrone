@@ -89,11 +89,9 @@ double InchWorkbench::admittanceControly(double ref, double f_ext, double time_l
   admit_y_state_dot = admit_y_A * admit_y_state + admit_y_B * f_ext;
   admit_y_state = admit_y_state + admit_y_state_dot * time_loop;
 
-  admit_y_state[1] = saturation(admit_y_state[1],0.05);
+  admit_y_state[1] = saturation(admit_y_state[1],0.09);
   y_cmd = ref - admit_y_state[1];
 
-  
-  y_cmd = saturation(y_cmd, 0.05);
 
   return y_cmd;
 }
@@ -122,9 +120,6 @@ double InchWorkbench::admittanceControlz(double ref, double f_ext, double time_l
   admit_z_state[1] = saturation(admit_z_state[1],0.05);
   z_cmd = ref - admit_z_state[1];
   
-
-  z_cmd = saturation(z_cmd, 0.05);
-
   return z_cmd;
 }
 
@@ -143,9 +138,9 @@ double InchWorkbench::CKadmittanceControly(double ref, double f_ext, double time
   CKadmit_y_state = CKadmit_y_state + CKadmit_y_state_dot * time_loop;
 
 
-  CKadmit_y_state = saturation(CKadmit_y_state, 0.05);
+  CKadmit_y_state = saturation(CKadmit_y_state, 0.07);
 
-  return CKadmit_y_state;
+  return ref - CKadmit_y_state;
 }
 
 
@@ -162,10 +157,8 @@ double InchWorkbench::CKadmittanceControlz(double ref, double f_ext, double time
   CKadmit_z_state = CKadmit_z_state + CKadmit_z_state_dot * time_loop;
 
   CKadmit_z_state = saturation(CKadmit_z_state, 0.05);
-    
-  CKadmit_z_state = saturation(CKadmit_z_state, 0.05);
 
-  return CKadmit_z_state;
+  return ref - CKadmit_z_state;
 }
 
 Eigen::Vector2d InchWorkbench::ForceEstimation(Eigen::Vector2d q_meas_, Eigen::Vector2d tau_ext_)

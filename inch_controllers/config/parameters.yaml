@@ -18,12 +18,18 @@ N1: 0.02967
 N2: 0.0019093
 N3: 0.0024845
 
+init_Y: 0.20
+init_Z: 0.28
 
-port: /dev/ttyUSB1
-baud: 57600
+Link1_init_phi: -0.14914012
+Link2_init_phi: 0.0044889
 
 
-device_name: /dev/ttyUSB0
+port: /dev/ttyUSB0
+baud: 1000000
+
+
+device_name: /dev/ttyUSB1
 baud_rate: 1000000
 scan_range: 20
 profile_velocity: 200
@@ -33,7 +39,3 @@ position_i_gain: 0
 position_d_gain: 9500
 
 
-
-server: 111.168.11.9
-local: 111.168.1000.9
-multicast_group: 111.168.1000.9

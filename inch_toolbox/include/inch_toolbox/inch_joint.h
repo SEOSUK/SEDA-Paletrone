@@ -94,6 +94,13 @@ class InchJoint : public inch::InchMisc
   double N2;
   double N3;
 
+
+  double Link1_init_phi;
+  double Link2_init_phi;
+  Eigen::Vector2d phi_init;
+  Eigen::Vector2d phi_offset;
+
+
   Eigen::Matrix2d K1;
   Eigen::Matrix2d K2;
   Eigen::Matrix2d K3;  

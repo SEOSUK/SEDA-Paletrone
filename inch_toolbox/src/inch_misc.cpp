@@ -11,11 +11,11 @@ InchMisc::InchMisc()
 
   init_butterworth_2nd_filter(40);
 
-  init_X = priv_nh_.param<double>("init_X", 0);
   init_Y = priv_nh_.param<double>("init_Y", 0);
+  init_Z = priv_nh_.param<double>("init_Z", 0);
 
-  init_pose << init_X, init_Y;
-  EE_command_vel_limit << 0.745600, 0.870141;
+  init_pose << init_Y, init_Z;
+  EE_command_vel_limit << 0.44869448009, 1.22562779662;
 }
 
 InchMisc::~InchMisc()
@@ -69,7 +69,7 @@ double InchMisc::PID_controller(double ref_, double meas_, double time_loop_)
   error_sum = error_sum + input_error_;
 
   error_sum = saturation(error_sum, 6);
-  ROS_INFO("ERROR_SUM: [%lf]", error_sum);
+  // ROS_INFO("ERROR_SUM: [%lf]", error_sum);
 
   return Kp * input_error_ + Ki * error_sum - Kd * error_dot;
 }

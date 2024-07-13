@@ -21,7 +21,8 @@ namespace inch
     /*****************************************************************************
     ** Define variables
     *****************************************************************************/ 
-
+  double init_Y;
+  double init_Z;
 
     /*****************************************************************************
     ** Define functions
@@ -71,9 +72,6 @@ namespace inch
     double num_diff;
     double dead_zone_max;
     double dead_zone_min;
-
-    double init_X;
-    double init_Y;
 
     
     ros::Subscriber gimbal_Flag_sub_;

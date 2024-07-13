@@ -160,6 +160,7 @@ void TFBroadcaster::inch_Palletrone_callback(const geometry_msgs::PoseStamped& m
 
     br.sendTransform(transformStamped);
 
+  ROS_FATAL("TF not gimbal mode");    
 
   /*****************************************************************************
   ** Global End Effector
@@ -182,6 +183,7 @@ void TFBroadcaster::inch_Palletrone_callback(const geometry_msgs::PoseStamped& m
     transformStamped_gimbal_base.transform.rotation.w = msg.pose.orientation.w;
 
     br_gimbal_base.sendTransform(transformStamped_gimbal_base);    
+  ROS_WARN("TF gimbal mode");
   }
 }
 

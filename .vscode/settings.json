@@ -10,6 +10,11 @@
     "files.associations": {
         "bitset": "cpp",
         "cmath": "cpp",
-        "complex": "cpp"
+        "complex": "cpp",
+        "random": "cpp",
+        "unordered_map": "cpp",
+        "unordered_set": "cpp",
+        "core": "cpp",
+        "dense": "cpp"
     }
 }

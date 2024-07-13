@@ -52,14 +52,15 @@ class InchControl : public inch::InchWorkbench
   double Link1_spring;
   double Link2_spring;
 
-  double init_X;
   double init_Y;
+  double init_Z;
 
   double Gravity;
   double N1;
   double N2;
   double N3;
-  
+
+
   bool gimbal_Flag;
   bool initPoseFlag;
 
@@ -141,7 +142,7 @@ class InchControl : public inch::InchWorkbench
   /*****************************************************************************
   ** ROS Services Clients
   *****************************************************************************/
-
+ 
 
   /*****************************************************************************
   ** Define variables
@@ -166,6 +167,8 @@ class InchControl : public inch::InchWorkbench
   geometry_msgs::Twist EE_meas_msg;
   geometry_msgs::Twist EE_ref_msg;
   sensor_msgs::JointState theta_command_msg;
+
+  
 
 };
 

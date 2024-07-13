@@ -13,6 +13,9 @@ namespace optitrack {
 OptiTrack::OptiTrack(const ros::NodeHandle nh)
   : nh_(nh)
 {
+  // localIP_ = nh.param<double>("local", 0);
+  // serverIP_ = nh.param<double>("server", 0);
+  // multicastIP_ = nh.param<double>("multicast_group", 0);// nh.getParam("local", localIP_);  
   nh.getParam("local", localIP_);
   nh.getParam("server", serverIP_);
   nh.getParam("multicast_group", multicastIP_);
@@ -23,11 +26,11 @@ OptiTrack::OptiTrack(const ros::NodeHandle nh)
 
   client_ = std::make_unique<agile::OptiTrackClient>(localIP_, serverIP_, multicastIP_, commandPort_, dataPort_);
 
-//  ROS_INFO_STREAM("Local address: " << localIP_);
-//  ROS_INFO_STREAM("Server address: " << serverIP_);
-//  ROS_INFO_STREAM("Multicast group: " << multicastIP_);
-//  ROS_INFO_STREAM("Command port: " << commandPort_);
-//  ROS_INFO_STREAM("Data port: " << dataPort_);
+  ROS_INFO_STREAM("Local address: " << localIP_);
+  ROS_INFO_STREAM("Server address: " << serverIP_);
+  ROS_INFO_STREAM("Multicast group: " << multicastIP_);
+  ROS_INFO_STREAM("Command port: " << commandPort_);
+  ROS_INFO_STREAM("Data port: " << dataPort_);
 
 
   if (!client_->initConnection()) {

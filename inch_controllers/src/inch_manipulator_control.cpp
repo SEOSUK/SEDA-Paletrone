@@ -20,8 +20,9 @@ InchControl::InchControl()
   Link1_spring = node_handle_.param<double>("Link1_spring", 0);
   Link2_spring = node_handle_.param<double>("Link2_spring", 0);
 
-  init_X = node_handle_.param<double>("init_X", 0);
   init_Y = node_handle_.param<double>("init_Y", 0);
+  init_Z = node_handle_.param<double>("init_Z", 0);
+  init_pose << init_Y, init_Z;
 
   Gravity = node_handle_.param<double>("Gravity", 0);
 
@@ -181,7 +182,7 @@ void InchControl::Trajectory_mode()
 
 void InchControl::Test_trajectory_generator_2dof()
 {
-  EE_ref[0] = init_pose[0] + 0.05 * sin (2 *PI * 0.5 * time_real)- 0.07; // sine wave
+  EE_ref[0] = init_pose[0]; // sine wave
   EE_ref[1] = init_pose[1];
 
   // init_pose[0] += 0.05 *sin (2 *PI * 0.3 * time_real);
@@ -260,6 +261,12 @@ void InchControl::init_pose_function()
   {
     initPoseFlag = false;
     ROS_WARN("Finished to arrive at the initial pose!");
+    ros::Rate init_rate(0.5);
+    init_rate.sleep();
+  //  inch_joint->phi_offset = inch_joint->phi_meas - inch_joint->phi_init;
+    ROS_INFO("init_phi: [%lf] [%lf],  phi_meas: [%lf] [%lf],   phi_offset: [%lf] [%lf]", inch_joint->phi_init[0], inch_joint->phi_init[1], inch_joint->phi_meas[0], inch_joint->phi_meas[1], inch_joint->phi_offset[0], inch_joint->phi_offset[1]);
+    init_rate.sleep();
+    ROS_WARN("Now, Control loop start!");
   }
 
 }
@@ -310,7 +317,7 @@ void InchControl::SeukInit()
   init_CKAdmittancey(3, 5);
 
 
-  init_pose << 0.17, 0.34;
+  init_pose << 0.20, 0.28;
   EE_ref = init_pose;
 
   // 초기값 튀는거 방지용 입니다.
@@ -318,8 +325,7 @@ void InchControl::SeukInit()
 
   ros::spinOnce();
 
-
-  ros::Rate init_rate(0.3);
+  ros::Rate init_rate(0.5);
   init_rate.sleep();
 
   ros::spinOnce();
@@ -330,17 +336,15 @@ void InchControl::SeukInit()
 
 void InchControl::SeukWhile()
 {
-  EE_ref[0] = init_pose[0] - 0.08;
-  EE_ref[1] = init_pose[1] - 0.04;
-  // Test_trajectory_generator_2dof();
+  Test_trajectory_generator_2dof();
 
   F_ext = F_ext_processing();
 
-   EE_cmd[0] = CKadmittanceControly(EE_ref[0], F_ext[0], time_loop);
+   EE_cmd[0] = EE_ref[0];
    EE_cmd[1] = EE_ref[1];
 
   q_ref = InverseKinematics_2dof(EE_cmd);
-  q_des = CommandVelocityLimit(q_ref, 1, time_loop);
+  q_des = CommandVelocityLimit(q_ref, 0.4, time_loop);
 
   theta_cmd = inch_joint->MPC_controller_2Link(q_des, time_loop);
    theta_cmd[0] += inch_link1_PID->PID_controller(q_des[0], inch_joint->q_meas[0], time_loop);

@@ -32,7 +32,7 @@ class TFBroadcaster : public inch::InchMisc
   double time_i = 0;
   double time_f = 0;
   double time_loop = 0;
-  double gimbal_Flag;
+  bool gimbal_Flag = false;
   /*****************************************************************************
   ** Define functions
   *****************************************************************************/

@@ -61,7 +61,7 @@ class InchControl : public inch::InchWorkbench
   double N3;
 
 
-  bool gimbal_Flag;
+  bool gimbal_Flag = false;
   bool initPoseFlag;
 
 

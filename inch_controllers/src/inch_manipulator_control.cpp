@@ -63,6 +63,8 @@ InchControl::InchControl()
   inch_q_meas_butterworth->init_butterworth_2nd_filter(40);
   initPoseFlag = true;
 
+  gimbal_Flag = false;
+
 }
 
 
@@ -129,19 +131,18 @@ void InchControl::PublishData()
 
   //inch/test_Pub
   //Just test
-  test_msg.data[0] = -F_ext[0] * 0.1; // 
-  test_msg.data[1] = inch_joint->q_dot_meas[0]; // Motor command
-  test_msg.data[2] = inch_joint->q_meas[0];
+  test_msg.data[0] = inch_joint->q_meas[0]; // 
+  test_msg.data[1] = inch_joint->q_meas[1]; // Motor command
+  test_msg.data[2] = theta_cmd[0];
+  test_msg.data[3] = theta_cmd[1];
 
+  test_msg.data[4] = q_ref[0];
+  test_msg.data[5] = q_ref[1];
+  test_msg.data[6] = F_ext[0];
+  test_msg.data[7] = F_ext[1];
 
-
-
-  test_msg.data[6] = inch_joint->tau_phi[0]; 
-  test_msg.data[7] = inch_joint->tau_MCG[0]; 
-  test_msg.data[8] = inch_joint->phi_meas[1]; 
-  test_msg.data[9] = inch_joint->phi_MPC[1]; 
-
-
+  test_msg.data[8] = EE_ref[1];
+  test_msg.data[9] = EE_meas[1];
 
 
   test_pub_.publish(test_msg);
@@ -176,8 +177,17 @@ void InchControl::Trajectory_mode()
 {
   // 여기서 작동 모드 (EE command를 어디서 받을지) 결정
 
-  if (gimbal_Flag) Test_trajectory_generator_2dof();
-  else trajectory_gimbaling();
+  if (!gimbal_Flag) 
+  {
+    Test_trajectory_generator_2dof();
+    ROS_INFO("not gimbaling!");
+  }
+  else 
+  {
+    trajectory_gimbaling();
+    ROS_WARN("GImballing!!");  
+  }
+  ROS_INFO("EE REF!!  [%lf]  [%lf]", EE_ref[0], EE_ref[1]);
 }
 
 void InchControl::Test_trajectory_generator_2dof()
@@ -336,19 +346,16 @@ void InchControl::SeukInit()
 
 void InchControl::SeukWhile()
 {
-  Test_trajectory_generator_2dof();
+  Trajectory_mode();
 
   F_ext = F_ext_processing();
 
-   EE_cmd[0] = EE_ref[0];
-   EE_cmd[1] = EE_ref[1];
-
-  q_ref = InverseKinematics_2dof(EE_cmd);
-  q_des = CommandVelocityLimit(q_ref, 0.4, time_loop);
+  q_ref = InverseKinematics_2dof(EE_ref);
+  q_des = CommandVelocityLimit(q_ref, 1, time_loop);
 
   theta_cmd = inch_joint->MPC_controller_2Link(q_des, time_loop);
-   theta_cmd[0] += inch_link1_PID->PID_controller(q_des[0], inch_joint->q_meas[0], time_loop);
-   theta_cmd[1] += inch_link2_PID->PID_controller(q_des[1], inch_joint->q_meas[1], time_loop);
+  theta_cmd[0] += inch_link1_PID->PID_controller(q_des[0], inch_joint->q_meas[0], time_loop);
+  theta_cmd[1] += inch_link2_PID->PID_controller(q_des[1], inch_joint->q_meas[1], time_loop);
 
 
 /////////////////////////////////////////////////////////////////

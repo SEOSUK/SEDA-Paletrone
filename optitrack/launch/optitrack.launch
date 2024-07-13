@@ -5,7 +5,7 @@
   
       
     <arg name="server" default="192.168.10.109" /> <!-- Optitrack computer IP  -->
-    <arg name="local" default="192.168.10.110" />  <!-- ROSCORE IP -->
+    <arg name="local" default="192.168.10.111" />  <!-- ROSCORE IP -->
     <arg name="multicast_group" default="239.255.42.99" /> <!-- optitrack computer multicast group IP -->
     <arg name="command_port" default="1510" />
     <arg name="data_port" default="1511" />

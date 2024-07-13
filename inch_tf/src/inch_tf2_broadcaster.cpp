@@ -10,7 +10,6 @@ TFBroadcaster::TFBroadcaster()
 
   inch_roll_lpf = new InchMisc();
 
-
 }
 
 TFBroadcaster::~TFBroadcaster()
@@ -88,9 +87,13 @@ void TFBroadcaster::inch_EE_meas_callback(const geometry_msgs::Twist& msg)
       transformStamped_gimbal.transform.rotation.y = 0;
       transformStamped_gimbal.transform.rotation.z = 0;
       transformStamped_gimbal.transform.rotation.w = 1;
-
+        ROS_INFO("No GIMBALLING!!");
         br_gimbal.sendTransform(transformStamped_gimbal);
       }
+      else
+      { 
+             ROS_INFO("GIMBALLING!!");
+        }
 }
 
 void TFBroadcaster::inch_EE_cmd_callback(const geometry_msgs::Twist& msg)
@@ -160,8 +163,6 @@ void TFBroadcaster::inch_Palletrone_callback(const geometry_msgs::PoseStamped& m
 
     br.sendTransform(transformStamped);
 
-  ROS_FATAL("TF not gimbal mode");    
-
   /*****************************************************************************
   ** Global End Effector
   *****************************************************************************/
@@ -183,7 +184,6 @@ void TFBroadcaster::inch_Palletrone_callback(const geometry_msgs::PoseStamped& m
     transformStamped_gimbal_base.transform.rotation.w = msg.pose.orientation.w;
 
     br_gimbal_base.sendTransform(transformStamped_gimbal_base);    
-  ROS_WARN("TF gimbal mode");
   }
 }
 
@@ -214,7 +214,7 @@ void TFBroadcaster::initSubscriber()
     inch_EE_meas_sub_ = node_handle_.subscribe("/inch/EE_meas", 10, &TFBroadcaster::inch_EE_meas_callback, this, ros::TransportHints().tcpNoDelay());             
     inch_EE_cmd_sub_ = node_handle_.subscribe("/inch/EE_ref", 10, &TFBroadcaster::inch_EE_cmd_callback, this, ros::TransportHints().tcpNoDelay());             
     inch_BasePlate_sub_ = node_handle_.subscribe("/inchBase/world", 10, &TFBroadcaster::inch_Palletrone_callback, this, ros::TransportHints().tcpNoDelay());      // From Optitrack
-    inch_gimbal_Flag_server_ = node_handle_.advertiseService("/inch/gimbalSrv", &TFBroadcaster::gimbal_callback, this);
+    inch_gimbal_Flag_server_ = node_handle_.advertiseService("/inch/gimbalSrvTF", &TFBroadcaster::gimbal_callback, this);
 }
 
 int main(int argc, char **argv)

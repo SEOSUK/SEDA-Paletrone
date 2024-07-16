@@ -27,7 +27,7 @@ InchJoint::InchJoint()
 
   phi_init << Link1_init_phi, Link2_init_phi;
 
-
+phi_offset << 0, 0;
 
   initPublisher();
   initSubscriber();

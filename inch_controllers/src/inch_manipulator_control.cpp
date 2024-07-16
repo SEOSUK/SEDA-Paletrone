@@ -342,8 +342,8 @@ void InchControl::init_pose_function()
     ROS_WARN("Finished to arrive at the initial pose!");
     ros::Rate init_rate(0.5);
     init_rate.sleep();
-  //  inch_joint->phi_offset = inch_joint->phi_meas - inch_joint->phi_init;
-    ROS_INFO("init_phi: [%lf] [%lf],  phi_meas: [%lf] [%lf],   phi_offset: [%lf] [%lf]", inch_joint->phi_init[0], inch_joint->phi_init[1], inch_joint->phi_meas[0], inch_joint->phi_meas[1], inch_joint->phi_offset[0], inch_joint->phi_offset[1]);
+    inch_joint->phi_offset = inch_joint->phi_meas;
+    ROS_INFO("phi_offset: [%lf] [%lf]",inch_joint->phi_offset[0], inch_joint->phi_offset[1]);
     init_rate.sleep();
     ROS_WARN("Now, Control loop start!");
   }

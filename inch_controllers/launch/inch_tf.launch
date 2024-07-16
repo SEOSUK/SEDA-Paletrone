@@ -1,6 +1,0 @@
-<launch>
-	<!-- tf -->
-	  <include file="$(find inch_tf)/launch/inch_tf2_setting.launch">
-	  </include>
-
-</launch>

@@ -144,7 +144,7 @@ void TFBroadcaster::inch_EE_cmd_callback(const geometry_msgs::Twist& msg)
 void TFBroadcaster::inch_Palletrone_callback(const geometry_msgs::PoseStamped& msg)
 {
   /*****************************************************************************
-  ** Global End Effector
+  ** Not gimbaling
   *****************************************************************************/
     static tf2_ros::StaticTransformBroadcaster br;
     geometry_msgs::TransformStamped transformStamped;
@@ -164,7 +164,7 @@ void TFBroadcaster::inch_Palletrone_callback(const geometry_msgs::PoseStamped& m
     br.sendTransform(transformStamped);
 
   /*****************************************************************************
-  ** Global End Effector
+  ** gimbaling
   *****************************************************************************/
   if(!gimbal_Flag) 
   {

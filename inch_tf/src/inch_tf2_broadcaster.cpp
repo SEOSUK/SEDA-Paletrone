@@ -187,22 +187,38 @@ void TFBroadcaster::inch_Palletrone_callback(const geometry_msgs::PoseStamped& m
   }
 }
 
-
-bool TFBroadcaster::gimbal_callback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
+void TFBroadcaster::sbus_callback(const std_msgs::Int16MultiArray::ConstPtr& msg)
 {
-  if (gimbal_Flag)
-  {
-    ROS_INFO("TF not gimbal mode");
-    gimbal_Flag = false;
-  }
-  else
-  {
-    ROS_INFO("TF gimbaling");
-    gimbal_Flag = true;
-  }
+  if(msg->data[0] == 0) gimbal_Flag = false;
+  else if(msg->data[0] == 1) gimbal_Flag = true;
 
-  return true;
+  // sbus 신호 0:off, 1:on
+  // 채널별로 0번: gimbal
+  //        1번: stop
+  // 나중에 조종기 토글 골라서 맞춰바꿔야함
+
 }
+
+
+// bool TFBroadcaster::gimbal_callback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
+// {
+//   if (gimbal_Flag)
+//   {
+//     ROS_INFO("TF not gimbal mode");
+//     gimbal_Flag = false;
+//   }
+//   else
+//   {
+//     ROS_INFO("TF gimbaling");
+//     gimbal_Flag = true;
+//   }
+
+//   return true;
+// }
+
+
+
+
 
 void TFBroadcaster::initPublisher()
 {
@@ -214,7 +230,10 @@ void TFBroadcaster::initSubscriber()
     inch_EE_meas_sub_ = node_handle_.subscribe("/inch/EE_meas", 10, &TFBroadcaster::inch_EE_meas_callback, this, ros::TransportHints().tcpNoDelay());             
     inch_EE_cmd_sub_ = node_handle_.subscribe("/inch/EE_ref", 10, &TFBroadcaster::inch_EE_cmd_callback, this, ros::TransportHints().tcpNoDelay());             
     inch_BasePlate_sub_ = node_handle_.subscribe("/inchBase/world", 10, &TFBroadcaster::inch_Palletrone_callback, this, ros::TransportHints().tcpNoDelay());      // From Optitrack
-    inch_gimbal_Flag_server_ = node_handle_.advertiseService("/inch/gimbalSrvTF", &TFBroadcaster::gimbal_callback, this);
+    sbus_sub_ = node_handle_.subscribe("/sbus", 10, &TFBroadcaster::sbus_callback, this, ros::TransportHints().tcpNoDelay());
+   
+   
+    // inch_gimbal_Flag_server_ = node_handle_.advertiseService("/inch/gimbalSrvTF", &TFBroadcaster::gimbal_callback, this);
 }
 
 int main(int argc, char **argv)

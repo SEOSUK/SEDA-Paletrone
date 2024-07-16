@@ -18,6 +18,8 @@
 #include <inch_toolbox/inch_workbench.h>
 #include <inch_toolbox/inch_joint.h>
 #include <inch_toolbox/inch_misc.h>
+#include <std_msgs/Int16MultiArray.h>
+
 #include <std_srvs/Empty.h>
 #define PI 3.141592
 
@@ -61,7 +63,13 @@ class InchControl : public inch::InchWorkbench
   double N3;
 
 
+  double tanh_COF_;
+  double deadzone_max;
+  double deadzone_min;
+
+
   bool gimbal_Flag = false;
+  bool stop_Flag = false;
   bool initPoseFlag;
 
 
@@ -75,12 +83,14 @@ class InchControl : public inch::InchWorkbench
   void SolveInverseForwardKinematics();
   
   void TimeCount();
+  void stop_Function();
   void Test_trajectory_generator_2dof();
   void Trajectory_mode();
   void trajectory_gimbaling();
   void Experiment_0623_1Link();
   Eigen::Vector2d F_ext_processing();
   void init_pose_function();
+  void sbus_callback(const std_msgs::Int16MultiArray::ConstPtr& msg);
   //ROS
   void inch_gimbal_EE_cmd_callback(const geometry_msgs::Twist& msg);
   bool gimbal_callback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
@@ -137,6 +147,7 @@ class InchControl : public inch::InchWorkbench
   *****************************************************************************/
   ros::Subscriber dynamixel_workbench_sub_;
   ros::Subscriber Optitrack_sub_;
+  ros::Subscriber sbus_sub_;
   ros::Subscriber gimbal_EE_cmd_sub_;
   ros::ServiceServer inch_gimbal_Flag_server_;
   /*****************************************************************************

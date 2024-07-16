@@ -14,6 +14,7 @@
 #include <geometry_msgs/Vector3.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <inch_toolbox/inch_misc.h>
+#include <std_msgs/Int16MultiArray.h>
 #include <std_srvs/Empty.h>
 
 
@@ -69,7 +70,9 @@ class TFBroadcaster : public inch::InchMisc
   ros::Subscriber inch_EE_meas_sub_;
   ros::Subscriber inch_EE_cmd_sub_;
   ros::Subscriber inch_BasePlate_sub_;
-  ros::ServiceServer inch_gimbal_Flag_server_;
+  ros::Subscriber sbus_sub_;
+
+  // ros::ServiceServer inch_gimbal_Flag_server_;
   
   /*****************************************************************************
   ** Define variables
@@ -82,9 +85,9 @@ class TFBroadcaster : public inch::InchMisc
 
   void inch_EE_meas_callback(const geometry_msgs::Twist& msg);
   void inch_EE_cmd_callback(const geometry_msgs::Twist& msg);
-
+  void sbus_callback(const std_msgs::Int16MultiArray::ConstPtr& msg);
   void inch_Palletrone_callback(const geometry_msgs::PoseStamped& msg);
-  bool gimbal_callback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
+  // bool gimbal_callback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
   
 };
 

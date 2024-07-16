@@ -91,15 +91,49 @@ void InchControl::initPublisher()
 void InchControl::initSubscriber()
 {
   gimbal_EE_cmd_sub_ = node_handle_.subscribe("/inch/gimbal_EE_cmd", 10, &InchControl::inch_gimbal_EE_cmd_callback, this, ros::TransportHints().tcpNoDelay());
-  
-  inch_gimbal_Flag_server_ = node_handle_.advertiseService("/inch/gimbalSrv", &InchControl::gimbal_callback, this);
-}
+  sbus_sub_ = node_handle_.subscribe("/sbus", 10, &InchControl::sbus_callback, this, ros::TransportHints().tcpNoDelay());
 
+//  inch_gimbal_Flag_server_ = node_handle_.advertiseService("/inch/gimbalSrv", &InchControl::gimbal_callback, this);
+}
 
 void InchControl::initServer()
 {
+  // Fext_server = node_handle_.advertiseService("/inch/Fext_srv", &InchControl::Fext_callback, this);
+  // admittance_server = node_handle_.advertiseService("/inch/admittance_srv", &InchControl::admittance_callback, this);
+}
+
+void InchControl::sbus_callback(const std_msgs::Int16MultiArray::ConstPtr& msg)
+{
+  if(msg->data[0] == 0) gimbal_Flag = false;
+  else if(msg->data[0] == 1) gimbal_Flag = true;
+
+  if(msg->data[1] == 0) stop_Flag = false;
+  else if(msg->data[1] == 1) stop_Flag = true;
+
+
+  // sbus 신호 0:off, 1:on
+  // 채널별로 0번: gimbal
+  //        1번: stop
+  // 나중에 조종기 토글 골라서 맞춰바꿔야함
 
 }
+
+// bool InchControl::gimbal_callback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
+// {
+//   if (gimbal_Flag)
+//   {
+//     ROS_INFO("TF not gimbal mode");
+//     gimbal_Flag = false;
+//   }
+//   else
+//   {
+//     ROS_INFO("TF gimbaling");
+//     gimbal_Flag = true;
+//   }
+
+//   return true;
+// }
+
 
 void InchControl::PublishData()
 {
@@ -220,21 +254,6 @@ void InchControl::inch_gimbal_EE_cmd_callback(const geometry_msgs::Twist& msg)
   EE_gimbal_cmd[1] = msg.linear.z;
 }
 
-bool InchControl::gimbal_callback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
-{
-  if (gimbal_Flag)
-  {
-    ROS_INFO("TF not gimbal mode");
-    gimbal_Flag = false;
-  }
-  else
-  {
-    ROS_INFO("TF gimbaling");
-    gimbal_Flag = true;
-  }
-
-  return true;
-}
 
 Eigen::Vector2d InchControl::F_ext_processing()
 {
@@ -280,6 +299,13 @@ void InchControl::init_pose_function()
   }
 
 }
+
+void InchControl::stop_Function()
+{
+  theta_cmd = CommandVelocityLimit(init_theta, 0.3, time_loop);
+}
+
+
 
 
 void InchControl::Experiment_0623_1Link()
@@ -379,16 +405,21 @@ int main(int argc, char **argv)
   while (ros::ok())
   {
     inch_ctrl_.TimeCount();
-
-      if (inch_ctrl_.initPoseFlag)
-      {
-        inch_ctrl_.init_pose_function();
-      }
-      else
-      {
-      inch_ctrl_.SeukWhile();
-      }
-  
+    if (inch_ctrl_.stop_Flag)
+    {
+      inch_ctrl_.stop_Function();
+    }
+    else
+    {
+        if (inch_ctrl_.initPoseFlag)
+        {
+          inch_ctrl_.init_pose_function();
+        }
+        else
+        {
+        inch_ctrl_.SeukWhile();
+        }
+    }
   
     inch_ctrl_.PublishData();
 

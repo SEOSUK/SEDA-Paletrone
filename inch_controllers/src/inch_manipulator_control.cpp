@@ -340,11 +340,6 @@ void InchControl::init_pose_function()
   {
     initPoseFlag = false;
     ROS_WARN("Finished to arrive at the initial pose!");
-    ros::Rate init_rate(0.5);
-    init_rate.sleep();
-    inch_joint->phi_offset = inch_joint->phi_meas;
-    ROS_INFO("phi_offset: [%lf] [%lf]",inch_joint->phi_offset[0], inch_joint->phi_offset[1]);
-    init_rate.sleep();
     ROS_WARN("Now, Control loop start!");
   }
 
@@ -410,7 +405,7 @@ void InchControl::SeukInit()
   init_theta = InverseKinematics_2dof(init_pose);
 
   ros::spinOnce();
-
+  
   ros::Rate init_rate(0.5);
   init_rate.sleep();
 

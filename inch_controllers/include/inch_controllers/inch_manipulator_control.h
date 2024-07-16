@@ -19,7 +19,9 @@
 #include <inch_toolbox/inch_joint.h>
 #include <inch_toolbox/inch_misc.h>
 #include <std_msgs/Int16MultiArray.h>
-
+#include <inch_controllers/FextYFilter.h>
+#include <inch_controllers/FextZFilter.h>
+#include <inch_controllers/admittance.h>
 #include <std_srvs/Empty.h>
 #define PI 3.141592
 
@@ -73,6 +75,16 @@ class InchControl : public inch::InchWorkbench
   bool initPoseFlag;
 
 
+  double tanh_COF_Y;
+  double deadzone_Y_max;
+  double deadzone_Y_min;
+
+  double tanh_COF_Z;
+  double deadzone_Z_max;
+  double deadzone_Z_min;
+
+
+
   std::string robot_name_;
 
   /*****************************************************************************
@@ -93,7 +105,10 @@ class InchControl : public inch::InchWorkbench
   void sbus_callback(const std_msgs::Int16MultiArray::ConstPtr& msg);
   //ROS
   void inch_gimbal_EE_cmd_callback(const geometry_msgs::Twist& msg);
-  bool gimbal_callback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
+  //bool gimbal_callback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
+  bool FextY_callback(inch_controllers::FextYFilter::Request& req, inch_controllers::FextYFilter::Response& res);
+  bool FextZ_callback(inch_controllers::FextZFilter::Request& req, inch_controllers::FextZFilter::Response& res);
+  bool admittance_callback(inch_controllers::admittance::Request& req, inch_controllers::admittance::Response& res);
 
   //TeamWork!
   void YujinWhile();
@@ -122,7 +137,8 @@ class InchControl : public inch::InchWorkbench
   // Inch
   InchJoint *inch_joint;
 
-  InchMisc *inch_q_meas_butterworth;
+  InchMisc *inch_butterworth_F_ext_y;
+  InchMisc *inch_butterworth_F_ext_z;
   InchMisc *inch_link1_PID;
   InchMisc *inch_link2_PID;
 
@@ -149,7 +165,10 @@ class InchControl : public inch::InchWorkbench
   ros::Subscriber Optitrack_sub_;
   ros::Subscriber sbus_sub_;
   ros::Subscriber gimbal_EE_cmd_sub_;
-  ros::ServiceServer inch_gimbal_Flag_server_;
+  // ros::ServiceServer inch_gimbal_Flag_server_;
+  ros::ServiceServer FextY_server;
+  ros::ServiceServer FextZ_server;
+  ros::ServiceServer admittance_server;
   /*****************************************************************************
   ** ROS Services Clients
   *****************************************************************************/

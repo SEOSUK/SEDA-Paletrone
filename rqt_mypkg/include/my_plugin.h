@@ -10,7 +10,8 @@
 #include <iostream>
 #include <turtlesim/Pose.h>
 #include <rqt_mypkg/admittance.h>
-#include <rqt_mypkg/FextFilter.h>
+#include <rqt_mypkg/FextYFilter.h>
+#include <rqt_mypkg/FextZFilter.h>
 #include "rqt_mypkg/ui_my_plugin.h"
 #include "std_msgs/Int16MultiArray.h"
 
@@ -35,8 +36,9 @@ public:
 
 private slots:
 
-    // void FextFilter_callback(bool val);    
-    // void admittance_callback(bool val);
+    void Fext_Y_Filter_callback(bool val); 
+    void Fext_Z_Filter_callback(bool val);    
+    void admittance_callback(bool val);
     void gimbaling_callback(bool val);  
     void manipul_stop_callback(bool val);  
     void pub_timer_callback(const ros::TimerEvent&);
@@ -50,8 +52,9 @@ private slots:
     ros::Publisher publisher;         //이건 GUI Shutdown 용이라서 건들면 안 됨.
 
     ros::Publisher sbus_pub_;
-    // ros::ServiceClient Fext_client;
-    // ros::ServiceClient admittance_client;
+    ros::ServiceClient FextY_client;
+    ros::ServiceClient FextZ_client;
+    ros::ServiceClient admittance_client;
     ros::Timer timer_callback_;
     
 

@@ -38,7 +38,8 @@ InchControl::InchControl()
 
   inch_joint = new InchJoint(); 
 
-  inch_q_meas_butterworth = new InchMisc(); //qdot에 butterworth 넣을거임
+  inch_butterworth_F_ext_y = new InchMisc(); //qdot에 butterworth 넣을거임
+  inch_butterworth_F_ext_z = new InchMisc(); //qdot에 butterworth 넣을거임
 
   /************************************************************
   ** Initialize ROS Subscribers and Clients
@@ -60,7 +61,8 @@ InchControl::InchControl()
 
 
   //Init Butterworth 2nd
-  inch_q_meas_butterworth->init_butterworth_2nd_filter(40);
+  inch_butterworth_F_ext_y->init_butterworth_2nd_filter(40);
+  inch_butterworth_F_ext_z->init_butterworth_2nd_filter(40);
   initPoseFlag = true;
 
   gimbal_Flag = false;
@@ -98,8 +100,10 @@ void InchControl::initSubscriber()
 
 void InchControl::initServer()
 {
-  // Fext_server = node_handle_.advertiseService("/inch/Fext_srv", &InchControl::Fext_callback, this);
-  // admittance_server = node_handle_.advertiseService("/inch/admittance_srv", &InchControl::admittance_callback, this);
+  FextY_server = node_handle_.advertiseService("/inch/Fext_Y_srv", &InchControl::FextY_callback, this);
+  FextZ_server = node_handle_.advertiseService("/inch/Fext_Z_srv", &InchControl::FextZ_callback, this);
+
+  admittance_server = node_handle_.advertiseService("/inch/admittance_srv", &InchControl::admittance_callback, this);
 }
 
 void InchControl::sbus_callback(const std_msgs::Int16MultiArray::ConstPtr& msg)
@@ -115,9 +119,49 @@ void InchControl::sbus_callback(const std_msgs::Int16MultiArray::ConstPtr& msg)
   // 채널별로 0번: gimbal
   //        1번: stop
   // 나중에 조종기 토글 골라서 맞춰바꿔야함
-
 }
 
+bool InchControl::FextY_callback(inch_controllers::FextYFilter::Request& req, inch_controllers::FextYFilter::Response& res)
+{
+  double Y_filter_cof = req.filter_COF;
+  tanh_COF_Y = req.tanh_COF;
+  deadzone_Y_max = req.deadzone_max;
+  deadzone_Y_min = req.deadzone_min;
+  inch_butterworth_F_ext_y->init_butterworth_2nd_filter(Y_filter_cof);
+
+
+  ROS_INFO("FextY Service [%lf]  [%lf]  [%lf]  [%lf]", Y_filter_cof, tanh_COF_Y, deadzone_Y_max, deadzone_Y_min);
+
+  return true;
+}
+
+bool InchControl::FextZ_callback(inch_controllers::FextZFilter::Request& req, inch_controllers::FextZFilter::Response& res)
+{
+  double Z_filter_cof = req.filter_COF;
+
+  tanh_COF_Z = req.tanh_COF;
+  deadzone_Z_max = req.deadzone_max;
+  deadzone_Z_min = req.deadzone_min;
+  inch_butterworth_F_ext_z->init_butterworth_2nd_filter(Z_filter_cof);
+
+
+  ROS_INFO("FextZ Service [%lf]  [%lf]  [%lf]  [%lf]", Z_filter_cof, tanh_COF_Y, deadzone_Y_max, deadzone_Y_min);
+  return true;
+}
+
+bool InchControl::admittance_callback(inch_controllers::admittance::Request& req, inch_controllers::admittance::Response& res)
+{
+  double y_d = req.y_d;
+  double y_k = req.y_k;
+  double z_d = req.z_d;
+  double z_k = req.z_k;
+  
+  init_CKAdmittancey(y_d, y_k);
+  init_CKAdmittancez(z_d, z_k);
+  ROS_INFO("Admittance Service [%lf]  [%lf]  [%lf]  [%lf]", y_d, y_k, z_d, z_k);
+
+  return true;
+}
 // bool InchControl::gimbal_callback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
 // {
 //   if (gimbal_Flag)
@@ -186,7 +230,6 @@ void InchControl::deleteToolbox()
 {
   delete inch_joint;
   
-  delete inch_q_meas_butterworth;
   delete inch_link1_PID;
 }
 
@@ -214,14 +257,14 @@ void InchControl::Trajectory_mode()
   if (!gimbal_Flag) 
   {
     Test_trajectory_generator_2dof();
-    ROS_INFO("not gimbaling!");
+    // ROS_INFO("not gimbaling!");
   }
   else 
   {
     trajectory_gimbaling();
-    ROS_WARN("GImballing!!");  
+    // ROS_WARN("GImballing!!");  
   }
-  ROS_INFO("EE REF!!  [%lf]  [%lf]", EE_ref[0], EE_ref[1]);
+  // ROS_INFO("EE REF!!  [%lf]  [%lf]", EE_ref[0], EE_ref[1]);
 }
 
 void InchControl::Test_trajectory_generator_2dof()
@@ -259,10 +302,17 @@ Eigen::Vector2d InchControl::F_ext_processing()
 {
   Eigen::Vector2d F_ext_;
   tau_ext = inch_joint->tau_phi - inch_joint->tau_MCG;
-  tau_ext[0] = tanh_function(tau_ext[0], 1);
-  tau_ext[1] = tanh_function(tau_ext[1], 1);
+  tau_ext[0] = tanh_function(tau_ext[0], tanh_COF_Y);
+  tau_ext[1] = tanh_function(tau_ext[1], tanh_COF_Z);
+
+  tau_ext[0] = Dead_Zone_filter(tau_ext[0], deadzone_Y_max, deadzone_Y_min);
+  tau_ext[1] = Dead_Zone_filter(tau_ext[1], deadzone_Z_max, deadzone_Z_min);
   
   F_ext_ = ForceEstimation(inch_joint->q_meas, tau_ext);
+
+  F_ext_[0] = inch_butterworth_F_ext_y->butterworth_2nd_filter(F_ext_[0], time_loop);
+  F_ext_[1] = inch_butterworth_F_ext_z->butterworth_2nd_filter(F_ext_[1], time_loop);
+
   return F_ext_;
 }
 

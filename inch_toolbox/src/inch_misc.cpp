@@ -86,16 +86,11 @@ void InchMisc::init_PID_controller(double Kp_, double Ki_, double Kd_, double cu
   if(cut_off_freq_ != 0) init_butterworth_2nd_filter(cut_off_freq_);
 }
 
-double InchMisc::Dead_Zone_filter(double input_data_)
+double InchMisc::Dead_Zone_filter(double input_data_, double dead_zone_max, double dead_zone_min)
 {
   return (input_data_ < dead_zone_max && input_data_ > dead_zone_min) ? 0 : input_data_;
 }
 
-void InchMisc::init_Dead_Zone_filter(double dead_zone_max_, double dead_zone_min_)
-{
-  dead_zone_max = dead_zone_max_;
-  dead_zone_min = dead_zone_min_;
-}
 
 double InchMisc::NumDiff(double input_data_, double time_loop_)
 {

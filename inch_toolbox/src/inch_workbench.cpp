@@ -129,7 +129,7 @@ void InchWorkbench::init_CKAdmittancey(double CKadmit_damper_y_, double CKadmit_
 // y Axis
   CKadmit_damper_y = CKadmit_damper_y_;
   CKadmit_spring_y = CKadmit_spring_y_;
-
+  CKadmit_y_state = 0;
 }
 
 double InchWorkbench::CKadmittanceControly(double ref, double f_ext, double time_loop)
@@ -149,6 +149,7 @@ void InchWorkbench::init_CKAdmittancez(double CKadmit_damper_z_, double CKadmit_
 // y Axis
   CKadmit_damper_z = CKadmit_damper_z_;
   CKadmit_spring_z = CKadmit_spring_z_;
+  CKadmit_z_state = 0;
 }
 
 double InchWorkbench::CKadmittanceControlz(double ref, double f_ext, double time_loop)

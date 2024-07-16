@@ -30,7 +30,8 @@ catkin_python_setup()
 add_service_files(
   FILES
 admittance.srv
-FextFilter.srv
+FextYFilter.srv
+FextZFilter.srv
 )
 
 generate_messages(

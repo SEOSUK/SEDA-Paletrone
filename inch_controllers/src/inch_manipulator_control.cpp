@@ -26,11 +26,16 @@ InchControl::InchControl()
 
   Gravity = node_handle_.param<double>("Gravity", 0);
 
-  ROS_INFO("Link1_length[%lf] Link2_length[%lf]", Link1_length, Link2_length);
-
   N1 = node_handle_.param<double>("N1", 0);
   N2 = node_handle_.param<double>("N2", 0);
   N3 = node_handle_.param<double>("N3", 0);
+
+  Link1_init_phi = node_handle_.param<double>("Link1_init_phi", 0);
+  Link2_init_phi = node_handle_.param<double>("Link2_init_phi", 0);
+
+  phi_init << Link1_init_phi, Link2_init_phi;
+
+
 
   /************************************************************
   ** class init
@@ -92,7 +97,7 @@ void InchControl::initPublisher()
 
 void InchControl::initSubscriber()
 {
-  gimbal_EE_cmd_sub_ = node_handle_.subscribe("/inch/gimbal_EE_cmd", 10, &InchControl::inch_gimbal_EE_cmd_callback, this, ros::TransportHints().tcpNoDelay());
+  gimbal_EE_ref_sub_ = node_handle_.subscribe("/inch/gimbal_EE_ref", 10, &InchControl::inch_gimbal_EE_ref_callback, this, ros::TransportHints().tcpNoDelay());
   sbus_sub_ = node_handle_.subscribe("/sbus", 10, &InchControl::sbus_callback, this, ros::TransportHints().tcpNoDelay());
 
 //  inch_gimbal_Flag_server_ = node_handle_.advertiseService("/inch/gimbalSrv", &InchControl::gimbal_callback, this);
@@ -286,15 +291,15 @@ void InchControl::Test_trajectory_generator_2dof()
 
 void InchControl::trajectory_gimbaling()
 {
-  EE_ref[0] = EE_gimbal_cmd[0];
-  EE_ref[1] = EE_gimbal_cmd[1];
+  EE_ref[0] = EE_gimbal_ref[0];
+  EE_ref[1] = EE_gimbal_ref[1];
 }
 
 
-void InchControl::inch_gimbal_EE_cmd_callback(const geometry_msgs::Twist& msg)
+void InchControl::inch_gimbal_EE_ref_callback(const geometry_msgs::Twist& msg)
 {
-  EE_gimbal_cmd[0] = msg.linear.y;
-  EE_gimbal_cmd[1] = msg.linear.z;
+  EE_gimbal_ref[0] = msg.linear.y;
+  EE_gimbal_ref[1] = msg.linear.z;
 }
 
 
@@ -340,6 +345,14 @@ void InchControl::init_pose_function()
   {
     initPoseFlag = false;
     ROS_WARN("Finished to arrive at the initial pose!");
+    
+    ros::Rate calibration_loop(0.5);
+    ros::spinOnce();
+    calibration_loop.sleep();
+    inch_joint->phi_offset = phi_init - inch_joint->phi_meas;
+    // init pose에 도달했을 때 값이 항상 phi_init이 되도록, phi_offset을 설정.
+    calibration_loop.sleep();
+    
     ROS_WARN("Now, Control loop start!");
   }
 
@@ -407,8 +420,8 @@ void InchControl::SeukInit()
   ros::spinOnce();
   
   ros::Rate init_rate(0.5);
-  init_rate.sleep();
 
+  init_rate.sleep();
   ros::spinOnce();
 
   theta_cmd = inch_joint->theta_meas;

@@ -83,7 +83,9 @@ class InchControl : public inch::InchWorkbench
   double deadzone_Z_max;
   double deadzone_Z_min;
 
-
+  double Link1_init_phi;
+  double Link2_init_phi;
+  Eigen::Vector2d phi_init;
 
   std::string robot_name_;
 
@@ -104,7 +106,7 @@ class InchControl : public inch::InchWorkbench
   void init_pose_function();
   void sbus_callback(const std_msgs::Int16MultiArray::ConstPtr& msg);
   //ROS
-  void inch_gimbal_EE_cmd_callback(const geometry_msgs::Twist& msg);
+  void inch_gimbal_EE_ref_callback(const geometry_msgs::Twist& msg);
   //bool gimbal_callback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
   bool FextY_callback(inch_controllers::FextYFilter::Request& req, inch_controllers::FextYFilter::Response& res);
   bool FextZ_callback(inch_controllers::FextZFilter::Request& req, inch_controllers::FextZFilter::Response& res);
@@ -164,7 +166,7 @@ class InchControl : public inch::InchWorkbench
   ros::Subscriber dynamixel_workbench_sub_;
   ros::Subscriber Optitrack_sub_;
   ros::Subscriber sbus_sub_;
-  ros::Subscriber gimbal_EE_cmd_sub_;
+  ros::Subscriber gimbal_EE_ref_sub_;
   // ros::ServiceServer inch_gimbal_Flag_server_;
   ros::ServiceServer FextY_server;
   ros::ServiceServer FextZ_server;
@@ -185,7 +187,7 @@ class InchControl : public inch::InchWorkbench
   Eigen::Vector2d theta_cmd; // theta 커맨드 (제어기 통과)
   Eigen::Vector2d EE_meas;
   Eigen::Vector2d EE_cmd;
-  Eigen::Vector2d EE_gimbal_cmd;
+  Eigen::Vector2d EE_gimbal_ref;
   Eigen::Vector2d EE_ref;
   Eigen::Vector2d F_ext;
   Eigen::Vector2d tau_ext;

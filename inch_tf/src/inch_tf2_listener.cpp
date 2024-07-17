@@ -17,7 +17,7 @@ int main(int argc, char** argv)
     
     geometry_msgs::Twist gimbal_EE_cmd;
 
-    ros::Publisher gimbal_EE_cmd_pub_ = nh.advertise<geometry_msgs::Twist>("/inch/gimbal_EE_cmd", 10);
+    ros::Publisher gimbal_EE_cmd_pub_ = nh.advertise<geometry_msgs::Twist>("/inch/gimbal_EE_ref", 10);
 
 
     ros::Rate rate(120);

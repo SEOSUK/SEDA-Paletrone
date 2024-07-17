@@ -22,11 +22,7 @@ InchJoint::InchJoint()
   N2 = priv_nh_.param<double>("N2", 0);
   N3 = priv_nh_.param<double>("N3", 0);
 
-  Link1_init_phi = priv_nh_.param<double>("Link1_init_phi", 0);
-  Link2_init_phi = priv_nh_.param<double>("Link2_init_phi", 0);
-
-  phi_init << Link1_init_phi, Link2_init_phi;
-
+phi_offset << 0, 0;
 
   initPublisher();
   initSubscriber();
@@ -83,9 +79,10 @@ void InchJoint::dynamixel_callback(const sensor_msgs::JointState::ConstPtr &msg)
 
 void InchJoint::encoder_phi_callback(const std_msgs::Float64MultiArray::ConstPtr &msg)
 {
-  phi_meas[0] = msg->data.at(0) * PI / 180;
-  phi_meas[1] = msg->data.at(1) * PI / 180;
-  
+  phi_meas[0] = msg->data.at(0) * PI / 180 + phi_offset[0];
+  phi_meas[1] = msg->data.at(1) * PI / 180 + phi_offset[1];
+// 구한 phi_offset은 phi_meas에 계속해서 반영
+      
   tau_phi[0] = -k_sp[0] * phi_meas[0];
   tau_phi[1] = -k_sp[1] * phi_meas[1];
 

@@ -21,7 +21,6 @@
 PositionControl::PositionControl()
     :node_handle_("")
 {
-
   std::string device_name   = node_handle_.param<std::string>("device_name", "/dev/ttyUSB0");
   uint32_t dxl_baud_rate    = node_handle_.param<int>("baud_rate", 1000000);
 

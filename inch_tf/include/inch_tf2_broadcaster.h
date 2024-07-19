@@ -63,11 +63,12 @@ class TFBroadcaster : public inch::InchMisc
   /*****************************************************************************
   ** ROS Publishers
   *****************************************************************************/
-//  ros::Publisher Link1_pub_;
+  ros::Publisher inchBase_pub_;
   /*****************************************************************************
   ** ROS Subscribers, Callback Functions and Relevant Functions
   *****************************************************************************/
   ros::Subscriber inch_EE_meas_sub_;
+  ros::Subscriber inch_EE_ref_sub_;
   ros::Subscriber inch_EE_cmd_sub_;
   ros::Subscriber inch_BasePlate_sub_;
   ros::Subscriber sbus_sub_;
@@ -77,13 +78,18 @@ class TFBroadcaster : public inch::InchMisc
   /*****************************************************************************
   ** Define variables
   *****************************************************************************/
-  //geometry_msgs::Vector3 Link1_msg;
+  geometry_msgs::Twist inchBase;
+
+  double roll;
+  double pitch;
+  double yaw;
 
   /*****************************************************************************
   ** Define functions
   *****************************************************************************/
 
   void inch_EE_meas_callback(const geometry_msgs::Twist& msg);
+  void inch_EE_ref_callback(const geometry_msgs::Twist& msg);
   void inch_EE_cmd_callback(const geometry_msgs::Twist& msg);
   void sbus_callback(const std_msgs::Int16MultiArray::ConstPtr& msg);
   void inch_Palletrone_callback(const geometry_msgs::PoseStamped& msg);

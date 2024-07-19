@@ -96,6 +96,51 @@ void TFBroadcaster::inch_EE_meas_callback(const geometry_msgs::Twist& msg)
         }
 }
 
+void TFBroadcaster::inch_EE_ref_callback(const geometry_msgs::Twist& msg)
+{
+  /*****************************************************************************
+  ** Body  End Effector
+  *****************************************************************************/
+    static tf2_ros::StaticTransformBroadcaster br;
+    geometry_msgs::TransformStamped transformStamped;
+
+    transformStamped.header.stamp = ros::Time::now();
+    transformStamped.header.frame_id = "world";
+    transformStamped.child_frame_id = "tf/inch/EE_ref";
+    transformStamped.transform.translation.x = 0;
+    transformStamped.transform.translation.y = msg.linear.y;
+    transformStamped.transform.translation.z = msg.linear.z;
+
+    transformStamped.transform.rotation.x = 0;
+    transformStamped.transform.rotation.y = 0;
+    transformStamped.transform.rotation.z = 0;
+    transformStamped.transform.rotation.w = 1;
+
+    br.sendTransform(transformStamped);
+
+
+  /*****************************************************************************
+  ** Global End Effector   (Gimballing AutoChange)
+  *****************************************************************************/
+    static tf2_ros::StaticTransformBroadcaster br_global;
+  
+    geometry_msgs::TransformStamped transformStamped_global;
+
+    transformStamped_global.header.stamp = ros::Time::now();
+    transformStamped_global.header.frame_id = "tf/inch/Base";
+    transformStamped_global.child_frame_id = "tf/inch/EE_global_ref";
+    transformStamped_global.transform.translation.x = 0;
+    transformStamped_global.transform.translation.y = msg.linear.y;
+    transformStamped_global.transform.translation.z = msg.linear.z;
+
+    transformStamped_global.transform.rotation.x = 0;
+    transformStamped_global.transform.rotation.y = 0;
+    transformStamped_global.transform.rotation.z = 0;
+    transformStamped_global.transform.rotation.w = 1;
+
+    br_global.sendTransform(transformStamped_global);
+}
+
 void TFBroadcaster::inch_EE_cmd_callback(const geometry_msgs::Twist& msg)
 {
   /*****************************************************************************
@@ -141,6 +186,10 @@ void TFBroadcaster::inch_EE_cmd_callback(const geometry_msgs::Twist& msg)
     br_global.sendTransform(transformStamped_global);
 }
 
+
+
+
+
 void TFBroadcaster::inch_Palletrone_callback(const geometry_msgs::PoseStamped& msg)
 {
   /*****************************************************************************
@@ -185,6 +234,26 @@ void TFBroadcaster::inch_Palletrone_callback(const geometry_msgs::PoseStamped& m
 
     br_gimbal_base.sendTransform(transformStamped_gimbal_base);    
   }
+
+
+
+
+  /*****************************************************************************
+  ** Publisher!!
+  *****************************************************************************/
+  inchBase.linear.x = msg.pose.position.x;
+  inchBase.linear.y = msg.pose.position.y;
+  inchBase.linear.z = msg.pose.position.z;
+  
+  tf::Quaternion quat;
+  tf::quaternionMsgToTF(msg.pose.orientation, quat);
+  tf::Matrix3x3(quat).getRPY(roll, pitch, yaw);
+
+  inchBase.angular.x = roll;
+  inchBase.angular.y = pitch;
+  inchBase.angular.z = yaw;
+  
+  inchBase_pub_.publish(inchBase);
 }
 
 void TFBroadcaster::sbus_callback(const std_msgs::Int16MultiArray::ConstPtr& msg)
@@ -222,13 +291,14 @@ void TFBroadcaster::sbus_callback(const std_msgs::Int16MultiArray::ConstPtr& msg
 
 void TFBroadcaster::initPublisher()
 {
-//  Link1_pub_ = node_handle_.advertise<geometry_msgs::Vector3>("/inch/tf/link1", 10);
+    inchBase_pub_ = node_handle_.advertise<geometry_msgs::Twist>("/inch/inchBase", 10);
 }
 
 void TFBroadcaster::initSubscriber()
 {
     inch_EE_meas_sub_ = node_handle_.subscribe("/inch/EE_meas", 10, &TFBroadcaster::inch_EE_meas_callback, this, ros::TransportHints().tcpNoDelay());             
-    inch_EE_cmd_sub_ = node_handle_.subscribe("/inch/EE_ref", 10, &TFBroadcaster::inch_EE_cmd_callback, this, ros::TransportHints().tcpNoDelay());             
+    inch_EE_ref_sub_ = node_handle_.subscribe("/inch/EE_ref", 10, &TFBroadcaster::inch_EE_ref_callback, this, ros::TransportHints().tcpNoDelay());             
+    inch_EE_cmd_sub_ = node_handle_.subscribe("/inch/EE_cmd", 10, &TFBroadcaster::inch_EE_cmd_callback, this, ros::TransportHints().tcpNoDelay());             
     inch_BasePlate_sub_ = node_handle_.subscribe("/inchBase/world", 10, &TFBroadcaster::inch_Palletrone_callback, this, ros::TransportHints().tcpNoDelay());      // From Optitrack
     sbus_sub_ = node_handle_.subscribe("/sbus", 10, &TFBroadcaster::sbus_callback, this, ros::TransportHints().tcpNoDelay());
    

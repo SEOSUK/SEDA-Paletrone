@@ -6,6 +6,7 @@
 #include <eigen3/Eigen/Dense>
 #include <iostream>
 #include <std_msgs/String.h>
+#include <geometry_msgs/Vector3.h>
 #include <sensor_msgs/JointState.h>
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/PoseStamped.h>
@@ -158,7 +159,12 @@ class InchControl : public inch::InchWorkbench
   ros::Publisher theta_command_pub_;
   ros::Publisher EE_meas_pub_;
   ros::Publisher EE_ref_pub_;
+  ros::Publisher EE_cmd_pub_;
   ros::Publisher test_pub_;
+  ros::Publisher F_ext_pub_;
+  ros::Publisher F_ext_raw_pub_;
+  ros::Publisher q_ref_pub_;
+  ros::Publisher q_meas_pub_;
 
   /*****************************************************************************
   ** ROS Subscribers
@@ -190,6 +196,7 @@ class InchControl : public inch::InchWorkbench
   Eigen::Vector2d EE_gimbal_ref;
   Eigen::Vector2d EE_ref;
   Eigen::Vector2d F_ext;
+  Eigen::Vector2d F_ext_raw;
   Eigen::Vector2d tau_ext;
   Eigen::Vector2d init_pose;
   Eigen::Vector2d init_theta;
@@ -198,9 +205,16 @@ class InchControl : public inch::InchWorkbench
   std_msgs::Float64MultiArray test_msg;
   geometry_msgs::Twist EE_meas_msg;
   geometry_msgs::Twist EE_ref_msg;
+  geometry_msgs::Twist EE_cmd_msg;
   sensor_msgs::JointState theta_command_msg;
+  geometry_msgs::Vector3 F_ext_msg;
+  geometry_msgs::Vector3 F_ext_raw_msg;  
 
-  
+  geometry_msgs::Vector3 q_ref_msg;  
+  geometry_msgs::Vector3 q_meas_msg;  
+
+
+
 
 };
 

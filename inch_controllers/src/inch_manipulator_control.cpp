@@ -90,6 +90,11 @@ void InchControl::initPublisher()
   theta_command_pub_ = node_handle_.advertise<sensor_msgs::JointState>("/goal_dynamixel_position", 10); // directly to dynamixel
   EE_meas_pub_ = node_handle_.advertise<geometry_msgs::Twist>(robot_name_ + "/EE_meas", 10);
   EE_ref_pub_ = node_handle_.advertise<geometry_msgs::Twist>(robot_name_ + "/EE_ref", 10);
+  EE_cmd_pub_ = node_handle_.advertise<geometry_msgs::Twist>(robot_name_ + "/EE_cmd", 10);
+  F_ext_pub_ = node_handle_.advertise<geometry_msgs::Vector3>(robot_name_ + "/F_ext", 10);
+  F_ext_raw_pub_ = node_handle_.advertise<geometry_msgs::Vector3>(robot_name_ + "/F_ext_raw", 10);
+  q_ref_pub_ = node_handle_.advertise<geometry_msgs::Vector3>(robot_name_ + "/q_ref", 10);
+  q_meas_pub_ = node_handle_.advertise<geometry_msgs::Vector3>(robot_name_ + "/q_meas", 10);
 
   // Tester publisher
   test_pub_ = node_handle_.advertise<std_msgs::Float64MultiArray>(robot_name_ + "test_Pub", 10);
@@ -202,14 +207,42 @@ void InchControl::PublishData()
   EE_meas_msg.linear.z = EE_meas[1];
   EE_meas_pub_.publish(EE_meas_msg);
 
-  //inch/EE_cmd
+  //inch/EE_ref
   //End Effector position ref
   EE_ref_msg.linear.y = EE_ref[0];
   EE_ref_msg.linear.z = EE_ref[1];
-  EE_ref_msg.angular.y = EE_cmd[0];
-  EE_ref_msg.angular.z = EE_cmd[1];
   EE_ref_pub_.publish(EE_ref_msg);
 
+  //inch/EE_cmd
+  //End Effector position cmd (ref w/ admittance)
+  EE_cmd_msg.linear.y = EE_cmd[0];
+  EE_cmd_msg.linear.z = EE_cmd[1];
+  EE_cmd_pub_.publish(EE_cmd_msg);
+
+  //inch/F_ext
+  //F_ext
+  F_ext_msg.y = F_ext[0];
+  F_ext_msg.z = F_ext[1];
+  F_ext_pub_.publish(F_ext_msg);
+
+
+  //inch/F_ext_raw
+  //F_ext_raw (w/o filter)
+  F_ext_raw_msg.y = F_ext_raw[0];
+  F_ext_raw_msg.z = F_ext_raw[1];
+  F_ext_raw_pub_.publish(F_ext_raw_msg);
+
+
+  //inch/q_ref
+  q_ref_msg.x = q_ref[0];
+  q_ref_msg.y = q_ref[1];
+  q_ref_pub_.publish(q_ref_msg);
+
+
+  //inch/q_meas
+  q_meas_msg.x = inch_joint->q_meas[0];
+  q_meas_msg.y = inch_joint->q_meas[1];
+  q_meas_pub_.publish(q_meas_msg);
 
 
   //inch/test_Pub
@@ -307,6 +340,8 @@ Eigen::Vector2d InchControl::F_ext_processing()
 {
   Eigen::Vector2d F_ext_;
   tau_ext = inch_joint->tau_phi - inch_joint->tau_MCG;
+  F_ext_raw = ForceEstimation(inch_joint->q_meas, tau_ext); // 필터링 전 F_ext
+
   tau_ext[0] = tanh_function(tau_ext[0], tanh_COF_Y);
   tau_ext[1] = tanh_function(tau_ext[1], tanh_COF_Z);
 

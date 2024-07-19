@@ -37,6 +37,10 @@ add_executable(inch_tf2_listener_global_cmd src/inch_tf2_listener_global_cmd.cpp
 add_dependencies(inch_tf2_listener_global_cmd ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(inch_tf2_listener_global_cmd ${catkin_LIBRARIES})
 
+add_executable(inch_tf2_listener_global_ref src/inch_tf2_listener_global_ref.cpp)
+add_dependencies(inch_tf2_listener_global_ref ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(inch_tf2_listener_global_ref ${catkin_LIBRARIES})
+
 add_executable(inch_tf2_listener_global_meas src/inch_tf2_listener_global_meas.cpp)
 add_dependencies(inch_tf2_listener_global_meas ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(inch_tf2_listener_global_meas ${catkin_LIBRARIES})

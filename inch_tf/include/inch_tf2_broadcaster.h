@@ -34,6 +34,13 @@ class TFBroadcaster : public inch::InchMisc
   double time_f = 0;
   double time_loop = 0;
   bool gimbal_Flag = false;
+
+  geometry_msgs::Twist inchBase;
+
+  double roll;
+  double pitch;
+  double yaw;
+
   /*****************************************************************************
   ** Define functions
   *****************************************************************************/
@@ -78,11 +85,7 @@ class TFBroadcaster : public inch::InchMisc
   /*****************************************************************************
   ** Define variables
   *****************************************************************************/
-  geometry_msgs::Twist inchBase;
 
-  double roll;
-  double pitch;
-  double yaw;
 
   /*****************************************************************************
   ** Define functions

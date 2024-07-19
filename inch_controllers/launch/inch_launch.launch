@@ -2,17 +2,6 @@
 
       <rosparam command="load" file="$(find inch_controllers)/config/parameters.yaml"/>
       
-	<!-- dynamixel -->
-	  <include file="$(find dynamixel_workbench_controllers)/launch/position_control.launch">
-	  </include>
-      
-
-
-      
-	<!-- rosserial_arduino -->
-	  <node pkg="rosserial_arduino" type="serial_node.py" name="ros_arduino_encoder" >
-	  </node>
-	  
 	  
 	<!-- tf -->
 	  <include file="$(find inch_tf)/launch/inch_tf2_setting.launch">
@@ -22,13 +11,16 @@
 	<!-- Inch Controller-->
 	  <node name="inch_manipulator_control" pkg="inch_controllers" type="inch_manipulator_control" required="true" output="screen"> 
 	  </node>	  
-	 
 
-	<!-- bag file-->
-	  <node name="inch_data_logging" pkg="data_logging" type="inch_data_logging" required="true" output="screen"> 
-	  </node>	  
-	
-	
-	  <node pkg="rosbag" type="record" name="record" output="screen" args="-o /home/seukubuntu/apisat_ws/src/data_logging/bag/ /inch/data_log" />
+	<!-- rosbag -->
+	 <node pkg="rosbag" type="play" name="rosbag1" required="true" args="$(find data_logging)/bag/updownsine.bag -l"/> 
+
+
+	<!-- bag file
+    <node name="inch_data_logging" pkg="data_logging" type="inch_data_logging" required="true" output="screen"> 
+    </node>	  
+
+    <node pkg="rosbag" type="record" name="record" output="screen" args="-o /home/choiyujiin/Desktop/apisat_ws/src/inch_worm/data_logging/bag/ /inch/data_log" />
+	-->
 
 </launch>

@@ -252,13 +252,13 @@ void InchControl::PublishData()
   test_msg.data[2] = theta_cmd[0];
   test_msg.data[3] = theta_cmd[1];
 
-  test_msg.data[4] = q_ref[0];
-  test_msg.data[5] = q_ref[1];
-  test_msg.data[6] = F_ext[0];
-  test_msg.data[7] = F_ext[1];
+  test_msg.data[4] = inch_joint->tau_phi[0];
+  test_msg.data[5] = inch_joint->tau_phi[1];
+  test_msg.data[6] = tau_ext[0];
+  test_msg.data[7] = tau_ext[1];
 
-  test_msg.data[8] = EE_ref[1];
-  test_msg.data[9] = EE_meas[1];
+  test_msg.data[8] = inch_joint->tau_MCG[0];
+  test_msg.data[9] = inch_joint->tau_MCG[1];
 
 
   test_pub_.publish(test_msg);
@@ -336,24 +336,22 @@ void InchControl::inch_gimbal_EE_ref_callback(const geometry_msgs::Twist& msg)
 }
 
 
-Eigen::Vector2d InchControl::F_ext_processing()
+void InchControl::F_ext_processing()
 {
-  Eigen::Vector2d F_ext_;
   tau_ext = inch_joint->tau_phi - inch_joint->tau_MCG;
   F_ext_raw = ForceEstimation(inch_joint->q_meas, tau_ext); // 필터링 전 F_ext
+  F_ext_raw[1] += 1;
 
-  tau_ext[0] = tanh_function(tau_ext[0], tanh_COF_Y);
-  tau_ext[1] = tanh_function(tau_ext[1], tanh_COF_Z);
+  F_ext_[0] = tanh_function(F_ext_raw[0], tanh_COF_Y);
+  F_ext_[1] = tanh_function(F_ext_raw[1], tanh_COF_Z);
 
-  tau_ext[0] = Dead_Zone_filter(tau_ext[0], deadzone_Y_max, deadzone_Y_min);
-  tau_ext[1] = Dead_Zone_filter(tau_ext[1], deadzone_Z_max, deadzone_Z_min);
+  F_ext_[0] = Dead_Zone_filter(F_ext_[0], deadzone_Y_max, deadzone_Y_min);
+  F_ext_[1] = Dead_Zone_filter(F_ext_[1], deadzone_Z_max, deadzone_Z_min);
   
-  F_ext_ = ForceEstimation(inch_joint->q_meas, tau_ext);
-
   F_ext_[0] = inch_butterworth_F_ext_y->butterworth_2nd_filter(F_ext_[0], time_loop);
   F_ext_[1] = inch_butterworth_F_ext_z->butterworth_2nd_filter(F_ext_[1], time_loop);
 
-  return F_ext_;
+  F_ext = F_ext_;
 }
 
 void InchControl::init_pose_function()
@@ -381,10 +379,15 @@ void InchControl::init_pose_function()
     initPoseFlag = false;
     ROS_WARN("Finished to arrive at the initial pose!");
     
-    ros::Rate calibration_loop(0.5);
+    ros::Rate calibration_loop(1);
     ros::spinOnce();
     calibration_loop.sleep();
+
     inch_joint->phi_offset = phi_init - inch_joint->phi_meas;
+    
+    calibration_loop.sleep();
+    ros::spinOnce();
+
     // init pose에 도달했을 때 값이 항상 phi_init이 되도록, phi_offset을 설정.
     calibration_loop.sleep();
     
@@ -443,15 +446,16 @@ void InchControl::SeukInit()
   //init_Admittance(0.1, 0.5, 0.5);
   inch_joint->init_MPC_controller_2Link(8, 1/sqrt(2), 8, 1/sqrt(2));
 
-  init_CKAdmittancey(3, 5);
+  init_CKAdmittancey(100000, 5);
+  init_CKAdmittancez(100000, 5);
 
-
-  init_pose << 0.20, 0.28;
+  init_pose << 0.16, 0.30;
   EE_ref = init_pose;
 
   // 초기값 튀는거 방지용 입니다.
   init_theta = InverseKinematics_2dof(init_pose);
 
+  ROS_INFO("Let's seee!! [%lf][%lf]", init_theta[0], init_theta[1]);
   ros::spinOnce();
   
   ros::Rate init_rate(0.5);
@@ -467,9 +471,18 @@ void InchControl::SeukWhile()
 {
   Trajectory_mode();
 
-  F_ext = F_ext_processing();
+  F_ext_processing();
 
-  q_ref = InverseKinematics_2dof(EE_ref);
+  // EE_cmd[0] = CKadmittanceControly(EE_ref[0], F_ext[0], time_loop); 
+  // EE_cmd[1] = CKadmittanceControlz(EE_ref[1], F_ext[1], time_loop); 
+  EE_ref[1] = init_pose[1] + 0.05 *sin (2 *PI * 0.3 * time_real);
+  
+  if (std::isnan(F_ext[1])) EE_cmd[1] = EE_ref[1];
+  else EE_cmd[1] = CKadmittanceControlz(EE_ref[1], F_ext[1], time_loop);
+  EE_cmd[0] = EE_ref[0];      
+                
+      
+  q_ref = InverseKinematics_2dof(EE_cmd);
   q_des = CommandVelocityLimit(q_ref, 1, time_loop);
 
   theta_cmd = inch_joint->MPC_controller_2Link(q_des, time_loop);

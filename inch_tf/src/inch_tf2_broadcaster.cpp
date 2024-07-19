@@ -6,6 +6,7 @@ TFBroadcaster::TFBroadcaster()
   /************************************************************
   ** Initialize ROS Subscribers and Clients
   ************************************************************/
+  initPublisher();
   initSubscriber();
 
   inch_roll_lpf = new InchMisc();
@@ -241,19 +242,19 @@ void TFBroadcaster::inch_Palletrone_callback(const geometry_msgs::PoseStamped& m
   /*****************************************************************************
   ** Publisher!!
   *****************************************************************************/
-  inchBase.linear.x = msg.pose.position.x;
-  inchBase.linear.y = msg.pose.position.y;
-  inchBase.linear.z = msg.pose.position.z;
+  // inchBase.linear.x = msg.pose.position.x;
+  // inchBase.linear.y = msg.pose.position.y;
+  // inchBase.linear.z = msg.pose.position.z;
   
-  tf::Quaternion quat;
-  tf::quaternionMsgToTF(msg.pose.orientation, quat);
-  tf::Matrix3x3(quat).getRPY(roll, pitch, yaw);
+  // tf::Quaternion quat;
+  // tf::quaternionMsgToTF(msg.pose.orientation, quat);
+  // tf::Matrix3x3(quat).getRPY(roll, pitch, yaw);
 
-  inchBase.angular.x = roll;
-  inchBase.angular.y = pitch;
-  inchBase.angular.z = yaw;
+  // inchBase.angular.x = roll;
+  // inchBase.angular.y = pitch;
+  // inchBase.angular.z = yaw;
   
-  inchBase_pub_.publish(inchBase);
+  // inchBase_pub_.publish(inchBase);
 }
 
 void TFBroadcaster::sbus_callback(const std_msgs::Int16MultiArray::ConstPtr& msg)

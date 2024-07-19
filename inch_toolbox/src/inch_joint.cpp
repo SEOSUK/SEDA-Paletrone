@@ -147,7 +147,7 @@ Eigen::Vector2d InchJoint::calc_MCGDynamics()
   C = C_Matrix();
   G = G_Matrix();
 
-  tau_MCG = M * q_ddot_meas + C + G;
+  tau_MCG = G;
   
 
   return tau_MCG;

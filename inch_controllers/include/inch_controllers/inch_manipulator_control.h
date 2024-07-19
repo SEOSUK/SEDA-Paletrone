@@ -103,7 +103,7 @@ class InchControl : public inch::InchWorkbench
   void Trajectory_mode();
   void trajectory_gimbaling();
   void Experiment_0623_1Link();
-  Eigen::Vector2d F_ext_processing();
+  void F_ext_processing();
   void init_pose_function();
   void sbus_callback(const std_msgs::Int16MultiArray::ConstPtr& msg);
   //ROS
@@ -196,6 +196,7 @@ class InchControl : public inch::InchWorkbench
   Eigen::Vector2d EE_gimbal_ref;
   Eigen::Vector2d EE_ref;
   Eigen::Vector2d F_ext;
+  Eigen::Vector2d F_ext_;
   Eigen::Vector2d F_ext_raw;
   Eigen::Vector2d tau_ext;
   Eigen::Vector2d init_pose;

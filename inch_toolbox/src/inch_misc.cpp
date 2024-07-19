@@ -15,7 +15,7 @@ InchMisc::InchMisc()
   init_Z = priv_nh_.param<double>("init_Z", 0);
 
   init_pose << init_Y, init_Z;
-  EE_command_vel_limit << 0.44869448009, 1.22562779662;
+  EE_command_vel_limit << 0.565736, 1.260363;
 }
 
 InchMisc::~InchMisc()

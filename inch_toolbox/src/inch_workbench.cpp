@@ -89,7 +89,7 @@ double InchWorkbench::admittanceControly(double ref, double f_ext, double time_l
   admit_y_state_dot = admit_y_A * admit_y_state + admit_y_B * f_ext;
   admit_y_state = admit_y_state + admit_y_state_dot * time_loop;
 
-  admit_y_state[1] = saturation(admit_y_state[1],0.09);
+  admit_y_state[1] = saturation(admit_y_state[1],0.2);
   y_cmd = ref - admit_y_state[1];
 
 
@@ -117,7 +117,7 @@ double InchWorkbench::admittanceControlz(double ref, double f_ext, double time_l
   admit_z_state_dot = admit_z_A * admit_z_state + admit_z_B * f_ext;
   admit_z_state = admit_z_state + admit_z_state_dot * time_loop;
 
-  admit_z_state[1] = saturation(admit_z_state[1],0.05);
+  admit_z_state[1] = saturation(admit_z_state[1],0.1);
   z_cmd = ref - admit_z_state[1];
   
   return z_cmd;

@@ -84,10 +84,11 @@ void MyPlugin::Fext_Y_Filter_callback(bool val)
 {
   rqt_mypkg::FextYFilter Service;
 
-  Service.request.filter_COF = ui_.edit_Y_cof->text().toDouble();
-  Service.request.tanh_COF = ui_.edit_Y_tanh_COF->text().toDouble();
-  Service.request.deadzone_max = ui_.edit_Y_deadzone_max->text().toDouble(); 
-  Service.request.deadzone_min = ui_.edit_Y_deadzone_min->text().toDouble();
+  Service.request.filter_COF = ui_.edit_Y_Butterworth->text().toDouble();
+  Service.request.deadzone_max = ui_.edit_Y_Dead_max->text().toDouble();
+  Service.request.deadzone_min = ui_.edit_Y_Dead_min->text().toDouble();
+  Service.request.band_wh = ui_.edit_Y_Band_max->text().toDouble();
+  Service.request.band_wl = ui_.edit_Y_Band_min->text().toDouble();
 
 
       if(FextY_client.call(Service))
@@ -110,10 +111,11 @@ void MyPlugin::Fext_Z_Filter_callback(bool val)
 {
   rqt_mypkg::FextZFilter Service;
 
-  Service.request.filter_COF = ui_.edit_Z_cof->text().toDouble();
-  Service.request.tanh_COF = ui_.edit_Z_tanh_COF->text().toDouble();
-  Service.request.deadzone_max = ui_.edit_Z_deadzone_max->text().toDouble(); 
-  Service.request.deadzone_min = ui_.edit_Z_deadzone_min->text().toDouble();
+  Service.request.filter_COF = ui_.edit_Z_Butterworth->text().toDouble();
+  Service.request.deadzone_max = ui_.edit_Z_Dead_max->text().toDouble();
+  Service.request.deadzone_min = ui_.edit_Z_Dead_min->text().toDouble();
+  Service.request.band_wh = ui_.edit_Z_Band_max->text().toDouble();
+  Service.request.band_wl = ui_.edit_Z_Band_min->text().toDouble();
 
 
       if(FextZ_client.call(Service))

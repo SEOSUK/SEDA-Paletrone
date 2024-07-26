@@ -8,9 +8,9 @@ ros::Publisher p("/inch/phi_encoder", &angle_array);
 #define A1 2
 #define B1 3
 #define X1 7
-#define A2 19
-#define B2 18
-#define X2 17
+#define A2 18
+#define B2 17
+#define X2 19
 
 #define rate 10
 

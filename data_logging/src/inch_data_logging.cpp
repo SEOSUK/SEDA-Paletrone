@@ -99,12 +99,28 @@ void inchBase_callback(const geometry_msgs::Twist& msg)
 	data_log.data[25] = msg.angular.z;
 }
 
+void phi_meas_callback(const geometry_msgs::Vector3& msg)
+{
+	data_log.data[26] = msg.x;
+	data_log.data[27] = msg.y;
+}
 
+void theta_cmd_callback(const geometry_msgs::Vector3& msg)
+{
+	data_log.data[28] = msg.x;
+	data_log.data[29] = msg.y;
+}
+
+void tau_ext_callback(const geometry_msgs::Vector3& msg)
+{
+	data_log.data[30] = msg.x;
+	data_log.data[31] = msg.y;
+}
 
 int main(int argc, char **argv)
 {
 	ros::init(argc, argv,"inch_data_logging_node");
-	data_log.data.resize(30);
+	data_log.data.resize(40);
 
 	ros::NodeHandle nh;
 
@@ -129,6 +145,10 @@ int main(int argc, char **argv)
 	//From inch_Controller
 	ros::Subscriber q_ref_sub_ = nh.subscribe("/inch/q_ref", 1, q_ref_callback,ros::TransportHints().tcpNoDelay());
 	ros::Subscriber q_meas_sub_ = nh.subscribe("/inch/q_meas", 1, q_meas_callback,ros::TransportHints().tcpNoDelay());
+
+	ros::Subscriber phi_meas_sub_ = nh.subscribe("/inch/phi_meas", 1, phi_meas_callback,ros::TransportHints().tcpNoDelay());
+	ros::Subscriber theta_cmd_sub_ = nh.subscribe("/inch/theta_cmd", 1, theta_cmd_callback,ros::TransportHints().tcpNoDelay());
+	ros::Subscriber tau_ext_sub_ = nh.subscribe("/inch/tau_ext", 1, tau_ext_callback,ros::TransportHints().tcpNoDelay());
 
 	//From TF BroadCaster
 	ros::Subscriber inchBase_sub_ = nh.subscribe("/inch/inchBase", 1, inchBase_callback,ros::TransportHints().tcpNoDelay());

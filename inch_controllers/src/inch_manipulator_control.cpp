@@ -95,6 +95,9 @@ void InchControl::initPublisher()
   F_ext_raw_pub_ = node_handle_.advertise<geometry_msgs::Vector3>(robot_name_ + "/F_ext_raw", 10);
   q_ref_pub_ = node_handle_.advertise<geometry_msgs::Vector3>(robot_name_ + "/q_ref", 10);
   q_meas_pub_ = node_handle_.advertise<geometry_msgs::Vector3>(robot_name_ + "/q_meas", 10);
+  phi_meas_pub_ = node_handle_.advertise<geometry_msgs::Vector3>(robot_name_ + "/phi_meas", 10);
+  theta_cmd_pub_ = node_handle_.advertise<geometry_msgs::Vector3>(robot_name_ + "/theta_cmd", 10);
+  tau_ext_pub_ = node_handle_.advertise<geometry_msgs::Vector3>(robot_name_ + "/tau_ext", 10);
 
   // Tester publisher
   test_pub_ = node_handle_.advertise<std_msgs::Float64MultiArray>(robot_name_ + "test_Pub", 10);
@@ -134,14 +137,16 @@ void InchControl::sbus_callback(const std_msgs::Int16MultiArray::ConstPtr& msg)
 bool InchControl::FextY_callback(inch_controllers::FextYFilter::Request& req, inch_controllers::FextYFilter::Response& res)
 {
   double Y_filter_cof = req.filter_COF;
-  tanh_COF_Y = req.tanh_COF;
+
   deadzone_Y_max = req.deadzone_max;
   deadzone_Y_min = req.deadzone_min;
-  inch_butterworth_F_ext_y->init_butterworth_2nd_filter(Y_filter_cof);
+  bandpass_Y_wh = req.band_wh;
+  bandpass_Y_wl = req.band_wl;
 
+  inch_butterworth_F_ext_y->init_butterworth_2nd_filter(Y_filter_cof);
+  inch_butterworth_F_ext_y->init_bandpass_filter(bandpass_Y_wl, bandpass_Y_wh);
 
   ROS_INFO("FextY Service [%lf]  [%lf]  [%lf]  [%lf]", Y_filter_cof, tanh_COF_Y, deadzone_Y_max, deadzone_Y_min);
-
   return true;
 }
 
@@ -149,11 +154,13 @@ bool InchControl::FextZ_callback(inch_controllers::FextZFilter::Request& req, in
 {
   double Z_filter_cof = req.filter_COF;
 
-  tanh_COF_Z = req.tanh_COF;
   deadzone_Z_max = req.deadzone_max;
   deadzone_Z_min = req.deadzone_min;
-  inch_butterworth_F_ext_z->init_butterworth_2nd_filter(Z_filter_cof);
+  bandpass_Z_wh = req.deadzone_max;
+  bandpass_Z_wl = req.deadzone_min;
 
+  inch_butterworth_F_ext_z->init_butterworth_2nd_filter(Z_filter_cof);
+  inch_butterworth_F_ext_z->init_bandpass_filter(bandpass_Z_wl, bandpass_Z_wh);
 
   ROS_INFO("FextZ Service [%lf]  [%lf]  [%lf]  [%lf]", Z_filter_cof, tanh_COF_Y, deadzone_Y_max, deadzone_Y_min);
   return true;
@@ -161,6 +168,7 @@ bool InchControl::FextZ_callback(inch_controllers::FextZFilter::Request& req, in
 
 bool InchControl::admittance_callback(inch_controllers::admittance::Request& req, inch_controllers::admittance::Response& res)
 {
+  tau_offset = inch_joint->tau_phi;
   double y_d = req.y_d;
   double y_k = req.y_k;
   double z_d = req.z_d;
@@ -225,30 +233,42 @@ void InchControl::PublishData()
   F_ext_msg.z = F_ext[1];
   F_ext_pub_.publish(F_ext_msg);
 
-
   //inch/F_ext_raw
   //F_ext_raw (w/o filter)
   F_ext_raw_msg.y = F_ext_raw[0];
   F_ext_raw_msg.z = F_ext_raw[1];
   F_ext_raw_pub_.publish(F_ext_raw_msg);
 
-
   //inch/q_ref
   q_ref_msg.x = q_ref[0];
   q_ref_msg.y = q_ref[1];
   q_ref_pub_.publish(q_ref_msg);
-
 
   //inch/q_meas
   q_meas_msg.x = inch_joint->q_meas[0];
   q_meas_msg.y = inch_joint->q_meas[1];
   q_meas_pub_.publish(q_meas_msg);
 
+  //inch/phi_meas
+  phi_meas_msg.x = inch_joint->phi_meas[0];
+  phi_meas_msg.y = inch_joint->phi_meas[1];
+  phi_meas_pub_.publish(phi_meas_msg);
 
+  //inch/theta_cmd
+  theta_cmd_msg.x = theta_cmd[0];
+  theta_cmd_msg.y = theta_cmd[1];
+  theta_cmd_pub_.publish(theta_cmd_msg);
+
+  //inch/tau_ext
+  tau_ext_msg.x = tau_ext[0];
+  tau_ext_msg.y = tau_ext[1];
+  tau_ext_pub_.publish(tau_ext_msg);
+
+
+  //====================== Just for test ==================================
   //inch/test_Pub
-  //Just test
-  test_msg.data[0] = inch_joint->q_meas[0]; // 
-  test_msg.data[1] = inch_joint->q_meas[1]; // Motor command
+  test_msg.data[0] = inch_joint->q_meas[0]; 
+  test_msg.data[1] = inch_joint->q_meas[1]; 
   test_msg.data[2] = theta_cmd[0];
   test_msg.data[3] = theta_cmd[1];
 
@@ -295,12 +315,12 @@ void InchControl::Trajectory_mode()
   if (!gimbal_Flag) 
   {
     Test_trajectory_generator_2dof();
-    // ROS_INFO("not gimbaling!");
+    // ROS_INFO("No gimbaling!");
   }
   else 
   {
     trajectory_gimbaling();
-    // ROS_WARN("GImballing!!");  
+    // ROS_INFO("GImballing!!");  
   }
   // ROS_INFO("EE REF!!  [%lf]  [%lf]", EE_ref[0], EE_ref[1]);
 }
@@ -339,17 +359,18 @@ void InchControl::inch_gimbal_EE_ref_callback(const geometry_msgs::Twist& msg)
 void InchControl::F_ext_processing()
 {
   tau_ext = inch_joint->tau_phi - inch_joint->tau_MCG;
+  tau_ext = tau_ext - tau_offset;
   F_ext_raw = ForceEstimation(inch_joint->q_meas, tau_ext); // 필터링 전 F_ext
-  F_ext_raw[1] += 1;
 
-  F_ext_[0] = tanh_function(F_ext_raw[0], tanh_COF_Y);
-  F_ext_[1] = tanh_function(F_ext_raw[1], tanh_COF_Z);
+  // F_ext_[0] = inch_butterworth_F_ext_y->butterworth_2nd_filter(F_ext_[0], time_loop);
+  // F_ext_[1] = inch_butterworth_F_ext_z->butterworth_2nd_filter(F_ext_[1], time_loop);
+  
+  F_ext_[0] = inch_butterworth_F_ext_y->bandpass_filter(F_ext_raw[0], time_loop);
+  F_ext_[1] = inch_butterworth_F_ext_z->bandpass_filter(F_ext_raw[1], time_loop);
 
   F_ext_[0] = Dead_Zone_filter(F_ext_[0], deadzone_Y_max, deadzone_Y_min);
   F_ext_[1] = Dead_Zone_filter(F_ext_[1], deadzone_Z_max, deadzone_Z_min);
-  
-  F_ext_[0] = inch_butterworth_F_ext_y->butterworth_2nd_filter(F_ext_[0], time_loop);
-  F_ext_[1] = inch_butterworth_F_ext_z->butterworth_2nd_filter(F_ext_[1], time_loop);
+
 
   F_ext = F_ext_;
 }
@@ -403,33 +424,6 @@ void InchControl::stop_Function()
 
 
 
-
-void InchControl::Experiment_0623_1Link()
-{
-
-}
-
-void InchControl::YujinInit()
-{
-
-}
-
-void InchControl::YujinWhile()
-{
-
-
-}
-
-void InchControl::HanryungInit()
-{
-
-}
-
-void InchControl::HanryungWhile()
-{
-
-}
-
 void InchControl::SeukInit()
 {
   inch_link1_PID = new InchMisc(); // link1에 pid 쓸거임
@@ -437,19 +431,22 @@ void InchControl::SeukInit()
 
   inch_link1_PID->init_PID_controller(0, 0.01, 0.00, 40);
   inch_link2_PID->init_PID_controller(0, 0.01, 0.00, 40);
-  // P:1 D:0.05 
+  // // P:1 D:0.05 
+  // inch_link1_PID->init_PID_controller(1, 0.00, 0.05, 40);
+  // inch_link2_PID->init_PID_controller(1, 0.00, 0.05, 40);
 
-  init_Admittancey(1, 2, 4);
-  // init_Admittancez(1, 6, 6);
+  // init_Admittancey(1, 2, 4);
+  // //init_Admittancez(1, 6, 6);
+  // //init_Admittance(0.1, 0.5, 0.5);
 
-
-  //init_Admittance(0.1, 0.5, 0.5);
   inch_joint->init_MPC_controller_2Link(8, 1/sqrt(2), 8, 1/sqrt(2));
 
   init_CKAdmittancey(100000, 5);
   init_CKAdmittancez(100000, 5);
 
-  init_pose << 0.16, 0.30;
+  // init_pose << 0.16, 0.30;
+
+  init_pose << 0.18, 0.28;
   EE_ref = init_pose;
 
   // 초기값 튀는거 방지용 입니다.
@@ -470,24 +467,30 @@ void InchControl::SeukInit()
 void InchControl::SeukWhile()
 {
   Trajectory_mode();
-
   F_ext_processing();
 
-  // EE_cmd[0] = CKadmittanceControly(EE_ref[0], F_ext[0], time_loop); 
-  // EE_cmd[1] = CKadmittanceControlz(EE_ref[1], F_ext[1], time_loop); 
-  EE_ref[1] = init_pose[1] + 0.05 *sin (2 *PI * 0.3 * time_real);
-  
-  if (std::isnan(F_ext[1])) EE_cmd[1] = EE_ref[1];
-  else EE_cmd[1] = CKadmittanceControlz(EE_ref[1], F_ext[1], time_loop);
-  EE_cmd[0] = EE_ref[0];      
-                
-      
-  q_ref = InverseKinematics_2dof(EE_cmd);
-  q_des = CommandVelocityLimit(q_ref, 1, time_loop);
 
+  // For Admittance 
+  if (std::isnan(F_ext[0])) EE_cmd[0] = EE_ref[0];
+  else EE_cmd[0] = CKadmittanceControly(EE_ref[0], F_ext[0], time_loop);
+  if (std::isnan(F_ext[1])) EE_cmd[1] = EE_ref[1];
+  else EE_cmd[1] = CKadmittanceControlz(EE_ref[1], F_ext[1], time_loop);    
+                
+  q_ref = InverseKinematics_2dof(EE_cmd);
+  q_des = CommandVelocityLimit(q_ref, 3, time_loop);
+
+
+  // MPC + Integrator 
   theta_cmd = inch_joint->MPC_controller_2Link(q_des, time_loop);
   theta_cmd[0] += inch_link1_PID->PID_controller(q_des[0], inch_joint->q_meas[0], time_loop);
   theta_cmd[1] += inch_link2_PID->PID_controller(q_des[1], inch_joint->q_meas[1], time_loop);
+
+  // // Just PD 
+  // theta_cmd[0] += inch_link1_PID->PID_controller(q_des[0], inch_joint->q_meas[0], time_loop);
+  // theta_cmd[1] += inch_link2_PID->PID_controller(q_des[1], inch_joint->q_meas[1], time_loop);
+
+  // // Rigid Manipulator
+  // theta_cmd = q_des; 
 
 
 /////////////////////////////////////////////////////////////////

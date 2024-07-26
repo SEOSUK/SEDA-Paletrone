@@ -84,9 +84,16 @@ class InchControl : public inch::InchWorkbench
   double deadzone_Z_max;
   double deadzone_Z_min;
 
+  double bandpass_Y_wl;
+  double bandpass_Y_wh;
+  double bandpass_Z_wl;
+  double bandpass_Z_wh;
+
+
   double Link1_init_phi;
   double Link2_init_phi;
   Eigen::Vector2d phi_init;
+  Eigen::Vector2d tau_offset;
 
   std::string robot_name_;
 
@@ -165,6 +172,9 @@ class InchControl : public inch::InchWorkbench
   ros::Publisher F_ext_raw_pub_;
   ros::Publisher q_ref_pub_;
   ros::Publisher q_meas_pub_;
+  ros::Publisher phi_meas_pub_;
+  ros::Publisher theta_cmd_pub_;
+  ros::Publisher tau_ext_pub_;
 
   /*****************************************************************************
   ** ROS Subscribers
@@ -213,8 +223,9 @@ class InchControl : public inch::InchWorkbench
 
   geometry_msgs::Vector3 q_ref_msg;  
   geometry_msgs::Vector3 q_meas_msg;  
-
-
+  geometry_msgs::Vector3 phi_meas_msg;  
+  geometry_msgs::Vector3 theta_cmd_msg; 
+  geometry_msgs::Vector3 tau_ext_msg; 
 
 
 };

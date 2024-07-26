@@ -79,9 +79,15 @@ void InchJoint::dynamixel_callback(const sensor_msgs::JointState::ConstPtr &msg)
 
 void InchJoint::encoder_phi_callback(const std_msgs::Float64MultiArray::ConstPtr &msg)
 {
+  // // Rigid Manipulator
+  // phi_meas[0] = msg->data.at(0) * PI / 180;
+  // phi_meas[1] = msg->data.at(1) * PI / 180;
+
+  // include SEDA
   phi_meas[0] = msg->data.at(0) * PI / 180 + phi_offset[0];
   phi_meas[1] = msg->data.at(1) * PI / 180 + phi_offset[1];
-// 구한 phi_offset은 phi_meas에 계속해서 반영
+
+  // 구한 phi_offset은 phi_meas에 계속해서 반영
       
   tau_phi[0] = -k_sp[0] * phi_meas[0];
   tau_phi[1] = -k_sp[1] * phi_meas[1];
@@ -182,7 +188,8 @@ Eigen::Vector2d InchJoint::MPC_controller_2Link(Eigen::Vector2d ref_, double tim
 
 
   theta_MPC_i = theta_MPC;
-  return theta_MPC + damping_coef * q_dot_meas - damping_coef * theta_MPC_dot;
+  // return theta_MPC + damping_coef * q_dot_meas - damping_coef * theta_MPC_dot;
+  return theta_MPC;
 }
 
 

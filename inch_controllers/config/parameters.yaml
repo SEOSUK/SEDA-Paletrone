@@ -18,8 +18,8 @@ N1: 0.02967
 N2: 0.0019093
 N3: 0.0024845
 
-init_Y: 0.20
-init_Z: 0.28
+init_Y: 0.16
+init_Z: 0.30
 
 Link1_init_phi: -0.160208
 Link2_init_phi: 0.005228

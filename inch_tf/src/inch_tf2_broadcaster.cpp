@@ -88,7 +88,7 @@ void TFBroadcaster::inch_EE_meas_callback(const geometry_msgs::Twist& msg)
       transformStamped_gimbal.transform.rotation.y = 0;
       transformStamped_gimbal.transform.rotation.z = 0;
       transformStamped_gimbal.transform.rotation.w = 1;
-        ROS_INFO("No GIMBALLING!!");
+        // ROS_INFO("No GIMBALLING!!");
         br_gimbal.sendTransform(transformStamped_gimbal);
       }
       else
@@ -242,19 +242,19 @@ void TFBroadcaster::inch_Palletrone_callback(const geometry_msgs::PoseStamped& m
   /*****************************************************************************
   ** Publisher!!
   *****************************************************************************/
-  // inchBase.linear.x = msg.pose.position.x;
-  // inchBase.linear.y = msg.pose.position.y;
-  // inchBase.linear.z = msg.pose.position.z;
+  inchBase.linear.x = msg.pose.position.x;
+  inchBase.linear.y = msg.pose.position.y;
+  inchBase.linear.z = msg.pose.position.z;
   
-  // tf::Quaternion quat;
-  // tf::quaternionMsgToTF(msg.pose.orientation, quat);
-  // tf::Matrix3x3(quat).getRPY(roll, pitch, yaw);
+  tf::Quaternion quat;
+  tf::quaternionMsgToTF(msg.pose.orientation, quat);
+  tf::Matrix3x3(quat).getRPY(roll, pitch, yaw);
 
-  // inchBase.angular.x = roll;
-  // inchBase.angular.y = pitch;
-  // inchBase.angular.z = yaw;
+  inchBase.angular.x = roll;
+  inchBase.angular.y = pitch;
+  inchBase.angular.z = yaw;
   
-  // inchBase_pub_.publish(inchBase);
+  inchBase_pub_.publish(inchBase);
 }
 
 void TFBroadcaster::sbus_callback(const std_msgs::Int16MultiArray::ConstPtr& msg)
@@ -300,7 +300,7 @@ void TFBroadcaster::initSubscriber()
     inch_EE_meas_sub_ = node_handle_.subscribe("/inch/EE_meas", 10, &TFBroadcaster::inch_EE_meas_callback, this, ros::TransportHints().tcpNoDelay());             
     inch_EE_ref_sub_ = node_handle_.subscribe("/inch/EE_ref", 10, &TFBroadcaster::inch_EE_ref_callback, this, ros::TransportHints().tcpNoDelay());             
     inch_EE_cmd_sub_ = node_handle_.subscribe("/inch/EE_cmd", 10, &TFBroadcaster::inch_EE_cmd_callback, this, ros::TransportHints().tcpNoDelay());             
-    inch_BasePlate_sub_ = node_handle_.subscribe("/inchBase/world", 10, &TFBroadcaster::inch_Palletrone_callback, this, ros::TransportHints().tcpNoDelay());      // From Optitrack
+    inch_BasePlate_sub_ = node_handle_.subscribe("/inchBase/world", 1, &TFBroadcaster::inch_Palletrone_callback, this, ros::TransportHints().tcpNoDelay());      // From Optitrack
     sbus_sub_ = node_handle_.subscribe("/sbus", 10, &TFBroadcaster::sbus_callback, this, ros::TransportHints().tcpNoDelay());
    
    

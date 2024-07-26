@@ -38,6 +38,8 @@ namespace inch
     double tanh_function(double input_data, double cut_off_force);
     Eigen::Vector2d CommandVelocityLimit(Eigen::Vector2d input_data_, double vel_limit_, double time_loop_);
     double saturation(double input_data_, double saturation);
+    double bandpass_filter(double input_data_, double time_loop_);
+    void init_bandpass_filter(double wl, double wh);
 
   private:
     /*****************************************************************************
@@ -58,6 +60,16 @@ namespace inch
     Eigen::Vector2d EE_command_vel_limit;
     Eigen::Vector2d init_pose;
     bool gimbal_Flag;
+
+    //for Bandpass filter
+    Eigen::Matrix2d bp_A;
+    Eigen::Vector2d bp_B;
+    Eigen::Vector2d bp_C;
+    Eigen::Vector2d bp_state;
+    Eigen::Vector2d bp_state_dot;
+    
+    
+
 
     //for PID controller
     double Kp;

@@ -1,0 +1,32 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "${default}",
+        "limitSymbolsToIncludedHeaders": false
+      },
+      "includePath": [
+        "/home/seukubuntu/apisat_ws/devel/include/**",
+        "/opt/ros/noetic/include/**",
+        "/home/seukubuntu/apisat_ws/src/DynamixelSDK/ros/dynamixel_sdk/include/**",
+        "/home/seukubuntu/apisat_ws/src/dynamixel-workbench/dynamixel_workbench_controllers/include/**",
+        "/home/seukubuntu/apisat_ws/src/dynamixel-workbench/dynamixel_workbench_single_manager/include/**",
+        "/home/seukubuntu/apisat_ws/src/dynamixel-workbench/dynamixel_workbench_single_manager_gui/include/**",
+        "/home/seukubuntu/apisat_ws/src/dynamixel-workbench/dynamixel_workbench_toolbox/include/**",
+        "/home/seukubuntu/apisat_ws/src/gazebo_simulation/include/**",
+        "/home/seukubuntu/apisat_ws/src/inch_controllers/include/**",
+        "/home/seukubuntu/apisat_ws/src/inch_tf/include/**",
+        "/home/seukubuntu/apisat_ws/src/inch_toolbox/include/**",
+        "/home/seukubuntu/apisat_ws/src/optitrack/include/**",
+        "/home/seukubuntu/apisat_ws/src/osqp/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS",
+      "intelliSenseMode": "gcc-x64",
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "gnu11",
+      "cppStandard": "c++14"
+    }
+  ],
+  "version": 4
+}

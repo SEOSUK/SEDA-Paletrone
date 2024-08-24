@@ -1,0 +1,11 @@
+<launch>
+
+      <rosparam command="load" file="$(find inch_controllers)/config/parameters.yaml"/>
+      
+	<!-- Inch Controller-->
+	  <node name="inch_manipulator_control" pkg="inch_controllers" type="inch_manipulator_control" required="true" output="screen"> 
+	  </node>	  
+	 
+	 
+
+</launch>

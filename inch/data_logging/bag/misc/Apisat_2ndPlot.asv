@@ -1,0 +1,181 @@
+figure('Name','Comparison of Rigid X SEDA X SEDA+Active Admittance Control');
+fontname("Times New Roman")
+
+set(gcf,'Color','w')
+
+
+
+
+subplot(231) 
+title('Rigid')%,'FontSize',30)
+plot(data_log_time_2Rigid.Time-time_origin_2Rigid,EE_ref_2Rigid(:,2) - 0.28,'-','LineWidth', 1.5);
+hold on
+plot(data_log_time_2Rigid.Time-time_origin_2Rigid,EE_cmd_2Rigid(:,2) - 0.28,'LineWidth', 1.5);
+plot(data_log_time_2Rigid.Time-time_origin_2Rigid,EE_meas_2Rigid(:,2) - 0.28,'LineWidth',1.5);
+legend('show', 'Location', 'best', 'FontSize', 10);
+xlabel('$\bf{Time [sec]}$',Interpreter='latex')%,'FontSize',24)
+ylabel('$\bf{Z [m]}$',Interpreter='latex')%,'FontSize',24)
+legend({'$\bf{ref}','$\bf{meas}'},'Location','northeast','Orientation','vertical');
+grid on
+xlim([74 79]);
+ylim([-0.1 0.1]);title('EE.Z error')%,'FontSize',30)
+title('Rigid')%,'FontSize',30)
+fontname("Times New Roman")
+
+
+subplot(234) 
+plot(data_log_time_2Rigid.Time-time_origin_2Rigid,rad2deg(inchBase_attitude_2Rigid(:,1)),'LineWidth',1.5);
+hold on
+ylabel('$\phi_F$ \rm\bf{(deg)}',Interpreter='latex')
+grid
+xlim([74 79]);
+ylim([-15 15]);
+fontname("Times New Roman")
+
+
+
+
+subplot(232) 
+title('SEDA')%,'FontSize',30)
+plot(data_log_time_2SEDA.Time-time_origin_2SEDA,EE_ref_2SEDA(:,2) - 0.35,'-','LineWidth', 1.5);
+hold on
+plot(data_log_time_2SEDA.Time-time_origin_2SEDA,EE_cmd_2SEDA(:,2) - 0.35,'LineWidth', 1.5);
+plot(data_log_time_2SEDA.Time-time_origin_2SEDA,EE_meas_2SEDA(:,2) - 0.35,'LineWidth',1.5);
+legend('show', 'Location', 'best', 'FontSize', 10);
+xlabel('$\bf{Time [sec]}$',Interpreter='latex')%,'FontSize',24)
+ylabel('$\bf{Z [m]}$',Interpreter='latex')%,'FontSize',24)
+legend({'$\bf{ref}','$\bf{meas}'},'Location','northeast','Orientation','vertical');
+grid on
+xlim([39 44]);
+ylim([0.25 0.4]);
+ylim([-0.1 0.1]);title('EE.Z error')%,'FontSize',30)
+title('SEDA')%,'FontSize',30)
+fontname("Times New Roman")
+
+subplot(235)
+plot(data_log_time_2SEDA.Time-time_origin_2SEDA,rad2deg(inchBase_attitude_2SEDA(:,1)),'LineWidth',1.5);
+hold on
+ylabel('$\phi_F$ \rm\bf{(deg)}',Interpreter='latex')
+grid
+xlim([39 44]);
+ylim([-15 15]);
+fontname("Times New Roman")
+
+
+
+subplot(233) 
+title('Active')%,'FontSize',30)
+plot(data_log_time_2ACTIVE.Time-time_origin_2ACTIVE,EE_ref_2ACTIVE(:,2) - 0.35,'-','LineWidth', 1.5);
+hold on
+plot(data_log_time_2ACTIVE.Time-time_origin_2ACTIVE,EE_cmd_2ACTIVE(:,2) - 0.35,'LineWidth', 1.5);
+plot(data_log_time_2ACTIVE.Time-time_origin_2ACTIVE,EE_meas_2ACTIVE(:,2) - 0.35,'LineWidth',1.5);
+legend('show', 'Location', 'best', 'FontSize', 10);
+xlabel('$\bf{Time [sec]}$',Interpreter='latex')%,'FontSize',24)
+legend({'$\bf{ref}','$\bf{cmd}','$\bf{meas}'},'Location','northeast','Orientation','vertical');
+grid on
+xlim([70 75]);
+ylim([-0.1 0.1]);title('EE.Z error')%,'FontSize',30)
+title('SEDA + Active')%,'FontSize',30)
+fontname("Times New Roman")
+
+subplot(236)
+plot(data_log_time_2ACTIVE.Time-time_origin_2ACTIVE,rad2deg(inchBase_attitude_2ACTIVE(:,1)),'LineWidth',1.5);
+hold on
+ylabel('$\phi_F$ \rm\bf{(deg)}',Interpreter='latex')
+grid
+xlim([70 75]);
+ylim([-15 15]);
+fontname("Times New Roman")
+
+
+hold on
+%%
+figure('Name','Comparison of Rigid X SEDA X SEDA+Active Admittance Control');
+fontname("Times New Roman")
+
+set(gcf,'Color','w')
+
+
+
+
+subplot(231) 
+title('Rigid')%,'FontSize',30)
+plot(data_log_time_2Rigid.Time-time_origin_2Rigid,EE_ref_2Rigid(:,2) - 0.28,'-','LineWidth', 1.5);
+hold on
+plot(data_log_time_2Rigid.Time-time_origin_2Rigid,EE_cmd_2Rigid(:,2) - 0.28,'LineWidth', 1.5);
+plot(data_log_time_2Rigid.Time-time_origin_2Rigid,EE_meas_2Rigid(:,2) - 0.28,'LineWidth',1.5);
+legend('show', 'Location', 'best', 'FontSize', 10);
+xlabel('$\bf{Time [sec]}$',Interpreter='latex')%,'FontSize',24)
+ylabel('$\bf{Z [m]}$',Interpreter='latex')%,'FontSize',24)
+legend({'$\bf{ref}','$\bf{meas}'},'Location','northeast','Orientation','vertical');
+grid on
+xlim([82 92]);
+ylim([-0.2 0.2]);title('EE.Z error')%,'FontSize',30)
+title('Rigid')%,'FontSize',30)
+fontname("Times New Roman")
+
+
+subplot(234) 
+plot(data_log_time_2Rigid.Time-time_origin_2Rigid,rad2deg(inchBase_attitude_2Rigid(:,1)),'LineWidth',1.5);
+hold on
+ylabel('$\phi_F$ \rm\bf{(deg)}',Interpreter='latex')
+grid
+xlim([82 92]);
+ylim([-15 15]);
+fontname("Times New Roman")
+
+
+
+
+subplot(232) 
+title('SEDA')%,'FontSize',30)
+plot(data_log_time_2SEDA.Time-time_origin_2SEDA,EE_ref_2SEDA(:,2) - 0.35,'-','LineWidth', 1.5);
+hold on
+plot(data_log_time_2SEDA.Time-time_origin_2SEDA,EE_cmd_2SEDA(:,2) - 0.35,'LineWidth', 1.5);
+plot(data_log_time_2SEDA.Time-time_origin_2SEDA,EE_meas_2SEDA(:,2) - 0.35,'LineWidth',1.5);
+legend('show', 'Location', 'best', 'FontSize', 10);
+xlabel('$\bf{Time [sec]}$',Interpreter='latex')%,'FontSize',24)
+ylabel('$\bf{Z [m]}$',Interpreter='latex')%,'FontSize',24)
+legend({'$\bf{ref}','$\bf{meas}'},'Location','northeast','Orientation','vertical');
+grid on
+xlim([57 67]);
+ylim([0.25 0.4]);
+ylim([-0.1 0.1]);title('EE.Z error')%,'FontSize',30)
+title('SEDA')%,'FontSize',30)
+fontname("Times New Roman")
+
+subplot(235)
+plot(data_log_time_2SEDA.Time-time_origin_2SEDA,rad2deg(inchBase_attitude_2SEDA(:,1)),'LineWidth',1.5);
+hold on
+ylabel('$\phi_F$ \rm\bf{(deg)}',Interpreter='latex')
+grid
+xlim([57 67]);
+ylim([-15 15]);
+fontname("Times New Roman")
+
+
+
+subplot(233) 
+title('Active')%,'FontSize',30)
+plot(data_log_time_2ACTIVE.Time-time_origin_2ACTIVE,EE_ref_2ACTIVE(:,2) - 0.35,'-','LineWidth', 1.5);
+hold on
+plot(data_log_time_2ACTIVE.Time-time_origin_2ACTIVE,EE_cmd_2ACTIVE(:,2) - 0.35,'LineWidth', 1.5);
+plot(data_log_time_2ACTIVE.Time-time_origin_2ACTIVE,EE_meas_2ACTIVE(:,2) - 0.35,'LineWidth',1.5);
+legend('show', 'Location', 'best', 'FontSize', 10);
+xlabel('$\bf{Time [sec]}$',Interpreter='latex')%,'FontSize',24)
+legend({'$\bf{ref}','$\bf{cmd}','$\bf{meas}'},'Location','northeast','Orientation','vertical');
+grid on
+xlim([34 44]);
+ylim([-0.1 0.1]);title('EE.Z error')%,'FontSize',30)
+title('SEDA + Active')%,'FontSize',30)
+fontname("Times New Roman")
+
+subplot(236)
+plot(data_log_time_2ACTIVE.Time-time_origin_2ACTIVE,rad2deg(inchBase_attitude_2ACTIVE(:,1)),'LineWidth',1.5);
+hold on
+ylabel('$\phi_F$ \rm\bf{(deg)}',Interpreter='latex')
+grid
+xlim([34 44]);
+ylim([-15 15]);
+fontname("Times New Roman")
+

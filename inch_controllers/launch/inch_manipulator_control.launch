@@ -1,7 +1,0 @@
-<launch>
-
-  <node name="inch_manipulator_control" pkg="inch_controllers" type="inch_manipulator_control" required="true" output="screen"> 
-  </node>
-
-</launch>
-

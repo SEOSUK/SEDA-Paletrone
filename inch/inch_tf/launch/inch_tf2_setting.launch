@@ -1,0 +1,9 @@
+<launch>
+    <node pkg="inch_tf" type="inch_tf2_broadcaster" name="inch_tf2_broadcaster" output="screen"/>
+    <node pkg="inch_tf" type="inch_tf2_listener" name="inch_tf2_listener" output="screen"/>
+    <node pkg="inch_tf" type="inch_tf2_listener_global_meas" name="inch_tf2_listener_global_meas" output="screen"/>
+    <node pkg="inch_tf" type="inch_tf2_listener_global_cmd" name="inch_tf2_listener_global_cmd" output="screen"/>
+    <node pkg="inch_tf" type="inch_tf2_listener_global_ref" name="inch_tf2_listener_global_ref" output="screen"/>
+    
+    <node pkg="tf2_ros" type="static_transform_publisher" name="tfWorld" args="0 0 0 0 0 0 world optitrack" /> <!-- for rotation -->    
+</launch>

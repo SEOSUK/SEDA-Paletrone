@@ -1,0 +1,5 @@
+float32 filter_COF
+float32 tanh_COF
+float32 deadzone_max
+float32 deadzone_min
+---

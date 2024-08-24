@@ -1,8 +1,0 @@
-<launch>
-      <rosparam command="load" file="$(find inch_controllers)/config/parameters.yaml"/>
-      
-	<!-- rosserial_arduino -->
-	  <node pkg="rosserial_arduino" type="serial_node.py" name="ros_arduino_encoder" >
-	  </node>
-	  	  
-</launch>
